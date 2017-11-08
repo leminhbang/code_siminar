@@ -48,6 +48,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         contextTmp = context;
         context = this;
         mapView();
+
         imgTempImage = imgMainImage;
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
