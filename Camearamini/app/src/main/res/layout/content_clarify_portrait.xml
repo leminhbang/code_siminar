@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.leminhbang.camearamini.ClarifyPortraitActivity"
+    tools:showIn="@layout/activity_clarify_portrait">
+    <LinearLayout
+        android:id="@+id/linearlayout_main"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/img_main_image"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/image_main"
+            android:visibility="visible"
+            android:layout_marginTop="50dp"/>
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/btmnBottom_menu_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:itemBackground="@android:drawable/screen_background_dark_transparent"
+            app:itemIconTint="@drawable/nav_item_color"
+            app:itemTextColor="@drawable/nav_item_color"
+            app:menu="@menu/menu_bottom"/>
+
+    </LinearLayout>
+    <SeekBar
+        android:id="@+id/seekbar_clarify_portrait_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="70dp"/>
+</RelativeLayout>

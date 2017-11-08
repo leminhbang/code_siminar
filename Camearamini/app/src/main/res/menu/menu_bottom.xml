@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.example.leminhbang.camearamini.MainActivity">
+
+
+    <item
+        android:id="@+id/action_insert_text"
+        android:icon="@drawable/insert_text"
+        android:title="@string/insert_texxt"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_insert_frame"
+        android:icon="@drawable/change_picture_frame"
+        android:title="@string/insert_frame"
+        app:showAsAction="always" />
+
+
+</menu>

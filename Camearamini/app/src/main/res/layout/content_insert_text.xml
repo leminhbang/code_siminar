@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rellayout_main_layout"
+    tools:context="com.example.leminhbang.camearamini.InsertTextActivity"
+    tools:showIn="@layout/activity_insert_text">
+
+    <ImageView
+        android:id="@+id/img_main_image"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/image_main"
+        android:visibility="visible" />
+
+    <EditText
+        android:id="@+id/edtInsertText"
+        android:textColor="#1f03bc"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="70dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:hint="Nhập chữ muốn chèn"
+        android:cursorVisible="true"
+        android:layout_height="wrap_content" />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/btmnBottom_menu_view"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:itemBackground="@android:drawable/screen_background_dark_transparent"
+        app:itemIconTint="@drawable/nav_item_color"
+        app:itemTextColor="@drawable/nav_item_color"
+        app:menu="@menu/menu_bottom"/>
+
+</RelativeLayout>
