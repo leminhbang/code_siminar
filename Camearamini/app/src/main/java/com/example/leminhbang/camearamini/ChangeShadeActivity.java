@@ -103,11 +103,11 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 1:
                 Toast.makeText(context,"Ảnh xám",
                         Toast.LENGTH_SHORT).show();
-                imgMainImage.setImageBitmap(convertToGray(bitmap));
-                /*Bitmap b = convertToGray(bitmap);
+                //imgMainImage.setImageBitmap(convertToGray(bitmap));
+                Bitmap b = convertToGray(bitmap);
                 pixelMat = MyCameraHelper.convertBitmapToMatrix(b);
                 imgMainImage.setImageBitmap(MyCameraHelper.
-                        convertMatrixToBitmap(pixelMat));*/
+                        convertMatrixToBitmap(pixelMat));
                 break;
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
