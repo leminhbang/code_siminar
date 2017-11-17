@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 
 public class ClarifyPortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -36,6 +38,9 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         contextTmp = context;
         context = this;
         mapView();
+        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
+            imgMainImage.setImageURI(fileUri);
+        }
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 

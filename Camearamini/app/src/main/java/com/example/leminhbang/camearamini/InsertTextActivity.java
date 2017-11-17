@@ -12,9 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.TextPaint;
-import android.text.TextWatcher;
 import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -27,9 +25,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import static com.example.leminhbang.camearamini.MainActivity.context;
+import java.util.ArrayList;
 
-public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, View.OnLongClickListener, View.OnDragListener {
+import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+
+public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, View.OnLongClickListener, View.OnDragListener {
     private ImageView imgMainImage;
     private ImageView imgTempImage;
     private BottomNavigationView btmnBottomMenu;
@@ -37,10 +39,9 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
+    private ArrayList<EditText> arrEditTexts = new ArrayList<EditText>();
 
     private RelativeLayout.LayoutParams params;
-
-    int mode = 0, drag = 1;
     ViewGroup vg;
 
 
@@ -52,9 +53,15 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         setSupportActionBar(toolbar);
 
         contextTmp = context;
-        context = this;
         mapView();
+        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
+            imgMainImage.setImageURI(fileUri);
+        }
+        context = this;
 
+        //them edittext hien tai vao mang edittext
+        arrEditTexts.add(edtInsertText);
+        //gan anh tam
         imgTempImage = imgMainImage;
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
@@ -64,8 +71,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
         imgMainImage.setOnTouchListener(this);
         edtInsertText = (EditText) findViewById(R.id.edtInsertText);
-        edtInsertText.addTextChangedListener(this);
-       //edtInsertText.setOnTouchListener(this);
+        //edtInsertText.addTextChangedListener(this);
         edtInsertText.setOnLongClickListener(this);
         edtInsertText.setOnDragListener(this);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
@@ -91,12 +97,47 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         switch (id) {
             case R.id.action_save_2:
                 //goi ham ve canvas
+                saveImage();
+                break;
+            case R.id.action_new_text:
+                addNewText();
                 break;
             case R.id.action_cancle_2:
                 imgMainImage = imgTempImage;
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addNewText() {
+        EditText edt = new EditText(this);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                380, 100);
+        layoutParams.leftMargin = getWindowManager().getDefaultDisplay().getWidth()/4;
+        layoutParams.topMargin = getWindowManager().getDefaultDisplay().getHeight()/2;
+        edt.setHint("Nhập chữ muốn chèn");
+        edt.setTextColor(Color.BLUE);
+        edt.setLayoutParams(layoutParams);
+//        edt.addTextChangedListener(this);
+        edt.setOnLongClickListener(this);
+        edt.setOnDragListener(this);
+        arrEditTexts.add(edt);
+        vg = (ViewGroup) findViewById(R.id.rellayout_main_layout);
+        vg.addView(edt);
+    }
+
+    private void saveImage() {
+        for (int i = 0; i < arrEditTexts.size(); i++) {
+            imgMainImage.buildDrawingCache();
+            Bitmap bitmap = imgMainImage.getDrawingCache();
+            int x = (int) arrEditTexts.get(i).getX();
+            int y = (int) arrEditTexts.get(i).getY();
+            Bitmap b =  drawText(bitmap,arrEditTexts.get(i).getText().toString().trim(),
+                    x,y);
+            imgMainImage.setImageBitmap(b);
+            arrEditTexts.get(i).setVisibility(View.INVISIBLE);
+        }
+
     }
 
     @Override
@@ -138,26 +179,6 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         super.onBackPressed();
     }
 
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        imgMainImage = imgTempImage;
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        imgMainImage.buildDrawingCache();
-        Bitmap bitmap = imgMainImage.getDrawingCache();
-        int x = (int) edtInsertText.getX();
-        int y = (int) edtInsertText.getY();
-        Bitmap b = drawText(bitmap, s.toString(),x,y);
-        imgMainImage.setImageBitmap(b);
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-
-    }
-
     public Bitmap drawText(Bitmap bitmap, String text, int x,int y) {
         Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -173,11 +194,12 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     @Override
     public boolean onLongClick(View v) {
+        EditText edt = (EditText) v;
         ClipData data = ClipData.newPlainText("", "");
         View.DragShadowBuilder shadowBuilder = new
-                View.DragShadowBuilder(edtInsertText);
-        edtInsertText.startDrag(data, shadowBuilder, edtInsertText, 0);
-        edtInsertText.setVisibility(View.INVISIBLE);
+                View.DragShadowBuilder(edt);
+        edt.startDrag(data, shadowBuilder, edt, 0);
+        edt.setVisibility(View.INVISIBLE);
         return true;
     }
 
@@ -192,32 +214,26 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
             case DragEvent.ACTION_DRAG_STARTED:
                 params = (RelativeLayout.LayoutParams) view.getLayoutParams();
                 break;
-
             case DragEvent.ACTION_DRAG_ENTERED:
                 int x = (int) event.getX();
                 int y = (int) event.getY();
                 break;
-
             case DragEvent.ACTION_DRAG_EXITED:
                 break;
-
             case DragEvent.ACTION_DRAG_LOCATION:
                 x = (int) event.getX();
                 y = (int) event.getY();
                 break;
-
             case DragEvent.ACTION_DRAG_ENDED:
                 break;
-
             case DragEvent.ACTION_DROP:
                 int childCountDropped = rl.getChildCount();
                 x = (int) event.getX();
                 y = (int) event.getY();
-                params.leftMargin = x;
+                params.leftMargin = x - getWindowManager().
+                        getDefaultDisplay().getWidth()/4;
                 params.topMargin =  y;
-
                 view.setLayoutParams(params);
-                edtInsertText.setVisibility(View.VISIBLE);
                 view.setVisibility(View.VISIBLE);
                 break;
             default:
@@ -226,34 +242,4 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         return true;
     }
 
-    public void moveEditText(View v, MotionEvent event) {
-        EditText edt = (EditText) v;
-        RelativeLayout.LayoutParams params;
-        float dx = 0f, dy = 0f, x = 0f, y = 0f;
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-                params = (RelativeLayout.LayoutParams) edt.getLayoutParams();
-                dx = event.getRawX() - params.leftMargin;
-                dy = event.getRawY() - params.topMargin;
-
-                mode = drag;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (mode == drag) {
-                    params = (RelativeLayout.LayoutParams) edt.getLayoutParams();
-                    x = event.getRawX();
-                    y = event.getRawY();
-                    params.leftMargin = (int) (x - dx);
-                    params.topMargin = (int) (y - dy);
-                    params.rightMargin = 0;
-                    params.bottomMargin = 0;
-                    params.rightMargin = params.leftMargin +
-                            (10 * params.width);
-                    params.bottomMargin = params.topMargin +
-                            (10 * params.height);
-                    edt.setLayoutParams(params);
-                }
-                break;
-        }
-    }
 }

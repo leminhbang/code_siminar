@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -42,7 +44,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         contextTmp = context;
         context = this;
         mapView();
-
+        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
+            imgMainImage.setImageURI(fileUri);
+        }
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 

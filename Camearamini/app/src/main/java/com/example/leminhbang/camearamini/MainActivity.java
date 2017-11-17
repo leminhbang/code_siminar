@@ -28,8 +28,8 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
 
-    private Uri fileUri;
-    private String filePath = null;
+    public static Uri fileUri;
+    public static String filePath = null;
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     private static final int FILE_SELECT_CODE = 10;
     private ImageView imgMainImage, imgTempImage;
@@ -59,10 +59,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
-
+        if (filePath == null || filePath.isEmpty() || filePath.equals("")) {
+            Toast.makeText(context,"\t\t\t\t\t\t\tChưa có ảnh\nVui lòng chụp " +
+                    "ảnh hoặc chọn một ảnh",Toast.LENGTH_LONG).show();
+        }
     }
-
-
 
     public void mapView() {
         findViewById(R.id.linearlayout_main).setOnTouchListener(this);
@@ -247,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
     //xoa anh hien tai
     public void deleteAction() {
-        if (filePath.equals(null) || filePath.equals("")) {
+        if (filePath == null || filePath.equals("") || filePath.isEmpty()) {
             return;
         }
         File file = new File(filePath);

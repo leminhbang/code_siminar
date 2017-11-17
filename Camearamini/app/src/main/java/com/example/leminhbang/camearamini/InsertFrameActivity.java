@@ -18,6 +18,8 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 
 
 public class InsertFrameActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
@@ -40,6 +42,9 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         contextTmp = context;
         context = this;
         mapView();
+        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
+            imgMainImage.setImageURI(fileUri);
+        }
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 

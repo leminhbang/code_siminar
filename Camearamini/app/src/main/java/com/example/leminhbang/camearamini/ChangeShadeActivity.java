@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 
 public class ChangeShadeActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -40,6 +42,9 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
 
         contextTmp = context;
         mapView();
+        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
+            imgMainImage.setImageURI(fileUri);
+        }
         context = this;
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
