@@ -73,16 +73,19 @@ public class MyCameraHelper {
 
         String photopath = uri.getPath();
         Ringtone r = RingtoneManager.getRingtone(context, uri);
-        String name = r.getTitle(context);
-        File f = new File(Environment
+        String fileName = r.getTitle(context);
+        if (!fileName.contains(".jpg")) {
+            fileName = fileName + ".jpg";
+        }
+        File file = new File(Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "Cameramini");
 
-        String s = f.getPath() + f.separator + name;
+        String path = file.getPath() + file.separator + fileName;
         FileOutputStream fOut;
         try {
-            fOut = new FileOutputStream(s);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            fOut = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
             fOut.flush();
             fOut.close();
         } catch (FileNotFoundException e1) {

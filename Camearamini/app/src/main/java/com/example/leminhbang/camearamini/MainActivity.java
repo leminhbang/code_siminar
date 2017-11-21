@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         if (filePath == null || filePath.isEmpty() || filePath.equals("")) {
             Toast.makeText(context,"\t\t\t\t\t\t\tChưa có ảnh\nVui lòng chụp " +
                     "ảnh hoặc chọn một ảnh",Toast.LENGTH_LONG).show();
+        } else {
+            imgMainImage.setImageURI(fileUri);
         }
     }
 
