@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, View.OnLongClickListener, View.OnDragListener {
     private ImageView imgMainImage;
@@ -54,7 +55,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
         contextTmp = context;
         mapView();
-        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
+        if (filePath != null) {
             imgMainImage.setImageURI(fileUri);
         }
         context = this;
@@ -74,8 +75,10 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         //edtInsertText.addTextChangedListener(this);
         edtInsertText.setOnLongClickListener(this);
         edtInsertText.setOnDragListener(this);
+        int w = getWindowManager().getDefaultDisplay().getWidth()/3;
+        int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                        380, 100);
+                        w, h);
         layoutParams.leftMargin = getWindowManager().getDefaultDisplay().getWidth()/4;
         layoutParams.topMargin = getWindowManager().getDefaultDisplay().getHeight()/2;
         edtInsertText.setLayoutParams(layoutParams);
@@ -111,11 +114,14 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     private void addNewText() {
         EditText edt = new EditText(this);
+        int w = getWindowManager().getDefaultDisplay().getWidth()/3;
+        int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                380, 100);
+                w, h);
         layoutParams.leftMargin = getWindowManager().getDefaultDisplay().getWidth()/4;
         layoutParams.topMargin = getWindowManager().getDefaultDisplay().getHeight()/2;
         edt.setHint("Nhập chữ muốn chèn");
+        edt.setHintTextColor(Color.BLUE);
         edt.setTextColor(Color.BLUE);
         edt.setLayoutParams(layoutParams);
 //        edt.addTextChangedListener(this);
@@ -137,7 +143,9 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
             imgMainImage.setImageBitmap(b);
             arrEditTexts.get(i).setVisibility(View.INVISIBLE);
         }
-
+        imgMainImage.buildDrawingCache();
+        Bitmap bitmap = imgMainImage.getDrawingCache();
+        saveImageFile(fileUri,bitmap);
     }
 
     @Override

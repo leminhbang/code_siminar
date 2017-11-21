@@ -19,11 +19,7 @@
             android:src="@drawable/image_main"
             android:visibility="visible"
             android:layout_marginTop="50dp"/>
-        <Gallery
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/gallery_change_shade"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+
 
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/btmnBottom_menu_view"
@@ -35,5 +31,13 @@
             app:menu="@menu/menu_bottom"/>
 
     </LinearLayout>
+
+    <Gallery
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="70dp"
+        android:id="@+id/gallery_change_shade"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

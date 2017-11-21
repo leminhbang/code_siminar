@@ -2,6 +2,7 @@ package com.example.leminhbang.camearamini;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.StyleableRes;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -37,9 +38,9 @@ public class GallaryAdapter extends BaseAdapter {
         typArray.recycle();
     }
 
-    /*public final TypedArray obtainStyledAttributes(@StyleableRes int[] attrs) {
+    public final TypedArray obtainStyledAttributes(@StyleableRes int[] attrs) {
         return cont.getTheme().obtainStyledAttributes(attrs);
-    }*/
+    }
 
     @Override
     public int getCount() {
@@ -60,7 +61,7 @@ public class GallaryAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imgView = new ImageView(cont);
         imgView.setImageResource(imgId[position]);
-        imgView.setLayoutParams(new Gallery.LayoutParams(110, 100));
+        imgView.setLayoutParams(new Gallery.LayoutParams(180, 150));
         imgView.setScaleType(ImageView.ScaleType.FIT_XY);
         imgView.setBackgroundResource(GalItemBg);
         return imgView;

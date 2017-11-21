@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         if (requestCode == FILE_SELECT_CODE) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
+                fileUri = uri;
                 filePath = uri.getPath();
                 imgMainImage.setImageURI(uri);
                 imgTempImage = imgMainImage;

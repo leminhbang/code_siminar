@@ -2,17 +2,26 @@ package com.example.leminhbang.camearamini;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+import static com.example.leminhbang.camearamini.MainActivity.context;
 
 /**
  * Created by LE MINH BANG on 30/10/2017.
@@ -46,8 +55,56 @@ public class MyCameraHelper {
         }
         return bitmap;
     }
+
     public static void rotateImage(ImageView imgImage, int degree) {
         imgImage.setRotation(imgImage.getRotation() + degree);
+    }
+
+    public static void saveImageFile(Uri uri, Bitmap bitmap) {
+
+       /* if (ContextCompat.checkSelfPermission(HomeActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(HomeActivity.this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},23
+            );
+
+        }*/
+
+        String photopath = uri.getPath();
+        Ringtone r = RingtoneManager.getRingtone(context, uri);
+        String name = r.getTitle(context);
+        File f = new File(Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "Cameramini");
+
+        String s = f.getPath() + f.separator + name;
+        FileOutputStream fOut;
+        try {
+            fOut = new FileOutputStream(s);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public static void copy(File src, File dst) throws IOException {
+        try (InputStream in = new FileInputStream(src)) {
+            try (OutputStream out = new FileOutputStream(dst)) {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
+        }
     }
 
     public static Uri getOutputMediaFileUri(int type) {
@@ -57,13 +114,13 @@ public class MyCameraHelper {
     private static File getOutputMediaFile(int type) {
 
         // External sdcard location
-        /*File mediaStorageDir = new File(
+        File mediaStorageDir = new File(
                 Environment
                         .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "Cameramini");*/
-        File mediaStorageDir = new File(
-                Environment.getExternalStorageDirectory(),
                 "Cameramini");
+        /*File mediaStorageDir = new File(
+                Environment.getExternalStorageDirectory(),
+                "Cameramini");*/
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
