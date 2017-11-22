@@ -2,6 +2,7 @@ package com.example.leminhbang.camearamini;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -29,6 +30,7 @@ import static com.example.leminhbang.camearamini.MainActivity.context;
 
 public class MyCameraHelper {
     private Bitmap mBitmap;
+    protected static int lastDegree = 0;
 
     public static int[][][] convertBitmapToMatrix(Bitmap bitmap) {
         int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][4];
@@ -56,12 +58,19 @@ public class MyCameraHelper {
         return bitmap;
     }
 
-    public static void rotateImage(ImageView imgImage, int degree) {
-        imgImage.setRotation(imgImage.getRotation() + degree);
+    public static Bitmap rotateImage(ImageView imgImage, int degree) {
+        //imgImage.setRotation(imgImage.getRotation() + degree);
+        imgImage.buildDrawingCache();;
+        Bitmap b = imgImage.getDrawingCache();
+        Matrix matrix = new Matrix();
+        matrix.postRotate(lastDegree + degree);
+        Bitmap bitmap = Bitmap.createBitmap(b,0,0,b.getWidth(),b.getHeight(),
+                matrix,true);
+        lastDegree += degree;
+        return bitmap;
     }
 
     public static void saveImageFile(Uri uri, Bitmap bitmap) {
-
        /* if (ContextCompat.checkSelfPermission(HomeActivity.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -115,7 +124,6 @@ public class MyCameraHelper {
     }
 
     private static File getOutputMediaFile(int type) {
-
         // External sdcard location
         File mediaStorageDir = new File(
                 Environment
@@ -147,7 +155,6 @@ public class MyCameraHelper {
         } else {
             return null;
         }
-
         return mediaFile;
     }
 }

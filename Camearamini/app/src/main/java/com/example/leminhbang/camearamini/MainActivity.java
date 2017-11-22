@@ -25,6 +25,9 @@ import android.widget.Toast;
 import java.io.File;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+import static com.example.leminhbang.camearamini.MyCameraHelper.lastDegree;
+import static com.example.leminhbang.camearamini.MyCameraHelper.rotateImage;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
 
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     private int currentObjectColor;
 
+    private Bitmap mainBitmap;
     public static Context context;
     public static ActionBar actionBar;
 
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         context = this;
         myGetActionBar();
         imgTempImage = imgMainImage;
+        mainBitmap = convertToBitmap(imgMainImage);
 
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
@@ -65,6 +70,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         } else {
             imgMainImage.setImageURI(fileUri);
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Toast.makeText(context,"back to main",Toast.LENGTH_SHORT).show();
     }
 
     public void mapView() {
@@ -98,16 +109,21 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 prepareCamera();
                 break;
             case R.id.action_turn_left:
-                MyCameraHelper.rotateImage(imgMainImage, -90);
+                mainBitmap = rotateImage(imgMainImage, -90);
+                imgMainImage.setImageBitmap(mainBitmap);
                 break;
             case R.id.action_turn_right:
-                MyCameraHelper.rotateImage(imgMainImage, 90);
+                mainBitmap = rotateImage(imgMainImage, 90);
+                imgMainImage.setImageBitmap(mainBitmap);
                 break;
             case R.id.action_customize_rotate:
                 rotateImageCustomize();
                 break;
             case R.id.action_load_image:
                 showFileChooser();
+                break;
+            case R.id.action_save:
+                saveImageFile(fileUri,mainBitmap);
                 break;
             case R.id.action_cancel:
                 cancelAction();
@@ -199,6 +215,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         actionBar = acb;
     }
 
+    public Bitmap convertToBitmap(ImageView img) {
+        img.buildDrawingCache();
+        return img.getDrawingCache();
+    }
     // hien anh vua chip len man hinh
     public void viewImage() {
         filePath = fileUri.getPath();
@@ -215,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
 
     }
+
     //chuan bi cameara
     public void prepareCamera(){
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -223,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         // start the image capture Intent
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
     }
+
     //hien hop thoai de chon file khi nhan load anh
     private void showFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -238,10 +260,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     Toast.LENGTH_SHORT).show();
         }
     }
+
     public void rotateImageCustomize() {
         sekbCustomizeRotate.setVisibility(View.VISIBLE);
         sekbCustomizeRotate.setProgress((int)imgMainImage.getRotation() + 180);
     }
+
     //huy cac hanh dong da chon dua anh ve anh goc ban dau
     public void cancelAction() {
         imgMainImage = imgTempImage;
@@ -249,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         sekbCustomizeRotate.setProgress(180);
         sekbCustomizeRotate.setVisibility(View.INVISIBLE);
     }
+
     //xoa anh hien tai
     public void deleteAction() {
         if (filePath == null || filePath.equals("") || filePath.isEmpty()) {
@@ -268,7 +293,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        MyCameraHelper.rotateImage(imgMainImage, progress - 180 - (int)imgMainImage.getRotation());
+        mainBitmap = rotateImage(imgMainImage, progress - 180 - lastDegree);
+        imgMainImage.setImageBitmap(mainBitmap);
     }
 
     @Override
