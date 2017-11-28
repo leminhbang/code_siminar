@@ -42,17 +42,24 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         contextTmp = context;
         context = this;
         mapView();
-        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
-            imgMainImage.setImageURI(fileUri);
-        }
+
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (filePath != null) {
+            imgMainImage.setImageURI(fileUri);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_child_action, menu);
         return true;
     }
 

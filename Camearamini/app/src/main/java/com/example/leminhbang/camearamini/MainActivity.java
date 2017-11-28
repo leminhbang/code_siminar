@@ -64,18 +64,19 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         if (filePath == null || filePath.isEmpty() || filePath.equals("")) {
             Toast.makeText(context,"\t\t\t\t\t\t\tChưa có ảnh\nVui lòng chụp " +
                     "ảnh hoặc chọn một ảnh",Toast.LENGTH_LONG).show();
         } else {
             imgMainImage.setImageURI(fileUri);
         }
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Toast.makeText(context,"back to main",Toast.LENGTH_SHORT).show();
+        imgMainImage.buildDrawingCache();
+        mainBitmap = imgMainImage.getDrawingCache();
     }
 
     public void mapView() {

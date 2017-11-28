@@ -32,6 +32,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     GestureDetector gestureDetector;
     ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
+    private Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +43,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
 
         contextTmp = context;
         mapView();
-        if (filePath != null && !filePath.isEmpty() && !filePath.equals("")) {
-            imgMainImage.setImageURI(fileUri);
-        }
+
         context = this;
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
@@ -52,9 +51,19 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (filePath != null) {
+            imgMainImage.setImageURI(fileUri);
+            imgMainImage.buildDrawingCache();
+            bitmap = imgMainImage.getDrawingCache();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_child_action, menu);
         return true;
     }
 
@@ -104,6 +113,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 0:
                 Toast.makeText(context,"Không có",
                         Toast.LENGTH_SHORT).show();
+                imgMainImage.setImageBitmap(bitmap);
                 break;
             case 1:
                 Toast.makeText(context,"Ảnh xám",

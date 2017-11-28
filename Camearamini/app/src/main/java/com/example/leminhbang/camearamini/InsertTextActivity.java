@@ -55,9 +55,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
         contextTmp = context;
         mapView();
-        if (filePath != null) {
-            imgMainImage.setImageURI(fileUri);
-        }
+
         context = this;
 
         //them edittext hien tai vao mang edittext
@@ -68,6 +66,15 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (filePath != null) {
+            imgMainImage.setImageURI(fileUri);
+        }
+    }
+
     public void mapView() {
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
         imgMainImage.setOnTouchListener(this);
@@ -75,7 +82,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         //edtInsertText.addTextChangedListener(this);
         edtInsertText.setOnLongClickListener(this);
         edtInsertText.setOnDragListener(this);
-        int w = getWindowManager().getDefaultDisplay().getWidth()/3;
+        int w = getWindowManager().getDefaultDisplay().getWidth()/2;
         int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                         w, h);
@@ -114,7 +121,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     private void addNewText() {
         EditText edt = new EditText(this);
-        int w = getWindowManager().getDefaultDisplay().getWidth()/3;
+        int w = getWindowManager().getDefaultDisplay().getWidth()/2;
         int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 w, h);
