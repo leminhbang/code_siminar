@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         context = this;
         myGetActionBar();
         imgTempImage = imgMainImage;
-        mainBitmap = convertToBitmap(imgMainImage);
 
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
@@ -74,9 +73,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     "ảnh hoặc chọn một ảnh",Toast.LENGTH_LONG).show();
         } else {
             imgMainImage.setImageURI(fileUri);
+            imgMainImage.buildDrawingCache();
+            mainBitmap = imgMainImage.getDrawingCache();
         }
-        imgMainImage.buildDrawingCache();
-        mainBitmap = imgMainImage.getDrawingCache();
     }
 
     public void mapView() {

@@ -91,8 +91,12 @@ public class MyCameraHelper {
                 "Cameramini");
 
         String path = file.getPath() + file.separator + fileName;
+        File f = new File(path);
         FileOutputStream fOut;
         try {
+            if (file.exists()) {
+                f.deleteOnExit();
+            }
             fOut = new FileOutputStream(path);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
             fOut.flush();

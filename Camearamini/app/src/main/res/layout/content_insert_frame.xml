@@ -2,40 +2,42 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativelayout_insert_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.leminhbang.camearamini.InsertFrameActivity"
     tools:showIn="@layout/activity_insert_frame">
-    <LinearLayout
-        android:id="@+id/linearlayout_main"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <ImageView
-            android:id="@+id/img_main_image"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:src="@drawable/image_main"
-            android:visibility="visible"
-            android:layout_marginTop="50dp"/>
 
-        <android.support.design.widget.BottomNavigationView
-            android:id="@+id/btmnBottom_menu_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:itemBackground="@android:drawable/screen_background_dark_transparent"
-            app:itemIconTint="@drawable/nav_item_color"
-            app:itemTextColor="@drawable/nav_item_color"
-            app:menu="@menu/menu_bottom"/>
-    </LinearLayout>
-
-    <Gallery
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/gallery_image_frame"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp"
+    <ImageView
+        android:id="@+id/imgFrame"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"/>
+
+    <ImageView
+        android:id="@+id/img_main_image"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="55dp"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/image_main" />
+
+    <Gallery xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/gallery_image_frame"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="70dp" />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/btmnBottom_menu_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:itemBackground="@android:drawable/screen_background_dark_transparent"
+        app:itemIconTint="@drawable/nav_item_color"
+        app:itemTextColor="@drawable/nav_item_color"
+        app:menu="@menu/menu_bottom" />
+
 
 </RelativeLayout>
