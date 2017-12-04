@@ -3,9 +3,8 @@ package com.example.leminhbang.camearamini;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -21,8 +20,6 @@ import android.widget.AdapterView;
 import android.widget.Gallery;
 import android.widget.ImageView;
 
-import java.io.ByteArrayOutputStream;
-
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
@@ -36,8 +33,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapMain;
-
+    private Bitmap bitmapMain,bitmapFrame;
+    int originalWidth,originalHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,17 +99,25 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
             case R.id.img_main_image:
                 scaleGestureDetector.onTouchEvent(event);
                 float scale = MyScaleGesture.getScaleValue();
-                Matrix matrix = new Matrix();
-                matrix.postScale(scale,scale);
-                Bitmap b = Bitmap.createBitmap(bitmapMain,0,0,bitmapMain.getWidth(),
-                        bitmapMain.getHeight(), matrix,false);
-                bitmapMain = b;
-                imgMainImage.setImageBitmap(b);
-                /*imgMainImage.setScaleX(scale);
-                imgMainImage.setScaleY(scale);*/
+
+                //resize bitmap
+                if (bitmapMain == null) {
+                    imgMainImage.buildDrawingCache();
+                    bitmapMain = imgMainImage.getDrawingCache();
+                    originalWidth = bitmapMain.getWidth();
+                    originalHeight = bitmapMain.getHeight();
+                }
+
+                int w1 = Math.round(originalWidth*scale);
+                int h1 = Math.round(originalHeight*scale);
+                bitmapMain = Bitmap.createScaledBitmap(bitmapMain,
+                        w1,h1,true);
+
+                //scale imageview de hien thi
+                imgMainImage.setScaleX(scale);
+                imgMainImage.setScaleY(scale);
 
                 gestureDetector.onTouchEvent(event);
-
                 break;
             case R.id.relativelayout_insert_frame:
                 gestureDetector.onTouchEvent(event);
@@ -125,15 +130,11 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         ImageView img = (ImageView) view;
         img.buildDrawingCache();
-        //imgFrame.setImageBitmap(img.getDrawingCache());
-        Bitmap bitmapFrame = img.getDrawingCache();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmapFrame.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-        Bitmap b = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-        int w1 = imgFrame.getMeasuredWidth();
-        int h1 = imgFrame.getMeasuredHeight();
-        imgFrame.setImageBitmap(Bitmap.createScaledBitmap(b,w1,h1,false));
+        bitmapFrame = img.getDrawingCache();
+        int w = imgFrame.getMeasuredWidth();
+        int h = imgFrame.getMeasuredHeight();
+        bitmapFrame = Bitmap.createScaledBitmap(bitmapFrame, w, h, true);
+        imgFrame.setImageBitmap(bitmapFrame);
     }
 
     @Override
@@ -160,42 +161,24 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     public Bitmap overlayBitmap(Bitmap bmp1, Bitmap bmp2) {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(),
-                bmp1.getHeight(), Bitmap.Config.ARGB_8888);
+                bmp1.getHeight(), bmp2.getConfig());
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setDither(false);
+        paint.setAntiAlias(false);
+
         Canvas canvas = new Canvas(bmOverlay);
         float w = (bmp1.getWidth() - bmp2.getWidth())/2;
         float h = (bmp1.getHeight() - bmp2.getHeight())/2;
-        canvas.drawBitmap(bmp1, new Matrix(), null);
-        canvas.drawBitmap(bmp2,new Matrix(), null);
+        canvas.drawBitmap(bmp1,0,0, paint);
+        canvas.drawBitmap(bmp2,w,h, paint);
         return bmOverlay;
-
-
-        /*Bitmap bitmap = null;
-        try {
-            bitmap = Bitmap.createBitmap(imgFrame.getMeasuredWidth(),
-                    imgFrame.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bitmap);
-            Resources res = getResources();
-            Drawable drawable1 = new BitmapDrawable(bmp1);
-            Drawable drawable2 = new BitmapDrawable(bmp2);
-            drawable1.setBounds(0, 0, bmp1.getWidth(), bmp1.getHeight());
-            int w = (bmp1.getWidth() - bmp2.getWidth())/2;
-            int h = (bmp1.getHeight() - bmp2.getHeight())/2;
-            drawable2.setBounds(w,h,bmp2.getWidth() + w,bmp2.getHeight() + h);
-            drawable1.draw(c);
-            drawable2.draw(c);
-        } catch (Exception e) {
-
-        }
-        return bitmap;*/
     }
 
     public void saveImage() {
-        imgFrame.buildDrawingCache();
-        Bitmap bmp1 = imgFrame.getDrawingCache();
-        imgMainImage.buildDrawingCache();
-        Bitmap bmp2 = imgMainImage.getDrawingCache();
-        Bitmap bitmapOverlay = overlayBitmap(bmp1,bmp2);
+        bitmapMain = overlayBitmap(bitmapFrame,bitmapMain);
         imgFrame.setImageBitmap(null);
-        imgMainImage.setImageBitmap(bitmapOverlay);
+        imgMainImage.setScaleX(1);
+        imgMainImage.setScaleY(1);
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 }
