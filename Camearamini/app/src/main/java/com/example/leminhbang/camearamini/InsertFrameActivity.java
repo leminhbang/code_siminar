@@ -110,8 +110,9 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
                 int w1 = Math.round(originalWidth*scale);
                 int h1 = Math.round(originalHeight*scale);
-                bitmapMain = Bitmap.createScaledBitmap(bitmapMain,
+                Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain,
                         w1,h1,true);
+                bitmapMain = Bitmap.createBitmap(tmp);
 
                 //scale imageview de hien thi
                 imgMainImage.setScaleX(scale);
@@ -133,7 +134,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         bitmapFrame = img.getDrawingCache();
         int w = imgFrame.getMeasuredWidth();
         int h = imgFrame.getMeasuredHeight();
-        bitmapFrame = Bitmap.createScaledBitmap(bitmapFrame, w, h, true);
+        Bitmap tmp = Bitmap.createScaledBitmap(bitmapFrame, w, h, true);
+        bitmapFrame = Bitmap.createBitmap(tmp);
         imgFrame.setImageBitmap(bitmapFrame);
     }
 
@@ -161,7 +163,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     public Bitmap overlayBitmap(Bitmap bmp1, Bitmap bmp2) {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(),
-                bmp1.getHeight(), bmp2.getConfig());
+                bmp1.getHeight(), Bitmap.Config.ARGB_8888);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setDither(false);
         paint.setAntiAlias(false);
@@ -176,9 +178,15 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     public void saveImage() {
         bitmapMain = overlayBitmap(bitmapFrame,bitmapMain);
+
+        //luu anh vao bo nho
+        //saveImageFile(fileUri,bitmapMain);
+
         imgFrame.setImageBitmap(null);
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
+        imgMainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imgMainImage.setImageBitmap(bitmapMain);
     }
 }
+

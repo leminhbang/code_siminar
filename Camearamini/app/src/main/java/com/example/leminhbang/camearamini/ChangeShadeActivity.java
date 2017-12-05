@@ -4,7 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -118,11 +125,11 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 1:
                 Toast.makeText(context,"Ảnh xám",
                         Toast.LENGTH_SHORT).show();
-                //imgMainImage.setImageBitmap(convertToGray(bitmap));
-                Bitmap b = convertToGray(bitmap);
+                imgMainImage.setImageBitmap(convertToGray(bitmap));
+                /*Bitmap b = convertToGray(bitmap);
                 pixelMat = MyCameraHelper.convertBitmapToMatrix(b);
                 imgMainImage.setImageBitmap(MyCameraHelper.
-                        convertMatrixToBitmap(pixelMat));
+                        convertMatrixToBitmap(pixelMat));*/
                 break;
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
@@ -132,10 +139,14 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 3:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
+                imgMainImage.setImageBitmap(convertToBlur(context,bitmap));
                 break;
             case 4:
                 Toast.makeText(context,"Ảnh cổ điển",
                         Toast.LENGTH_SHORT).show();
+                Drawable d = new BitmapDrawable(getResources(),bitmap);
+                d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
+                imgMainImage.setImageDrawable(d);
                 break;
         }
     }
@@ -195,5 +206,24 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             }
         }
         return negativeBitmap;
+    }
+
+    public static Bitmap convertToBlur(Context context, Bitmap image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        Bitmap inputBitmap = Bitmap.createScaledBitmap(image, width,
+                height, false);
+        Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
+        RenderScript rs = RenderScript.create(context);
+        ScriptIntrinsicBlur theIntrinsic = ScriptIntrinsicBlur.create(rs,
+                Element.U8_4(rs));
+        Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
+        Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
+        theIntrinsic.setRadius(5);
+        theIntrinsic.setInput(tmpIn);
+        theIntrinsic.forEach(tmpOut);
+        tmpOut.copyTo(outputBitmap);
+        return outputBitmap;
     }
 }
