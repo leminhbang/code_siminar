@@ -3,6 +3,7 @@ package com.example.leminhbang.camearamini;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -129,12 +130,10 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ImageView img = (ImageView) view;
-        img.buildDrawingCache();
-        bitmapFrame = img.getDrawingCache();
-        int w = imgFrame.getMeasuredWidth();
-        int h = imgFrame.getMeasuredHeight();
-        Bitmap tmp = Bitmap.createScaledBitmap(bitmapFrame, w, h, true);
+        bitmapFrame = BitmapFactory.decodeResource(getResources(),(int) id);
+        int w = imgFrame.getWidth();
+        int h = imgFrame.getHeight();
+        Bitmap tmp = Bitmap.createScaledBitmap(bitmapFrame, w, h, false);
         bitmapFrame = Bitmap.createBitmap(tmp);
         imgFrame.setImageBitmap(bitmapFrame);
     }
@@ -164,9 +163,10 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     public Bitmap overlayBitmap(Bitmap bmp1, Bitmap bmp2) {
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(),
                 bmp1.getHeight(), Bitmap.Config.ARGB_8888);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);
         paint.setDither(false);
         paint.setAntiAlias(false);
+        paint.setFilterBitmap(false);
 
         Canvas canvas = new Canvas(bmOverlay);
         float w = (bmp1.getWidth() - bmp2.getWidth())/2;

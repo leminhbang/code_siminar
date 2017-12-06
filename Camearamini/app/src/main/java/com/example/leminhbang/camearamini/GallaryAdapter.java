@@ -54,7 +54,7 @@ public class GallaryAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return imgId[position];
     }
 
     @Override
