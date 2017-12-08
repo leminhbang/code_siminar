@@ -22,4 +22,5 @@
     <string name="title_activity_change_color">ChangeColorActivity</string>
     <string name="title_activity_insert_frame">InsertFrameActivity</string>
     <string name="title_activity_insert_text">InsertTextActivity</string>
+    <string name="title_activity_cut_image">CutImageActivity</string>
 </resources>

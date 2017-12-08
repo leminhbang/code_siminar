@@ -44,6 +44,10 @@
         <activity
             android:name=".InsertTextActivity"
             android:label="@string/title_activity_insert_text"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".CutImageActivity"
+            android:label="@string/title_activity_cut_image"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
