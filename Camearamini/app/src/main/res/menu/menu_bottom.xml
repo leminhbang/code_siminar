@@ -15,6 +15,10 @@
         android:icon="@drawable/change_picture_frame"
         android:title="@string/insert_frame"
         app:showAsAction="always" />
-
+    <item
+        android:id="@+id/action_cut_image"
+        android:icon="@drawable/cut_image"
+        android:title="@string/cut_image"
+        app:showAsAction="always"/>
 
 </menu>
