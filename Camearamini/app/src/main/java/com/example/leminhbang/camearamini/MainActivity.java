@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     private int currentObjectColor;
 
-    private Bitmap mainBitmap;
+    private Bitmap bitmapMain;
     public static Context context;
     public static ActionBar actionBar;
 
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         } else {
             imgMainImage.setImageURI(fileUri);
             imgMainImage.buildDrawingCache();
-            mainBitmap = imgMainImage.getDrawingCache();
+            bitmapMain = imgMainImage.getDrawingCache();
         }
     }
 
@@ -109,12 +109,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 prepareCamera();
                 break;
             case R.id.action_turn_left:
-                mainBitmap = rotateImage(imgMainImage, -90);
-                imgMainImage.setImageBitmap(mainBitmap);
+                bitmapMain = rotateImage(imgMainImage, -90);
+                imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case R.id.action_turn_right:
-                mainBitmap = rotateImage(imgMainImage, 90);
-                imgMainImage.setImageBitmap(mainBitmap);
+                bitmapMain = rotateImage(imgMainImage, 90);
+                imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case R.id.action_customize_rotate:
                 rotateImageCustomize();
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 showFileChooser();
                 break;
             case R.id.action_save:
-                saveImageFile(fileUri,mainBitmap);
+                saveImageFile(fileUri,bitmapMain);
                 break;
             case R.id.action_cancel:
                 cancelAction();
@@ -167,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 break;
             case R.id.action_insert_frame:
                 intent = new Intent(context, InsertFrameActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_cut_image:
+                intent = new Intent(context,CutImageActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -293,8 +297,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        mainBitmap = rotateImage(imgMainImage, progress - 180 - lastDegree);
-        imgMainImage.setImageBitmap(mainBitmap);
+        bitmapMain = rotateImage(imgMainImage, progress - 180 - lastDegree);
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 
     @Override
