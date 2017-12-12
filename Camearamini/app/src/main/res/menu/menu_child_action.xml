@@ -10,9 +10,10 @@
         android:id="@+id/action_new_text"
         android:title="new text"
         android:icon="@android:drawable/ic_input_add"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        android:visible="false"/>
     <item
-        android:id="@+id/action_cancle_2"
+        android:id="@+id/action_cancel_2"
         android:title="@string/cancel"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         app:showAsAction="always"/>

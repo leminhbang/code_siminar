@@ -2,6 +2,7 @@ package com.example.leminhbang.camearamini;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -41,9 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     GestureDetector gestureDetector;
     ScaleGestureDetector scaleGestureDetector;
 
-    private int currentObjectColor;
-
-    private Bitmap bitmapMain;
+    public static Bitmap bitmapMain;
+    private Bitmap bitmapTemp;
     public static Context context;
     public static ActionBar actionBar;
 
@@ -72,9 +72,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             Toast.makeText(context,"\t\t\t\t\t\t\tChưa có ảnh\nVui lòng chụp " +
                     "ảnh hoặc chọn một ảnh",Toast.LENGTH_LONG).show();
         } else {
-            imgMainImage.setImageURI(fileUri);
-            imgMainImage.buildDrawingCache();
-            bitmapMain = imgMainImage.getDrawingCache();
+            bitmapTemp = bitmapMain;
+            imgMainImage.setImageBitmap(bitmapMain);
+            /*imgMainImage.buildDrawingCache();
+            bitmapMain = imgMainImage.getDrawingCache();*/
         }
     }
 
@@ -123,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 showFileChooser();
                 break;
             case R.id.action_save:
+                bitmapTemp = bitmapMain;
                 saveImageFile(fileUri,bitmapMain);
                 break;
             case R.id.action_cancel:
@@ -149,7 +151,19 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 Uri uri = data.getData();
                 fileUri = uri;
                 filePath = uri.getPath();
-                imgMainImage.setImageURI(uri);
+
+                String[] filePath = { MediaStore.Images.Media.DATA };
+                Cursor cursor = getContentResolver().query(uri,
+                        filePath, null, null, null);
+                cursor.moveToFirst();
+                String imagePath = cursor.getString(cursor.
+                        getColumnIndex(filePath[0]));
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                bitmapMain = BitmapFactory.decodeFile(imagePath, options);
+                cursor.close();
+
+                imgMainImage.setImageBitmap(bitmapMain);
                 imgTempImage = imgMainImage;
             }
         }
@@ -232,8 +246,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         // down sizing image as it throws OutOfMemory Exception for larger
         // images
         options.inSampleSize = 8;
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
-        imgMainImage.setImageBitmap(bitmap);
+        bitmapMain = BitmapFactory.decodeFile(filePath, options);
+        imgMainImage.setImageBitmap(bitmapMain);
         imgTempImage = imgMainImage;
 
 
@@ -272,7 +286,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     //huy cac hanh dong da chon dua anh ve anh goc ban dau
     public void cancelAction() {
-        imgMainImage = imgTempImage;
+        bitmapMain = bitmapTemp;
+        imgMainImage.setScaleX(1);
+        imgMainImage.setScaleY(1);
+        imgMainImage.setImageBitmap(bitmapMain);
         imgMainImage.setRotation(View.SCROLL_AXIS_NONE);
         sekbCustomizeRotate.setProgress(180);
         sekbCustomizeRotate.setVisibility(View.INVISIBLE);

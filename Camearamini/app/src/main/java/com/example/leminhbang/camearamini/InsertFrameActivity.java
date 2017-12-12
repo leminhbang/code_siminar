@@ -21,9 +21,9 @@ import android.widget.AdapterView;
 import android.widget.Gallery;
 import android.widget.ImageView;
 
+import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
-import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 
 
 public class InsertFrameActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
@@ -34,8 +34,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapMain,bitmapFrame;
-    int originalWidth,originalHeight;
+    private Bitmap bitmapFrame,bitmapTemp;
+    private int originalWidth,originalHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +56,13 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     @Override
     protected void onStart() {
         super.onStart();
-        if (filePath != null) {
-            imgMainImage.setImageURI(fileUri);
+        if (filePath != null && bitmapMain != null) {
+            //imgMainImage.setImageURI(fileUri);
+            bitmapTemp = bitmapMain;
+            imgMainImage.setImageBitmap(bitmapMain);
         }
-        imgMainImage.buildDrawingCache();
-        bitmapMain = imgMainImage.getDrawingCache();
+        /*imgMainImage.buildDrawingCache();
+        bitmapMain = imgMainImage.getDrawingCache();*/
     }
 
     @Override
@@ -74,6 +76,9 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_cancel_2:
+                cancelAction();
+                break;
             case R.id.action_save_2:
                 saveImage();
                 break;
@@ -146,8 +151,12 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
                 Intent intent = new Intent(context,InsertTextActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.action_insert_frame:
+            /*case R.id.action_insert_frame:
                 intent = new Intent(InsertFrameActivity.this, InsertFrameActivity.class);
+                startActivity(intent);
+                break;*/
+            case R.id.action_cut_image:
+                intent = new Intent(context,CutImageActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -161,6 +170,9 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     }
 
     public Bitmap overlayBitmap(Bitmap bmp1, Bitmap bmp2) {
+        if (bmp1 == null) {
+            return bmp2;
+        }
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(),
                 bmp1.getHeight(), Bitmap.Config.ARGB_8888);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);
@@ -178,6 +190,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     public void saveImage() {
         bitmapMain = overlayBitmap(bitmapFrame,bitmapMain);
+        bitmapFrame = bitmapMain;
 
         //luu anh vao bo nho
         //saveImageFile(fileUri,bitmapMain);
@@ -186,6 +199,12 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
         imgMainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imgMainImage.setImageBitmap(bitmapMain);
+    }
+
+    private void cancelAction() {
+        bitmapMain = bitmapTemp;
+        imgFrame.setImageBitmap(null);
         imgMainImage.setImageBitmap(bitmapMain);
     }
 }

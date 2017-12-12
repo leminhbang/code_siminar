@@ -27,10 +27,9 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
+import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
-import static com.example.leminhbang.camearamini.MainActivity.fileUri;
-import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, View.OnLongClickListener, View.OnDragListener {
     private ImageView imgMainImage;
@@ -44,6 +43,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     private RelativeLayout.LayoutParams params;
     ViewGroup vg;
+    private Bitmap bitmapTemp;
 
 
     @Override
@@ -60,8 +60,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
         //them edittext hien tai vao mang edittext
         arrEditTexts.add(edtInsertText);
-        //gan anh tam
-        imgTempImage = imgMainImage;
+
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
@@ -71,7 +70,8 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            imgMainImage.setImageURI(fileUri);
+            bitmapTemp = bitmapMain;
+            imgMainImage.setImageBitmap(bitmapMain);
         }
     }
 
@@ -98,6 +98,9 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_child_action, menu);
+        invalidateOptionsMenu();
+        MenuItem newText = menu.findItem(R.id.action_new_text);
+        newText.setVisible(true);
         return true;
     }
 
@@ -112,8 +115,8 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
             case R.id.action_new_text:
                 addNewText();
                 break;
-            case R.id.action_cancle_2:
-                imgMainImage = imgTempImage;
+            case R.id.action_cancel_2:
+                cancelAction();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -141,18 +144,15 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     private void saveImage() {
         for (int i = 0; i < arrEditTexts.size(); i++) {
-            imgMainImage.buildDrawingCache();
-            Bitmap bitmap = imgMainImage.getDrawingCache();
             int x = (int) arrEditTexts.get(i).getX();
             int y = (int) arrEditTexts.get(i).getY();
-            Bitmap b =  drawText(bitmap,arrEditTexts.get(i).getText().toString().trim(),
-                    x,y);
-            imgMainImage.setImageBitmap(b);
-            arrEditTexts.get(i).setVisibility(View.INVISIBLE);
+            bitmapMain = drawText(bitmapMain,arrEditTexts.get(i).
+                            getText().toString().trim(), x,y);
+            imgMainImage.setImageBitmap(bitmapMain);
+            arrEditTexts.get(i).setVisibility(View.GONE);
         }
-        imgMainImage.buildDrawingCache();
-        Bitmap bitmap = imgMainImage.getDrawingCache();
-        saveImageFile(fileUri,bitmap);
+        bitmapTemp = bitmapMain;
+        //saveImageFile(fileUri,bitmapMain);
     }
 
     @Override
@@ -183,6 +183,10 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
                 break;
             case R.id.action_insert_frame:
                 Intent intent = new Intent(context,InsertFrameActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_cut_image:
+                intent = new Intent(context,CutImageActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -256,5 +260,8 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         }
         return true;
     }
-
+    private void cancelAction() {
+        bitmapMain = bitmapTemp;
+        imgMainImage.setImageBitmap(bitmapMain);
+    }
 }
