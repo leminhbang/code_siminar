@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.R.attr.path;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 import static com.example.leminhbang.camearamini.MainActivity.context;

@@ -60,6 +60,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
             //imgMainImage.setImageURI(fileUri);
             bitmapTemp = bitmapMain;
             imgMainImage.setImageBitmap(bitmapMain);
+            originalWidth = bitmapMain.getWidth();
+            originalHeight = bitmapMain.getHeight();
         }
         /*imgMainImage.buildDrawingCache();
         bitmapMain = imgMainImage.getDrawingCache();*/

@@ -152,13 +152,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 fileUri = uri;
                 filePath = uri.getPath();
 
-                String[] filePath = { MediaStore.Images.Media.DATA };
+                String[] filePaths = { MediaStore.Images.Media.DATA };
                 Cursor cursor = getContentResolver().query(uri,
-                        filePath, null, null, null);
+                        filePaths, null, null, null);
                 cursor.moveToFirst();
                 String imagePath = cursor.getString(cursor.
-                        getColumnIndex(filePath[0]));
+                        getColumnIndex(filePaths[0]));
                 BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = false;
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 bitmapMain = BitmapFactory.decodeFile(imagePath, options);
                 cursor.close();
@@ -265,9 +266,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     //hien hop thoai de chon file khi nhan load anh
     private void showFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        //Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.
+                Media.EXTERNAL_CONTENT_URI);
+        //intent.setType("*/*");
+        //intent.addCategory(Intent.CATEGORY_OPENABLE);
         try {
             startActivityForResult(
                     Intent.createChooser(intent, "Select a File"),

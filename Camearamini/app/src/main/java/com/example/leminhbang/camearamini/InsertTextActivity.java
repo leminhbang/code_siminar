@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -133,6 +134,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         edt.setHint("Nhập chữ muốn chèn");
         edt.setHintTextColor(Color.BLUE);
         edt.setTextColor(Color.BLUE);
+        edt.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         edt.setLayoutParams(layoutParams);
 //        edt.addTextChangedListener(this);
         edt.setOnLongClickListener(this);
@@ -151,6 +153,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
             imgMainImage.setImageBitmap(bitmapMain);
             arrEditTexts.get(i).setVisibility(View.GONE);
         }
+        arrEditTexts.clear();
         bitmapTemp = bitmapMain;
         //saveImageFile(fileUri,bitmapMain);
     }
@@ -263,5 +266,9 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     private void cancelAction() {
         bitmapMain = bitmapTemp;
         imgMainImage.setImageBitmap(bitmapMain);
+        for (int i = 0; i < arrEditTexts.size(); i++) {
+            arrEditTexts.get(i).setVisibility(View.GONE);
+        }
+        arrEditTexts.clear();
     }
 }

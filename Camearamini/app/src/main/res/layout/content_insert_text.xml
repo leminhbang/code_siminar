@@ -24,10 +24,11 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="70dp"
+        android:autoText="false"
         android:cursorVisible="true"
         android:hint="Nhập chữ muốn chèn"
-        android:textColorHint="#1f03bc"
-        android:textColor="#1f03bc" />
+        android:textColor="#1f03bc"
+        android:textColorHint="#1f03bc" />
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/btmnBottom_menu_view"
