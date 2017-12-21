@@ -27,9 +27,11 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class ChangeShadeActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -39,7 +41,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     GestureDetector gestureDetector;
     ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmap;
+    private Bitmap bitmapTemp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +63,8 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            imgMainImage.setImageURI(fileUri);
-            imgMainImage.buildDrawingCache();
-            bitmap = imgMainImage.getDrawingCache();
+            bitmapTemp = bitmapMain;
+            imgMainImage.setImageBitmap(bitmapMain);
         }
     }
 
@@ -76,6 +77,15 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_save_2:
+                saveImage();;
+                break;
+            case R.id.action_cancel_2:
+                cancelAction();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -113,19 +123,19 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        imgMainImage.buildDrawingCache();
-        Bitmap bitmap = imgMainImage.getDrawingCache();
+        bitmapTemp = bitmapMain;
         int[][][] pixelMat;
         switch (position) {
             case 0:
                 Toast.makeText(context,"Không có",
                         Toast.LENGTH_SHORT).show();
-                imgMainImage.setImageBitmap(bitmap);
+                imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case 1:
                 Toast.makeText(context,"Ảnh xám",
                         Toast.LENGTH_SHORT).show();
-                imgMainImage.setImageBitmap(convertToGray(bitmap));
+                bitmapTemp = convertToGray(bitmapMain);
+                imgMainImage.setImageBitmap(bitmapTemp);
                 /*Bitmap b = convertToGray(bitmap);
                 pixelMat = MyCameraHelper.convertBitmapToMatrix(b);
                 imgMainImage.setImageBitmap(MyCameraHelper.
@@ -134,17 +144,19 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
                         Toast.LENGTH_SHORT).show();
-                imgMainImage.setImageBitmap(convertToNegative(bitmap));
+                bitmapTemp = convertToNegative(bitmapMain);
+                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 3:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
-                imgMainImage.setImageBitmap(convertToBlur(context,bitmap));
+                bitmapTemp = convertToBlur(context,bitmapMain);
+                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 4:
                 Toast.makeText(context,"Ảnh cổ điển",
                         Toast.LENGTH_SHORT).show();
-                Drawable d = new BitmapDrawable(getResources(),bitmap);
+                Drawable d = new BitmapDrawable(getResources(),bitmapMain);
                 d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
                 imgMainImage.setImageDrawable(d);
                 break;
@@ -161,6 +173,10 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 break;
             case R.id.action_insert_frame:
                 intent = new Intent(ChangeShadeActivity.this, InsertFrameActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_cut_image:
+                intent = new Intent(context,CutImageActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -225,5 +241,13 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         theIntrinsic.forEach(tmpOut);
         tmpOut.copyTo(outputBitmap);
         return outputBitmap;
+    }
+
+    private void saveImage() {
+        bitmapMain = bitmapTemp;
+        saveImageFile(fileUri,bitmapMain);
+    }
+    private void cancelAction() {
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 }

@@ -122,20 +122,18 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
 
                 //if (event.getAction() == MotionEvent.ACTION_UP) {
                     //scale imageview de hien thi
+
+                //}
                 imgMainImage.setScaleX(scale);
                 imgMainImage.setScaleY(scale);
-                //}
+
                 long time = event.getEventTime();
-                int numTouth = event.getActionIndex();
                 //if (Math.abs(timeTouth - time) < 500) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        Toast.makeText(context,"Cham lan " + (flag + 1),
-                                Toast.LENGTH_SHORT).show();
                         setCoordinate(event);
                     }
                 //}
 
-                timeTouth = event.getEventTime();
                 gestureDetector.onTouchEvent(event);
                 break;
             case R.id.linearlayout_main:
@@ -171,37 +169,41 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
                 bitmapDraw = Bitmap.createBitmap(bitmapMain);
                 x0 = event.getX();
                 y0 = event.getY();
-                drawPoint(x0,y0);
+                drawPoint(x0,y0,x0,y0);
                 break;
             case 1:
                 x1 = event.getX();
                 y1 = event.getY();
-                drawPoint(x1,y1);
+                drawPoint(x0,y0,x1,y1);
                 break;
             case 2:
                 x2 = event.getX();
                 y2 = event.getY();
-                drawPoint(x2,y2);
+                drawPoint(x1,y1,x2,y2);
                 break;
             case 3:
                 x3 = event.getX();
                 y3 = event.getY();
-                drawPoint(x3,y3);
+                drawPoint(x2,y2,x3,y3);
+                drawPoint(x3,y3,x0,y0);
                 break;
         }
         flag ++;
 
     }
 
-    private void drawPoint(float x1, float y1) {
+    private void drawPoint(float a, float b, float c, float d) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.MAGENTA);
+        paint.setStrokeWidth(5);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         Bitmap outputBitmap = Bitmap.createBitmap(bitmapDraw.getWidth(),
                 bitmapDraw.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(outputBitmap);
         canvas.drawBitmap(bitmapDraw,0,0,null);
-        canvas.drawCircle(x1, y1, 10, paint);
+        canvas.drawCircle(a, b, 10, paint);
+        canvas.drawCircle(c, d, 10, paint);
+        canvas.drawLine(a,b,c,d,paint);
         bitmapDraw = outputBitmap;
         imgMainImage.setImageBitmap(bitmapDraw);
     }
@@ -267,7 +269,11 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     }
 
     private void cancelAction() {
+        bitmapMain = bitmapTemp;
+        bitmapDraw = bitmapMain;
+        imgMainImage.setImageBitmap(bitmapMain);
         flag = 0;
     }
 }
+
 

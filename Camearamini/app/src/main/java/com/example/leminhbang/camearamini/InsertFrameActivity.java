@@ -35,7 +35,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
     private Bitmap bitmapFrame,bitmapTemp;
-    private int originalWidth,originalHeight;
+    private int originalWidth,originalHeight, width, height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,19 +108,13 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
                 scaleGestureDetector.onTouchEvent(event);
                 float scale = MyScaleGesture.getScaleValue();
 
-                //resize bitmap
-                if (bitmapMain == null) {
-                    imgMainImage.buildDrawingCache();
-                    bitmapMain = imgMainImage.getDrawingCache();
-                    originalWidth = bitmapMain.getWidth();
-                    originalHeight = bitmapMain.getHeight();
-                }
+                width = Math.round(originalWidth*scale);;
+                height = Math.round(originalHeight*scale);;
 
-                int w1 = Math.round(originalWidth*scale);
+                /*int w1 = Math.round(originalWidth*scale);
                 int h1 = Math.round(originalHeight*scale);
-                Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain,
-                        w1,h1,true);
-                bitmapMain = Bitmap.createBitmap(tmp);
+                bitmapMain = Bitmap.createScaledBitmap(bitmapMain,
+                        w1,h1,true);*/
 
                 //scale imageview de hien thi
                 imgMainImage.setScaleX(scale);
@@ -153,10 +147,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
                 Intent intent = new Intent(context,InsertTextActivity.class);
                 startActivity(intent);
                 break;
-            /*case R.id.action_insert_frame:
-                intent = new Intent(InsertFrameActivity.this, InsertFrameActivity.class);
-                startActivity(intent);
-                break;*/
+            case R.id.action_insert_frame:
+                break;
             case R.id.action_cut_image:
                 intent = new Intent(context,CutImageActivity.class);
                 startActivity(intent);
@@ -191,6 +183,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     }
 
     public void saveImage() {
+        Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain,width,height,false);
+        bitmapMain = Bitmap.createBitmap(tmp);
         bitmapMain = overlayBitmap(bitmapFrame,bitmapMain);
         bitmapFrame = bitmapMain;
 
