@@ -27,6 +27,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
+    private boolean isFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +79,14 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         switch (id) {
             case R.id.img_main_image:
                 scaleGestureDetector.onTouchEvent(event);
-                float scale = MyScaleGesture.getScaleValue();
-                //imgMainImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imgMainImage.setScaleX(scale);
-                imgMainImage.setScaleY(scale);
+                if (!isFirst) {
+                    float scale = MyScaleGesture.getScaleValue();
+                    imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);
+                } else {
+                    isFirst = false;
+                    MyScaleGesture.setScaleValue();
+                }
 
                 gestureDetector.onTouchEvent(event);
 

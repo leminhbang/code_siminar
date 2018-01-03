@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MyScaleGesture.scale;
 
 
 public class InsertFrameActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
@@ -36,6 +37,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     private Context contextTmp;
     private Bitmap bitmapFrame,bitmapTemp;
     private int originalWidth,originalHeight, width, height;
+    private boolean isFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,19 +108,17 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         switch (id) {
             case R.id.img_main_image:
                 scaleGestureDetector.onTouchEvent(event);
-                float scale = MyScaleGesture.getScaleValue();
+                if (!isFirst) {
+                    float scale = MyScaleGesture.getScaleValue();
+                    imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);
+                } else {
+                    isFirst = false;
+                    MyScaleGesture.setScaleValue();
+                }
 
                 width = Math.round(originalWidth*scale);;
                 height = Math.round(originalHeight*scale);;
-
-                /*int w1 = Math.round(originalWidth*scale);
-                int h1 = Math.round(originalHeight*scale);
-                bitmapMain = Bitmap.createScaledBitmap(bitmapMain,
-                        w1,h1,true);*/
-
-                //scale imageview de hien thi
-                imgMainImage.setScaleX(scale);
-                imgMainImage.setScaleY(scale);
 
                 gestureDetector.onTouchEvent(event);
                 break;

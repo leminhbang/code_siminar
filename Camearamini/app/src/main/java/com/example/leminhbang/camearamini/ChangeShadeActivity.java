@@ -42,6 +42,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
     private Bitmap bitmapTemp;
+    private boolean isFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,10 +107,14 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         switch (id) {
             case R.id.img_main_image:
                 scaleGestureDetector.onTouchEvent(event);
-                float scale = MyScaleGesture.getScaleValue();
-                //imgMainImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imgMainImage.setScaleX(scale);
-                imgMainImage.setScaleY(scale);
+                if (!isFirst) {
+                    float scale = MyScaleGesture.getScaleValue();
+                    imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);
+                } else {
+                    isFirst = false;
+                    MyScaleGesture.setScaleValue();
+                }
 
                 gestureDetector.onTouchEvent(event);
 

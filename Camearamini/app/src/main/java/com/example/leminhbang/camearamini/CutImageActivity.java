@@ -38,6 +38,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     float x0, y0, x1, y1, x2, y2, x3, y3;
     private int CROP_IMAGE = 1;
     private long timeTouth = 0;
+    private boolean isFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,23 +117,22 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         int id = v.getId();
         switch (id) {
             case R.id.img_main_image:
-
                 scaleGestureDetector.onTouchEvent(event);
                 float scale = MyScaleGesture.getScaleValue();
-
-                //if (event.getAction() == MotionEvent.ACTION_UP) {
-                    //scale imageview de hien thi
-
-                //}
-                imgMainImage.setScaleX(scale);
-                imgMainImage.setScaleY(scale);
-
-                long time = event.getEventTime();
-                //if (Math.abs(timeTouth - time) < 500) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        setCoordinate(event);
-                    }
-                //}
+                if (!isFirst) {
+                    imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);
+                } else {
+                    isFirst = false;
+                    MyScaleGesture.setScaleValue();
+                }
+                if (scale != 1) {
+                    imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);
+                }
+                if (scale == 1) {
+                    setCoordinate(event);
+                }
 
                 gestureDetector.onTouchEvent(event);
                 break;
@@ -209,6 +209,10 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     }
 
     public void saveImage() {
+        if (flag != 4) {
+            flag = 0;
+            return;
+        }
         bitmapTemp = bitmapMain;
         Bitmap bitmap = Bitmap.createBitmap(bitmapMain.getWidth(),bitmapMain.getHeight(),
                 bitmapMain.getConfig());

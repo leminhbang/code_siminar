@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.R.attr.path;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 import static com.example.leminhbang.camearamini.MainActivity.context;
@@ -32,6 +31,8 @@ import static com.example.leminhbang.camearamini.MainActivity.context;
 public class MyCameraHelper {
     private Bitmap mBitmap;
     protected static int lastDegree = 0;
+    public static int[][][] rgb;
+    public static int[][] alpha;
 
     public static int[][][] convertBitmapToMatrix(Bitmap bitmap) {
         int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][4];
@@ -57,6 +58,26 @@ public class MyCameraHelper {
             }
         }
         return bitmap;
+    }
+
+    public static int[][][] convertToRGB(Bitmap bitmap) {
+        int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][3];
+        int pixel;
+        for (int i = 0; i < bitmap.getWidth(); i++) {
+            for (int j = 0; j < bitmap.getHeight(); j++) {
+                pixel = bitmap.getPixel(i, j);
+                //pixelMat[j][i][0] = Color.alpha(pixel);
+                pixelMat[j][i][0] = Color.red(pixel);
+                pixelMat[j][i][1] = Color.green(pixel);
+                pixelMat[j][i][2] = Color.blue(pixel);
+
+                alpha[j][i] = Color.alpha(pixel);
+                rgb[j][i][0] = Color.red(pixel);
+                rgb[j][i][1] = Color.green(pixel);
+                rgb[j][i][2] = Color.blue(pixel);
+            }
+        }
+        return pixelMat;
     }
 
     public static Bitmap rotateImage(ImageView imgImage, int degree) {

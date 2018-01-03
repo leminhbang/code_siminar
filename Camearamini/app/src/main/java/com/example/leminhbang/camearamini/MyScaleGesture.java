@@ -18,8 +18,6 @@ public class MyScaleGesture extends ScaleGestureDetector.SimpleOnScaleGestureLis
             scale = 2;
         if (scale < 0.5f)
             scale = 0.5f;
-        //imgMainPicture.setScaleX(scale);
-        //imgMainPicture.setScaleY(scale);
         return super.onScale(detector);
     }
 
@@ -37,5 +35,8 @@ public class MyScaleGesture extends ScaleGestureDetector.SimpleOnScaleGestureLis
 
     public static float getScaleValue() {
         return scale;
+    }
+    public static void setScaleValue() {
+        scale = 1.0f;
     }
 }

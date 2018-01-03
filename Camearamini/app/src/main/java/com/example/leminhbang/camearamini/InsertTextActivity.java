@@ -45,6 +45,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     private RelativeLayout.LayoutParams params;
     ViewGroup vg;
     private Bitmap bitmapTemp;
+    private boolean isFirst = true;
 
 
     @Override
@@ -161,14 +162,17 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         int id = v.getId();
-
         switch (id) {
             case R.id.img_main_image:
                 scaleGestureDetector.onTouchEvent(event);
-                float scale = MyScaleGesture.getScaleValue();
-                //imgMainImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imgMainImage.setScaleX(scale);
-                imgMainImage.setScaleY(scale);
+                if (!isFirst) {
+                    float scale = MyScaleGesture.getScaleValue();
+                    imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);
+                } else {
+                    isFirst = false;
+                    MyScaleGesture.setScaleValue();
+                }
                 gestureDetector.onTouchEvent(event);
                 break;
             case R.id.rellayout_main_layout:
