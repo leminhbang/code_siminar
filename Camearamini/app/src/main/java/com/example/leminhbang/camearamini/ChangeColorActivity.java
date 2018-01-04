@@ -21,7 +21,6 @@ import android.widget.ImageView;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,6 +35,8 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MyCameraHelper.convertToRGB;
+import static com.example.leminhbang.camearamini.MyCameraHelper.rgb;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -76,6 +77,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         if (filePath != null) {
             bitmapTemp = bitmapMain;
             imgMainImage.setImageBitmap(bitmapMain);
+            convertToRGB(bitmapMain);
         }
         Thread cThread = new Thread(new Runnable() {
             @Override
@@ -222,18 +224,30 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                     InputStreamReader(socket.getInputStream()));
             BufferedWriter out = new BufferedWriter(new
                     OutputStreamWriter(socket.getOutputStream()));
-            out.write("hello");
-            out.flush();
-            out.write("world");
-            out.flush();
-            //client send bitmap data to server
-            dataOut =new DataOutputStream(socket.getOutputStream());
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmapMain.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
-            //dataOut.writeChars("hello");
-            //dataOut.write(byteArray);
 
+            int width = bitmapMain.getWidth();
+            int height = bitmapMain.getHeight();
+            String w = String.valueOf(width);
+            out.write(w,0,w.length());
+            out.flush();
+            String h = String.valueOf(height);
+            out.write(h,0,h.length());
+            out.flush();
+            for (int i = 0; i < rgb[0].length; i++) {
+                for (int j = 0; j < rgb.length; j++) {
+                    String value =  String.valueOf(rgb[j][i][0]);
+                    out.write(value,0, value.length());
+                    out.flush();
+                }
+            }
+
+
+            //client send bitmap data to server
+            //dataOut =new DataOutputStream(socket.getOutputStream());
+            //ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            //bitmapMain.compress(Bitmap.CompressFormat.JPEG,100,stream);
+            //byte[] byteArray = stream.toByteArray();
+            //dataOut.write(bitmapMain.getWidth());
 
             socket.close();
         } catch (UnknownHostException e) {

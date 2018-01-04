@@ -7,7 +7,6 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,14 +61,16 @@ public class MyCameraHelper {
 
     public static int[][][] convertToRGB(Bitmap bitmap) {
         int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][3];
+        rgb = new int[bitmap.getHeight()][bitmap.getWidth()][3];
+        alpha = new int[bitmap.getHeight()][bitmap.getWidth()];
         int pixel;
         for (int i = 0; i < bitmap.getWidth(); i++) {
             for (int j = 0; j < bitmap.getHeight(); j++) {
                 pixel = bitmap.getPixel(i, j);
                 //pixelMat[j][i][0] = Color.alpha(pixel);
-                pixelMat[j][i][0] = Color.red(pixel);
+                /*pixelMat[j][i][0] = Color.red(pixel);
                 pixelMat[j][i][1] = Color.green(pixel);
-                pixelMat[j][i][2] = Color.blue(pixel);
+                pixelMat[j][i][2] = Color.blue(pixel);*/
 
                 alpha[j][i] = Color.alpha(pixel);
                 rgb[j][i][0] = Color.red(pixel);
@@ -77,19 +78,21 @@ public class MyCameraHelper {
                 rgb[j][i][2] = Color.blue(pixel);
             }
         }
-        return pixelMat;
+        return rgb;
     }
 
-    public static Bitmap rotateImage(ImageView imgImage, int degree) {
+    public static Bitmap rotateImage(Bitmap image, int degree) {
         //imgImage.setRotation(imgImage.getRotation() + degree);
-        imgImage.buildDrawingCache();;
-        Bitmap b = imgImage.getDrawingCache();
         Matrix matrix = new Matrix();
-        matrix.postRotate(lastDegree + degree);
-        Bitmap bitmap = Bitmap.createBitmap(b,0,0,b.getWidth(),b.getHeight(),
-                matrix,true);
+        matrix.postRotate(degree);
+        Bitmap bitmap = Bitmap.createBitmap(image,0,0,image.getWidth(),
+                image.getHeight(), matrix,false);
         lastDegree += degree;
         return bitmap;
+    }
+
+    public static void setLastDegree() {
+        lastDegree = 0;
     }
 
     public static void saveImageFile(Uri uri, Bitmap bitmap) {

@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.io.File;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-import static com.example.leminhbang.camearamini.MyCameraHelper.lastDegree;
 import static com.example.leminhbang.camearamini.MyCameraHelper.rotateImage;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public static Context context;
     public static ActionBar actionBar;
 
-    private String serverIpAddress = "192.168.1.11";
     private boolean isFirst = true;
 
     /*private Socket mSocket;
@@ -167,11 +165,11 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 prepareCamera();
                 break;
             case R.id.action_turn_left:
-                bitmapMain = rotateImage(imgMainImage, -90);
+                bitmapMain = rotateImage(bitmapMain, -90);
                 imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case R.id.action_turn_right:
-                bitmapMain = rotateImage(imgMainImage, 90);
+                bitmapMain = rotateImage(bitmapMain, 90);
                 imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case R.id.action_customize_rotate:
@@ -364,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         imgMainImage.setImageBitmap(bitmapMain);
         imgMainImage.setRotation(View.SCROLL_AXIS_NONE);
         sekbCustomizeRotate.setProgress(180);
+        MyCameraHelper.setLastDegree();
         sekbCustomizeRotate.setVisibility(View.INVISIBLE);
     }
 
@@ -386,8 +385,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        bitmapMain = rotateImage(imgMainImage, progress - 180 - lastDegree);
-        imgMainImage.setImageBitmap(bitmapMain);
+        //bitmapMain = rotateImage(bitmapMain, progress - 180 - lastDegree);
+        imgMainImage.setImageBitmap(rotateImage(bitmapMain, progress - 180));
     }
 
     @Override

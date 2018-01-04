@@ -155,7 +155,8 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 3:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
-                bitmapTemp = convertToBlur(context,bitmapMain);
+                Bitmap b = Bitmap.createBitmap(bitmapMain);
+                bitmapTemp = convertToBlur(context,b);
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 4:
@@ -233,8 +234,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         int width = image.getWidth();
         int height = image.getHeight();
 
-        Bitmap inputBitmap = Bitmap.createScaledBitmap(image, width,
-                height, false);
+        Bitmap inputBitmap = Bitmap.createBitmap(image);
         Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
         RenderScript rs = RenderScript.create(context);
         ScriptIntrinsicBlur theIntrinsic = ScriptIntrinsicBlur.create(rs,

@@ -126,10 +126,6 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
                     isFirst = false;
                     MyScaleGesture.setScaleValue();
                 }
-                if (scale != 1) {
-                    imgMainImage.setScaleX(scale);
-                    imgMainImage.setScaleY(scale);
-                }
                 if (scale == 1) {
                     setCoordinate(event);
                 }
