@@ -23,10 +23,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.github.nkzawa.emitter.Emitter;
-
-import org.json.JSONObject;
-
 import java.io.File;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
@@ -55,16 +51,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     private boolean isFirst = true;
 
-    /*private Socket mSocket;
-    {
-        try {
-            //mSocket = IO.socket("https://demophpshop.herokuapp.com");
-            mSocket = IO.socket("http://192.168.1.11:3000");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,32 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         gestureDetector = new GestureDetector(this, new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
-        /*mSocket.connect();
-        mSocket.emit("client-send","client send data");
-        mSocket.on("server-send",respone);*/
-
     }
-
-    private Emitter.Listener respone = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String ms = (String) args[0];
-                    Toast.makeText(context, ms, Toast.LENGTH_SHORT).show();
-                    String[] tmp = ms.split(":");
-                    JSONObject data = (JSONObject) args[0];
-                    byte[] arr;
-                    /*try {
-                        arr = (byte[]) data.get("imagebyte");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }*/
-                }
-            });
-        }
-    };
 
     @Override
     protected void onStart() {

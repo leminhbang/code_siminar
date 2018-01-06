@@ -34,5 +34,5 @@ dependencies {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
-    compile 'com.github.nkzawa:socket.io-client:0.3.0'
+    //compile 'com.github.nkzawa:socket.io-client:0.3.0'
 }

@@ -3,13 +3,13 @@ package com.example.leminhbang.camearamini;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +21,7 @@ import android.widget.ImageView;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,7 +37,6 @@ import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MyCameraHelper.convertToRGB;
-import static com.example.leminhbang.camearamini.MyCameraHelper.rgb;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -47,7 +47,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private Context contextTmp;
     private Bitmap bitmapTemp;
     //private static String serverIpAddress = "172.29.132.43";
-    private static String serverIpAddress = "192.168.1.11";
+    private String serverIpAddress = "192.168.1.11";
     private InetAddress serverAddr;
     private Socket socket;
     private DataOutputStream dataOut;
@@ -225,30 +225,23 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             BufferedWriter out = new BufferedWriter(new
                     OutputStreamWriter(socket.getOutputStream()));
 
-            int width = bitmapMain.getWidth();
-            int height = bitmapMain.getHeight();
-            String w = String.valueOf(width);
-            out.write(w,0,w.length());
-            out.flush();
-            String h = String.valueOf(height);
-            out.write(h,0,h.length());
-            out.flush();
-            for (int i = 0; i < rgb[0].length; i++) {
-                for (int j = 0; j < rgb.length; j++) {
-                    String value =  String.valueOf(rgb[j][i][0]);
-                    out.write(value,0, value.length());
-                    out.flush();
-                }
-            }
-
-
             //client send bitmap data to server
-            //dataOut =new DataOutputStream(socket.getOutputStream());
-            //ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            //bitmapMain.compress(Bitmap.CompressFormat.JPEG,100,stream);
-            //byte[] byteArray = stream.toByteArray();
-            //dataOut.write(bitmapMain.getWidth());
+            dataOut =new DataOutputStream(socket.getOutputStream());
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmapMain.compress(Bitmap.CompressFormat.JPEG,100,stream);
+            byte[] byteArray = stream.toByteArray();
+            dataOut.write(byteArray,0,byteArray.length);
+            //dataOut.flush();
+            //dataOut.close();
+            int r1 = Color.red(bitmapMain.getPixel(0,0));
+            int g1 = Color.green(bitmapMain.getPixel(0,0));
+            int b1 = Color.blue(bitmapMain.getPixel(0,0));
+            int r2 = Color.red(bitmapMain.getPixel(370,1110));
+            int g2 = Color.green(bitmapMain.getPixel(370,1110));
+            int b2 = Color.blue(bitmapMain.getPixel(370,1110));
 
+            out.close();
+            in.close();
             socket.close();
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -256,35 +249,35 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             e.printStackTrace();
         }
     }
-    public static void connectServer() {
-        while (true) {
-            try {
-                InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
-
-                Socket socket = new Socket(serverIpAddress, 3000);
-                BufferedReader in = new BufferedReader(new
-                        InputStreamReader(socket.getInputStream()));
-                BufferedWriter out = new BufferedWriter(new
-                        OutputStreamWriter(socket.getOutputStream()));
-                out.write("exit", 0, 4);
-                out.flush();
-                String inMsg = "";
-                boolean b = false;
-                while (!b) {
-                    inMsg = in.readLine();
-                    if (inMsg.equals("Hello")) {
-                        b = true;
-                    }
-                    out.write("exit");
-                    out.flush();
-                }
-                socket.close();
-
-            } catch (Exception e) {
-                Log.e("ClientActivity", "S: Error", e);
-            }
-        }
-    }
+//    public static void connectServer() {
+//        while (true) {
+//            try {
+//                InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+//
+//                Socket socket = new Socket(serverIpAddress, 3000);
+//                BufferedReader in = new BufferedReader(new
+//                        InputStreamReader(socket.getInputStream()));
+//                BufferedWriter out = new BufferedWriter(new
+//                        OutputStreamWriter(socket.getOutputStream()));
+//                out.write("exit", 0, 4);
+//                out.flush();
+//                String inMsg = "";
+//                boolean b = false;
+//                while (!b) {
+//                    inMsg = in.readLine();
+//                    if (inMsg.equals("Hello")) {
+//                        b = true;
+//                    }
+//                    out.write("exit");
+//                    out.flush();
+//                }
+//                socket.close();
+//
+//            } catch (Exception e) {
+//                Log.e("ClientActivity", "S: Error", e);
+//            }
+//        }
+//    }
 
 
     private void cancelAction() {
@@ -292,7 +285,24 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     }
 
     private void saveImage() {
-
+        /*int[][][] rgb = new int[1][1][2];
+        rgb[0][0][0] = 2;
+        rgb[0][0][1] = 3;
+        int width = rgb[0].length;
+        int height = rgb.length;
+        String w = String.valueOf(width);
+        out.write(w);
+        out.flush();
+        String h = String.valueOf(height);
+        out.write(h);
+        out.flush();
+        for (int i = 0; i < rgb[0].length; i++) {
+            for (int[][] j : rgb) {
+                String value =  String.valueOf(j[i][1]);
+                out.write(value);
+                out.flush();
+            }
+        }*/
     }
 
 }
