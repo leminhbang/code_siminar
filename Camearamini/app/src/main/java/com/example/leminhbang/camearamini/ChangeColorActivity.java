@@ -3,6 +3,7 @@ package com.example.leminhbang.camearamini;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import android.widget.ImageView;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,10 +35,10 @@ import java.util.ArrayList;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
+import static com.example.leminhbang.camearamini.CutImageActivity.getPointOfTouchedCordinate;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
-import static com.example.leminhbang.camearamini.MyCameraHelper.convertToRGB;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -46,14 +48,14 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
     private Bitmap bitmapTemp;
-    //private static String serverIpAddress = "172.29.132.43";
+    //private static String serverIpAddress = "172.29.132.156";
     private String serverIpAddress = "192.168.1.11";
-    private InetAddress serverAddr;
-    private Socket socket;
-    private DataOutputStream dataOut;
 
     public int currentObjectColor;
     private boolean isFirst = true;
+    private float[] pointColor;
+    private byte[] bytes;
+    private boolean isOK = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +79,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         if (filePath != null) {
             bitmapTemp = bitmapMain;
             imgMainImage.setImageBitmap(bitmapMain);
-            convertToRGB(bitmapMain);
+            //convertToRGB(bitmapMain);
         }
-        Thread cThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                connect();
-            }
-        });
-        cThread.start();
+
     }
 
     @Override
@@ -132,7 +128,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         int id = v.getId();
         switch (id) {
             case R.id.img_main_image:
-                scaleGestureDetector.onTouchEvent(event);
+                /*scaleGestureDetector.onTouchEvent(event);
                 if (!isFirst) {
                     float scale = MyScaleGesture.getScaleValue();
                     imgMainImage.setScaleX(scale);
@@ -140,6 +136,10 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                 } else {
                     isFirst = false;
                     MyScaleGesture.setScaleValue();
+                }*/
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    pointColor = getPointOfTouchedCordinate(imgMainImage,event);
+                    openColorDialog(0);
                 }
 
                 gestureDetector.onTouchEvent(event);
@@ -196,11 +196,27 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     }
 
     public void openColorDialog(final int index) {
+
         AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, currentObjectColor, false, new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 currentObjectColor = color;
                 imgbButtonColors.get(index).setBackgroundColor(color);
+                //send data to server
+                Thread cThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        connect();
+                    }
+                });
+                cThread.start();
+                try {
+                    cThread.join();
+                    imgMainImage.setImageBitmap(bitmapTemp);
+                    imgMainImage.refreshDrawableState();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -218,34 +234,79 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     }
     public void connect() {
         try {
-            serverAddr = InetAddress.getByName(serverIpAddress);
-            socket = new Socket(serverIpAddress, 3000);
+            InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+            Socket socket = new Socket(serverIpAddress, 3000);
+            /*socket.setSendBufferSize(900000);
+            socket.setReceiveBufferSize(600000);
+            socket.setSoTimeout(1);*/
             BufferedReader in = new BufferedReader(new
                     InputStreamReader(socket.getInputStream()));
             BufferedWriter out = new BufferedWriter(new
                     OutputStreamWriter(socket.getOutputStream()));
 
             //client send bitmap data to server
-            dataOut =new DataOutputStream(socket.getOutputStream());
+            DataOutputStream dataOut =new DataOutputStream(socket.getOutputStream());
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmapMain.compress(Bitmap.CompressFormat.JPEG,100,stream);
             byte[] byteArray = stream.toByteArray();
-            dataOut.write(byteArray,0,byteArray.length);
-            //dataOut.flush();
-            //dataOut.close();
-            int r1 = Color.red(bitmapMain.getPixel(0,0));
-            int g1 = Color.green(bitmapMain.getPixel(0,0));
-            int b1 = Color.blue(bitmapMain.getPixel(0,0));
-            int r2 = Color.red(bitmapMain.getPixel(370,1110));
-            int g2 = Color.green(bitmapMain.getPixel(370,1110));
-            int b2 = Color.blue(bitmapMain.getPixel(370,1110));
 
+            float[] position2 = new float[2];
+            float[] position3 = new float[2];
+            position2[0] = pointColor[0] + 40;
+            position2[1] = pointColor[1];
+            position3[0] = pointColor[0] + 20;
+            position3[1] = pointColor[1] + 20;
+            String s = pointColor[0] + " " + pointColor[1] + " " +
+                    position2[0] + " " + position2[1] + " " +
+                    position3[0] + " " + position3[1] + " " +
+                    Color.red(currentObjectColor) + " " +
+                    Color.green(currentObjectColor) + " " +
+                    Color.blue(currentObjectColor) + " " +
+                    byteArray.length;
+            out.write(s);
+            out.flush();
+            /*int busize = socket.getSendBufferSize();
+            int count = byteArray.length/socket.getSendBufferSize();
+            String size =  busize + " " +  count;*/
+            //out.write(size);
+            //out.flush();
+
+            dataOut.write(byteArray);
+
+            //receive data
+            DataInputStream dataIn = new DataInputStream(socket.getInputStream());
+            //int lengthOut = dataIn.read(results);
+            byte[] byteTmp = new byte[100];
+            String size = in.readLine();
+            /*int size = dataIn.read(byteTmp);
+            ByteBuffer wrapped = ByteBuffer.wrap(byteTmp,0,size);*/
+            int length = Integer.parseInt(size);
+            bytes = new byte[length];
+            int messageSize = length,b = 0;
+            while(b < messageSize)
+            {
+                b += dataIn.read(bytes,b,messageSize - b);
+            }
+            //bytes = Arrays.copyOf(results,lengthOut);
+            bitmapTemp = BitmapFactory.decodeByteArray(bytes, 0,
+                    bytes.length);
+
+            //dataOut.flush();
+
+
+            /*imgMainImage.setImageBitmap(bitmapTemp);
+            imgMainImage.refreshDrawableState();*/
+            dataOut.close();
             out.close();
             in.close();
+            dataIn.close();
             socket.close();
+
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

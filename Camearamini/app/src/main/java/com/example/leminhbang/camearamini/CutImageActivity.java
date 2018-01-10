@@ -37,7 +37,6 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     private int flag = 0;
     float x0, y0, x1, y1, x2, y2, x3, y3;
     private int CROP_IMAGE = 1;
-    private long timeTouth = 0;
     private boolean isFirst = true;
 
     @Override
@@ -110,6 +109,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
                 imgMainImage.setImageBitmap(bitmapMain);
             }
         }
+
     }
 
     @Override
@@ -117,16 +117,16 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         int id = v.getId();
         switch (id) {
             case R.id.img_main_image:
-                scaleGestureDetector.onTouchEvent(event);
-                float scale = MyScaleGesture.getScaleValue();
-                if (!isFirst) {
+                /*scaleGestureDetector.onTouchEvent(event);
+                float scale = MyScaleGesture.getScaleValue();*/
+                /*if (!isFirst) {
                     imgMainImage.setScaleX(scale);
                     imgMainImage.setScaleY(scale);
                 } else {
                     isFirst = false;
                     MyScaleGesture.setScaleValue();
-                }
-                if (scale == 1) {
+                }*/
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     setCoordinate(event);
                 }
 
@@ -156,30 +156,44 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         }
         return true;
     }
+    public static float[] getPointOfTouchedCordinate(ImageView view, MotionEvent e) {
 
+        final int index = e.getActionIndex();
+        final float[] coords = new float[] { e.getX(index), e.getY(index) };
+        Matrix m = new Matrix();
+        view.getImageMatrix().invert(m);
+        m.postTranslate(view.getScrollX(), view.getScrollY());
+        m.mapPoints(coords);
+        return coords;
+
+    }
     public void setCoordinate(MotionEvent event) {
+        int[] viewCoords = new int[2];
+        imgMainImage.getLocationOnScreen(viewCoords);
+        float[] points = getPointOfTouchedCordinate(imgMainImage
+                , event);
         if (flag == 4)
             flag = 0;
         switch (flag) {
             case 0:
                 bitmapDraw = Bitmap.createBitmap(bitmapMain);
-                x0 = event.getX();
-                y0 = event.getY();
+                x0 = points[0];
+                y0 = points[1];
                 drawPoint(x0,y0,x0,y0);
                 break;
             case 1:
-                x1 = event.getX();
-                y1 = event.getY();
+                x1 = points[0];
+                y1 = points[1];
                 drawPoint(x0,y0,x1,y1);
                 break;
             case 2:
-                x2 = event.getX();
-                y2 = event.getY();
+                x2 = points[0];
+                y2 = points[1];
                 drawPoint(x1,y1,x2,y2);
                 break;
             case 3:
-                x3 = event.getX();
-                y3 = event.getY();
+                x3 = points[0];
+                y3 = points[1];
                 drawPoint(x2,y2,x3,y3);
                 drawPoint(x3,y3,x0,y0);
                 break;

@@ -360,4 +360,16 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     }
 
+    /*public String getPicturePath(Uri uriImage)
+    {
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(uriImage,
+                filePathColumn, null, null, null);
+        cursor.moveToFirst();
+
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String path = cursor.getString(columnIndex);
+        cursor.close();
+        return path;
+    }*/
 }
