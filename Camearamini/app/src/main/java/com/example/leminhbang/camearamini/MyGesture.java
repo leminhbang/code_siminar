@@ -65,14 +65,14 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
                     Intent intent = new Intent(context,ChangeShadeActivity.class);
                     context.startActivity(intent);
                     break;
-                case R.id.action_clarify_image:
+                /*case R.id.action_clarify_image:
                     Intent intent1 = new Intent(context,ClarifyPortraitActivity.class);
                     context.startActivity(intent1);
                     break;
                 case R.id.action_change_portrait:
                     Intent intent2 = new Intent(context,ClarifyPortraitActivity.class);
                     context.startActivity(intent2);
-                    break;
+                    break;*/
                 case R.id.action_change_color_image:
                     Intent intent3 = new Intent(context,ChangeColorActivity.class);
                     context.startActivity(intent3);

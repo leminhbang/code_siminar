@@ -26,6 +26,8 @@ import android.widget.Toast;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class CutImageActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -252,7 +254,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         bitmapMain = bitmap;
         flag = 0;
 
-        //saveImageFile(fileUri,bitmapMain);
+        saveImageFile(fileUri,bitmapMain);
     }
 
     private void performCrop(Uri picUri) {

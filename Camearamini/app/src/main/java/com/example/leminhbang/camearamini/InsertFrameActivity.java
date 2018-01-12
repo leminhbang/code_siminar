@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 import static com.example.leminhbang.camearamini.MyScaleGesture.scale;
 
 
@@ -189,7 +191,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         bitmapFrame = bitmapMain;
 
         //luu anh vao bo nho
-        //saveImageFile(fileUri,bitmapMain);
+        saveImageFile(fileUri,bitmapMain);
 
         imgFrame.setImageBitmap(null);
         imgMainImage.setScaleX(1);

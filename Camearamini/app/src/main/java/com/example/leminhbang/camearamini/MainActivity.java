@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public static ActionBar actionBar;
 
     private boolean isFirst = true;
+    private boolean isChoose = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         } else {
             bitmapTemp = bitmapMain;
             imgMainImage.setImageBitmap(bitmapMain);
+            if (isChoose)
+                filePath = getPicturePath(fileUri);
         }
     }
 
@@ -126,22 +129,23 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 prepareCamera();
                 break;
             case R.id.action_turn_left:
-                bitmapMain = rotateImage(bitmapMain, -90);
-                imgMainImage.setImageBitmap(bitmapMain);
+                bitmapTemp = rotateImage(bitmapTemp, -90);
+                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case R.id.action_turn_right:
-                bitmapMain = rotateImage(bitmapMain, 90);
-                imgMainImage.setImageBitmap(bitmapMain);
+                bitmapTemp = rotateImage(bitmapTemp, 90);
+                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case R.id.action_customize_rotate:
                 rotateImageCustomize();
                 break;
             case R.id.action_load_image:
+                isChoose = true;
                 showFileChooser();
                 break;
             case R.id.action_save:
                 if (bitmapMain != null) {
-                    bitmapTemp = bitmapMain;
+                    bitmapMain = bitmapTemp;
                     saveImageFile(fileUri, bitmapMain);
                 }
                 break;
@@ -183,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 cursor.close();
 
                 imgMainImage.setImageBitmap(bitmapMain);
-                imgTempImage = imgMainImage;
             }
         }
 
@@ -262,11 +265,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         actionBar = acb;
     }
 
-    public Bitmap convertToBitmap(ImageView img) {
-        img.buildDrawingCache();
-        return img.getDrawingCache();
-    }
-
     // hien anh vua chip len man hinh
     public void viewImage() {
         filePath = fileUri.getPath();
@@ -278,9 +276,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         options.inSampleSize = 8;
         bitmapMain = BitmapFactory.decodeFile(filePath, options);
         imgMainImage.setImageBitmap(bitmapMain);
-        imgTempImage = imgMainImage;
-
-
     }
 
     //chuan bi cameara
@@ -294,6 +289,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     //hien hop thoai de chon file khi nhan load anh
     private void showFileChooser() {
+        isChoose = true;
         //Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.
                 Media.EXTERNAL_CONTENT_URI);
@@ -317,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     //huy cac hanh dong da chon dua anh ve anh goc ban dau
     public void cancelAction() {
-        bitmapMain = bitmapTemp;
+        bitmapTemp = bitmapMain;
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
         imgMainImage.setImageBitmap(bitmapMain);
@@ -337,7 +333,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             boolean delete = file.delete();
             if (delete == true) {
                 Toast.makeText(MainActivity.this, "Xoa thành công", Toast.LENGTH_LONG).show();
-                imgMainImage.setImageResource(android.R.color.transparent);
+                filePath = null;
+                fileUri = null;
+                bitmapMain = null;
+                imgMainImage.setImageBitmap(null);
             } else {
                 Toast.makeText(MainActivity.this, "Xóa lỗi", Toast.LENGTH_LONG).show();
             }
@@ -347,7 +346,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         //bitmapMain = rotateImage(bitmapMain, progress - 180 - lastDegree);
-        imgMainImage.setImageBitmap(rotateImage(bitmapMain, progress - 180));
+        bitmapTemp = rotateImage(bitmapMain, progress - 180);
+        imgMainImage.setImageBitmap(bitmapTemp);
     }
 
     @Override
@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     }
 
-    /*public String getPicturePath(Uri uriImage)
+    public String getPicturePath(Uri uriImage)
     {
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uriImage,
@@ -371,5 +371,5 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         String path = cursor.getString(columnIndex);
         cursor.close();
         return path;
-    }*/
+    }
 }

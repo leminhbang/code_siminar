@@ -22,6 +22,7 @@ import java.util.Locale;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.filePath;
 
 /**
  * Created by LE MINH BANG on 30/10/2017.
@@ -115,7 +116,10 @@ public class MyCameraHelper {
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "Cameramini");
 
-        String path = file.getPath() + file.separator + fileName;
+        //String path = file.getPath() + file.separator + fileName;
+        if (filePath.equals(null) || filePath.equals(""))
+            return;
+        String path = filePath;
         File f = new File(path);
         FileOutputStream fOut;
         try {

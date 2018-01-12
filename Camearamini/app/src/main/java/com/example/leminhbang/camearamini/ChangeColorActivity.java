@@ -39,6 +39,8 @@ import static com.example.leminhbang.camearamini.CutImageActivity.getPointOfTouc
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -49,7 +51,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private Context contextTmp;
     private Bitmap bitmapTemp;
     //private static String serverIpAddress = "172.29.132.156";
-    private String serverIpAddress = "192.168.1.11";
+    private String serverIpAddress = "192.168.1.128";
 
     public int currentObjectColor;
     private boolean isFirst = true;
@@ -342,28 +344,13 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
 
     private void cancelAction() {
-
+        bitmapTemp = bitmapMain;
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 
     private void saveImage() {
-        /*int[][][] rgb = new int[1][1][2];
-        rgb[0][0][0] = 2;
-        rgb[0][0][1] = 3;
-        int width = rgb[0].length;
-        int height = rgb.length;
-        String w = String.valueOf(width);
-        out.write(w);
-        out.flush();
-        String h = String.valueOf(height);
-        out.write(h);
-        out.flush();
-        for (int i = 0; i < rgb[0].length; i++) {
-            for (int[][] j : rgb) {
-                String value =  String.valueOf(j[i][1]);
-                out.write(value);
-                out.flush();
-            }
-        }*/
+        bitmapMain = bitmapTemp;
+        saveImageFile(fileUri,bitmapMain);
     }
 
 }

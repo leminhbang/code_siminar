@@ -17,10 +17,10 @@
     <string name="clarify_image">Làm rõ ảnh</string>
     <string name="change_portrait_image">Đổi chân dung</string>
     <string name="change_color_image">Đổi màu ảnh</string>
-    <string name="title_activity_change_shade">ChangeShadeActivity</string>
-    <string name="title_activity_clarify_portrait">ClarifyPortraitActivity</string>
-    <string name="title_activity_change_color">ChangeColorActivity</string>
-    <string name="title_activity_insert_frame">InsertFrameActivity</string>
-    <string name="title_activity_insert_text">InsertTextActivity</string>
-    <string name="title_activity_cut_image">CutImageActivity</string>
+    <string name="title_activity_change_shade">Đổi sắc thái</string>
+    <string name="title_activity_clarify_portrait">Làm rõ ảnh</string>
+    <string name="title_activity_change_color">Đổi màu ảnh</string>
+    <string name="title_activity_insert_frame">Chèn khung</string>
+    <string name="title_activity_insert_text">Chèn chữ</string>
+    <string name="title_activity_cut_image">Cắt ảnh</string>
 </resources>

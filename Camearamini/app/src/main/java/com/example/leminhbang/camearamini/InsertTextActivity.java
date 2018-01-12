@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, View.OnLongClickListener, View.OnDragListener {
     private ImageView imgMainImage;
@@ -84,6 +86,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         //edtInsertText.addTextChangedListener(this);
         edtInsertText.setOnLongClickListener(this);
         edtInsertText.setOnDragListener(this);
+        edtInsertText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         int w = getWindowManager().getDefaultDisplay().getWidth()/2;
         int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
@@ -156,7 +159,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         }
         arrEditTexts.clear();
         bitmapTemp = bitmapMain;
-        //saveImageFile(fileUri,bitmapMain);
+        saveImageFile(fileUri,bitmapMain);
     }
 
     @Override
@@ -211,6 +214,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         Canvas c = new Canvas(outputBitmap);
         c.drawBitmap(bitmap,0,0,null);
         TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.BLUE);
         paint.setTextSize(60);

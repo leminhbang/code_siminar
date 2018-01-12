@@ -134,6 +134,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 0:
                 Toast.makeText(context,"Không có",
                         Toast.LENGTH_SHORT).show();
+                bitmapTemp = bitmapMain;
                 imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case 1:
@@ -141,10 +142,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                         Toast.LENGTH_SHORT).show();
                 bitmapTemp = convertToGray(bitmapMain);
                 imgMainImage.setImageBitmap(bitmapTemp);
-                /*Bitmap b = convertToGray(bitmap);
-                pixelMat = MyCameraHelper.convertBitmapToMatrix(b);
-                imgMainImage.setImageBitmap(MyCameraHelper.
-                        convertMatrixToBitmap(pixelMat));*/
                 break;
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
@@ -164,6 +161,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                         Toast.LENGTH_SHORT).show();
                 Drawable d = new BitmapDrawable(getResources(),bitmapMain);
                 d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
+                bitmapTemp = ((BitmapDrawable) d).getBitmap();
                 imgMainImage.setImageDrawable(d);
                 break;
         }
