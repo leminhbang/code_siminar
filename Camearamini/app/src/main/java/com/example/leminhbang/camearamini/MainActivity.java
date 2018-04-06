@@ -1,6 +1,7 @@
 package com.example.leminhbang.camearamini;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -11,8 +12,10 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,14 +26,17 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+
 import java.io.File;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static com.example.leminhbang.camearamini.MyCameraHelper.rotateImage;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
-
-//import com.github.nkzawa.socketio.client.Socket;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
 
@@ -45,12 +51,32 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     ScaleGestureDetector scaleGestureDetector;
 
     public static Bitmap bitmapMain;
-    private Bitmap bitmapTemp;
+    public static Bitmap bitmapTemp;
     public static Context context;
     public static ActionBar actionBar;
 
     private boolean isFirst = true;
     private boolean isChoose = false;
+
+    public Mat matMain;
+
+    static {
+        System.loadLibrary("Mylib");
+    }
+
+    BaseLoaderCallback callback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case BaseLoaderCallback.SUCCESS:
+                    matMain = new Mat();
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +107,81 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             if (isChoose)
                 filePath = getPicturePath(fileUri);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (OpenCVLoader.initDebug()) {
+            callback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            Log.d("Main", "Load opencv success");
+        } else {
+            Log.d("Main", "Load opencv failed");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0,
+                    this, callback);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (bitmapMain != null) {
+            //showDialogSave();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        matMain.release();
+        bitmapTemp.recycle();
+        super.onDestroy();
+    }
+
+    public static void showDialogSave(final Bitmap bmSave,
+                                      final int intendSelect) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setTitle(R.string.save_confirm);
+        dialog.setMessage(R.string.save_message);
+        dialog.setPositiveButton(R.string.No, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                selectIntentToStart(intendSelect);
+            }
+        });
+        dialog.setNegativeButton(R.string.Yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (bitmapMain != null) {
+                    bitmapMain = bmSave;
+                    saveImageFile(fileUri, bitmapMain);
+                }
+                selectIntentToStart(intendSelect);
+            }
+        });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+    }
+    public static void selectIntentToStart(int intentSelected) {
+        Intent intent = null;
+        switch (intentSelected) {
+            case InterfaceClass.MainClass:
+                intent = new Intent(context,MainActivity.class);
+                break;
+            case InterfaceClass.ChangeColorClass:
+                intent = new Intent(context,ChangeColorActivity.class);
+                break;
+            case InterfaceClass.CutImageClass:
+                intent = new Intent(context,CutImageActivity.class);
+                break;
+            case InterfaceClass.ChangeShadeClass:
+                intent = new Intent(context,ChangeShadeActivity.class);
+                break;
+            case InterfaceClass.InsertFrameClass:
+                intent = new Intent(context,InsertFrameActivity.class);
+                break;
+            case InterfaceClass.InsertTextClass:
+                intent = new Intent(context,InsertTextActivity.class);
+                break;
+        }
+        context.startActivity(intent);
     }
 
     public void mapView() {
@@ -171,25 +272,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         if (requestCode == FILE_SELECT_CODE) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
-                fileUri = uri;
-                filePath = uri.getPath();
-
-                String[] filePaths = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getContentResolver().query(uri,
-                        filePaths, null, null, null);
-                cursor.moveToFirst();
-                String imagePath = cursor.getString(cursor.
-                        getColumnIndex(filePaths[0]));
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inScaled = false;
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                bitmapMain = BitmapFactory.decodeFile(imagePath, options);
-                cursor.close();
-
-                imgMainImage.setImageBitmap(bitmapMain);
+                viewImage(uri);
             }
         }
-
     }
 
     //bat su kien khi chon vao cac item tren bottom navigation bar
@@ -201,17 +286,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                Intent intent = new Intent(context, InsertTextActivity.class);
-                ;
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                intent = new Intent(context, InsertFrameActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                intent = new Intent(context, CutImageActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -232,9 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     isFirst = false;
                     MyScaleGesture.setScaleValue();
                 }
-
                 gestureDetector.onTouchEvent(event);
-
                 break;
             case R.id.linearlayout_main:
                 gestureDetector.onTouchEvent(event);
@@ -246,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         // save file url in bundle as it will be null on screen orientation
         // changes
         outState.putParcelable("file_uri", fileUri);
@@ -255,7 +333,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
         // get the file url
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
@@ -275,6 +352,31 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         // images
         options.inSampleSize = 8;
         bitmapMain = BitmapFactory.decodeFile(filePath, options);
+
+        //convert bitmap to mat (opencv)
+        Utils.bitmapToMat(bitmapMain, matMain);
+        //display image in the iimage view
+        imgMainImage.setImageBitmap(bitmapMain);
+    }
+
+    private void viewImage(Uri uri) {
+        fileUri = uri;
+        filePath = uri.getPath();
+
+        String[] filePaths = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(uri,
+                filePaths, null, null, null);
+        cursor.moveToFirst();
+        String imagePath = cursor.getString(cursor.
+                getColumnIndex(filePaths[0]));
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        bitmapMain = BitmapFactory.decodeFile(imagePath, options);
+        cursor.close();
+        //convert bitmap to mat (opencv)
+        Utils.bitmapToMat(bitmapMain, matMain);
+        //display image in the image view
         imgMainImage.setImageBitmap(bitmapMain);
     }
 
@@ -360,8 +462,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     }
 
-    public String getPicturePath(Uri uriImage)
-    {
+    public String getPicturePath(Uri uriImage) {
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uriImage,
                 filePathColumn, null, null, null);

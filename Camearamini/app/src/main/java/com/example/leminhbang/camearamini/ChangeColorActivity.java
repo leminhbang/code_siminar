@@ -1,7 +1,6 @@
 package com.example.leminhbang.camearamini;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -37,9 +36,11 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 import static com.example.leminhbang.camearamini.CutImageActivity.getPointOfTouchedCordinate;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
@@ -49,7 +50,6 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapTemp;
     //private static String serverIpAddress = "172.29.132.156";
     private String serverIpAddress = "192.168.1.128";
 
@@ -143,9 +143,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                     pointColor = getPointOfTouchedCordinate(imgMainImage,event);
                     openColorDialog(0);
                 }
-
                 gestureDetector.onTouchEvent(event);
-
                 break;
             case R.id.linearlayout_main:
                 gestureDetector.onTouchEvent(event);
@@ -182,16 +180,13 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                Intent intent = new Intent(context, InsertTextActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                intent = new Intent(context, InsertFrameActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                intent = new Intent(context, CutImageActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
                 break;
         }
         return true;

@@ -1,7 +1,6 @@
 package com.example.leminhbang.camearamini;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -27,10 +26,18 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class ChangeShadeActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
@@ -41,7 +48,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     GestureDetector gestureDetector;
     ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapTemp;
     private boolean isFirst = true;
 
     @Override
@@ -115,9 +121,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                     isFirst = false;
                     MyScaleGesture.setScaleValue();
                 }
-
                 gestureDetector.onTouchEvent(event);
-
                 break;
             case R.id.linearlayout_main:
                 gestureDetector.onTouchEvent(event);
@@ -129,7 +133,12 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         bitmapTemp = bitmapMain;
-        int[][][] pixelMat;
+        int w = bitmapMain.getWidth();
+        int h = bitmapMain.getHeight();
+        Mat org = new Mat(h,w, CvType.CV_8SC4);
+        Mat gray = new Mat(h,w,CvType.CV_8SC1);
+        Utils.bitmapToMat(bitmapMain,org);
+        Bitmap bmm = Bitmap.createBitmap(w,h,bitmapMain.getConfig());
         switch (position) {
             case 0:
                 Toast.makeText(context,"Không có",
@@ -140,20 +149,37 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 1:
                 Toast.makeText(context,"Ảnh xám",
                         Toast.LENGTH_SHORT).show();
-                bitmapTemp = convertToGray(bitmapMain);
+                /*NativeClass.convertToGray(org.getNativeObjAddr(),
+                        gray.getNativeObjAddr());*/
+                Imgproc.cvtColor(org,gray,Imgproc.COLOR_RGBA2GRAY);
+                Utils.matToBitmap(gray,bmm);
+                bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
                         Toast.LENGTH_SHORT).show();
-                bitmapTemp = convertToNegative(bitmapMain);
+                //bitmapTemp = convertToNegative(bitmapMain);
+                /*Mat mNeg = new Mat(h,w,CvType.CV_8SC1);
+                Imgproc.cvtColor(org,gray,Imgproc.COLOR_RGB2GRAY);
+                Imgproc.threshold(gray,mNeg,100,255,Imgproc.THRESH_BINARY);
+                Utils.matToBitmap(mNeg,bmm);*/
+                Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
+                NativeClass.convertToNegative(org.getNativeObjAddr(),
+                        gray.getNativeObjAddr());
+                Utils.matToBitmap(gray,bmm);
+                bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 3:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
-                Bitmap b = Bitmap.createBitmap(bitmapMain);
-                bitmapTemp = convertToBlur(context,b);
+                //Bitmap b = Bitmap.createBitmap(bitmapMain);
+                //bitmapTemp = convertToBlur(context,b);
+                Mat mBlur = new Mat(h,w,CvType.CV_8SC1);
+                Imgproc.blur(org,mBlur, new Size(20,1));
+                Utils.matToBitmap(mBlur,bmm);
+                bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 4:
@@ -172,16 +198,13 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                Intent intent = new Intent(context,InsertTextActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                intent = new Intent(ChangeShadeActivity.this, InsertFrameActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                intent = new Intent(context,CutImageActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
                 break;
         }
         return true;

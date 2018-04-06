@@ -1,6 +1,5 @@
 package com.example.leminhbang.camearamini;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.GestureDetector;
 import android.view.MenuItem;
@@ -11,7 +10,9 @@ import com.kennyc.bottomsheet.BottomSheetListener;
 
 import static com.example.leminhbang.camearamini.MainActivity.actionBar;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 
 /**
  * Created by LE MINH BANG on 10/10/2017.
@@ -62,8 +63,7 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
         if (bitmapMain != null) {
             switch (id) {
                 case R.id.action_change_shade:
-                    Intent intent = new Intent(context,ChangeShadeActivity.class);
-                    context.startActivity(intent);
+                    showDialogSave(bitmapTemp,InterfaceClass.ChangeShadeClass);
                     break;
                 /*case R.id.action_clarify_image:
                     Intent intent1 = new Intent(context,ClarifyPortraitActivity.class);
@@ -74,8 +74,7 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
                     context.startActivity(intent2);
                     break;*/
                 case R.id.action_change_color_image:
-                    Intent intent3 = new Intent(context,ChangeColorActivity.class);
-                    context.startActivity(intent3);
+                    showDialogSave(bitmapTemp,InterfaceClass.ChangeColorClass);
                     break;
             }
         }

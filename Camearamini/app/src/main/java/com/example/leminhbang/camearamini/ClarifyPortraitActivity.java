@@ -1,7 +1,6 @@
 package com.example.leminhbang.camearamini;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -16,9 +15,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 
 public class ClarifyPortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
@@ -103,12 +104,13 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                Intent intent = new Intent(context,InsertTextActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                intent = new Intent(context, InsertFrameActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                break;
+            case R.id.action_cut_image:
+                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
                 break;
         }
         return true;

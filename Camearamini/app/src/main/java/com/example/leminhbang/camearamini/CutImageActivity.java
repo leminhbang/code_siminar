@@ -24,9 +24,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class CutImageActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener {
@@ -35,7 +37,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapTemp,bitmapDraw;
+    private Bitmap bitmapDraw;
     private int flag = 0;
     float x0, y0, x1, y1, x2, y2, x3, y3;
     private int CROP_IMAGE = 1;
@@ -146,12 +148,10 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                Intent intent = new Intent(context,InsertTextActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                intent = new Intent(CutImageActivity.this, InsertFrameActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
                 break;

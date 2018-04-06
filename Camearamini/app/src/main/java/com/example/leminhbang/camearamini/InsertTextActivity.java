@@ -2,7 +2,6 @@ package com.example.leminhbang.camearamini;
 
 import android.content.ClipData;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,9 +28,11 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, View.OnLongClickListener, View.OnDragListener {
@@ -46,7 +47,6 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     private RelativeLayout.LayoutParams params;
     ViewGroup vg;
-    private Bitmap bitmapTemp;
     private boolean isFirst = true;
 
 
@@ -192,12 +192,10 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
             case R.id.action_insert_text:
                 break;
             case R.id.action_insert_frame:
-                Intent intent = new Intent(context,InsertFrameActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                intent = new Intent(context,CutImageActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
                 break;
         }
         return true;

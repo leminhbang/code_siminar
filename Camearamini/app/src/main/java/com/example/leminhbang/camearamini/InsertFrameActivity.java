@@ -1,7 +1,6 @@
 package com.example.leminhbang.camearamini;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -22,23 +21,25 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
+import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
+import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 import static com.example.leminhbang.camearamini.MyScaleGesture.scale;
 
 
 public class InsertFrameActivity extends AppCompatActivity implements View.OnTouchListener, AdapterView.OnItemClickListener, BottomNavigationView.OnNavigationItemSelectedListener {
-    private ImageView imgMainImage,imgFrame;
+    private ImageView imgMainImage, imgFrame;
     private Gallery galleryImageFrame;
     private BottomNavigationView btmnBottomMenu;
     private int REQUEST = 1;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapFrame,bitmapTemp;
-    private int originalWidth,originalHeight, width, height;
+    private Bitmap bitmapFrame;
+    private int originalWidth, originalHeight, width, height;
     private boolean isFirst = true;
 
     @Override
@@ -52,7 +53,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         context = this;
         mapView();
 
-        gestureDetector = new GestureDetector(this,new MyGesture());
+        gestureDetector = new GestureDetector(this, new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
     }
@@ -98,7 +99,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         imgMainImage.setOnTouchListener(this);
         imgFrame = (ImageView) findViewById(R.id.imgFrame);
         galleryImageFrame = (Gallery) findViewById(R.id.gallery_image_frame);
-        galleryImageFrame.setAdapter(new GallaryAdapter(this,REQUEST));
+        galleryImageFrame.setAdapter(new GallaryAdapter(this, REQUEST));
         galleryImageFrame.setOnItemClickListener(this);
         btmnBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
         btmnBottomMenu.setOnNavigationItemSelectedListener(this);
@@ -119,8 +120,10 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
                     MyScaleGesture.setScaleValue();
                 }
 
-                width = Math.round(originalWidth*scale);;
-                height = Math.round(originalHeight*scale);;
+                width = Math.round(originalWidth * scale);
+                ;
+                height = Math.round(originalHeight * scale);
+                ;
 
                 gestureDetector.onTouchEvent(event);
                 break;
@@ -133,7 +136,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        bitmapFrame = BitmapFactory.decodeResource(getResources(),(int) id);
+        bitmapFrame = BitmapFactory.decodeResource(getResources(), (int) id);
         int w = imgFrame.getWidth();
         int h = imgFrame.getHeight();
         Bitmap tmp = Bitmap.createScaledBitmap(bitmapFrame, w, h, false);
@@ -146,14 +149,12 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                Intent intent = new Intent(context,InsertTextActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
                 break;
             case R.id.action_cut_image:
-                intent = new Intent(context,CutImageActivity.class);
-                startActivity(intent);
+                showDialogSave(bitmapTemp, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -171,27 +172,27 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         }
         Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(),
                 bmp1.getHeight(), Bitmap.Config.ARGB_8888);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         paint.setDither(false);
         paint.setAntiAlias(false);
         paint.setFilterBitmap(false);
 
         Canvas canvas = new Canvas(bmOverlay);
-        float w = (bmp1.getWidth() - bmp2.getWidth())/2;
-        float h = (bmp1.getHeight() - bmp2.getHeight())/2;
-        canvas.drawBitmap(bmp1,0,0, paint);
-        canvas.drawBitmap(bmp2,w,h, paint);
+        float w = (bmp1.getWidth() - bmp2.getWidth()) / 2;
+        float h = (bmp1.getHeight() - bmp2.getHeight()) / 2;
+        canvas.drawBitmap(bmp1, 0, 0, paint);
+        canvas.drawBitmap(bmp2, w, h, paint);
         return bmOverlay;
     }
 
     public void saveImage() {
-        Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain,width,height,false);
+        Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain, width, height, false);
         bitmapMain = Bitmap.createBitmap(tmp);
-        bitmapMain = overlayBitmap(bitmapFrame,bitmapMain);
+        bitmapMain = overlayBitmap(bitmapFrame, bitmapMain);
         bitmapFrame = bitmapMain;
 
         //luu anh vao bo nho
-        saveImageFile(fileUri,bitmapMain);
+        saveImageFile(fileUri, bitmapMain);
 
         imgFrame.setImageBitmap(null);
         imgMainImage.setScaleX(1);

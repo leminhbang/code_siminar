@@ -44,18 +44,21 @@
             android:layout_width="20dp"
             android:layout_marginRight="20dp"
             android:layout_height="match_parent"
-            android:background="@color/black_85"/>
+            android:background="@color/black_85"
+            android:visibility="gone"/>
         <ImageButton
             android:id="@+id/imgb_color_image_2"
             android:layout_width="20dp"
             android:layout_marginRight="20dp"
             android:layout_height="match_parent"
-            android:background="#ea1b1b"/>
+            android:background="#ea1b1b"
+            android:visibility="gone"/>
         <ImageButton
             android:id="@+id/imgb_color_image_3"
             android:layout_width="20dp"
             android:layout_marginRight="20dp"
             android:layout_height="match_parent"
-            android:background="#1d33f7"/>
+            android:background="#1d33f7"
+            android:visibility="gone"/>
     </LinearLayout>
 </RelativeLayout>

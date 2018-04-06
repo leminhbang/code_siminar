@@ -14,6 +14,10 @@
     <string name="cancel">Hủy</string>
     <string name="camera">Camera</string>
     <string name="about">Thông tin</string>
+    <string name="save_confirm">Lưu ảnh</string>
+    <string name="save_message">Bạn có muốn lưu ảnh không?</string>
+    <string name="Yes">Có</string>
+    <string name="No">Không</string>
     <string name="clarify_image">Làm rõ ảnh</string>
     <string name="change_portrait_image">Đổi chân dung</string>
     <string name="change_color_image">Đổi màu ảnh</string>
