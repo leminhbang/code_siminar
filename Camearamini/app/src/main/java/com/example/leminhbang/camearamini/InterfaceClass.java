@@ -11,4 +11,6 @@ public interface InterfaceClass {
     public static int InsertFrameClass = 1004;
     public static int InsertTextClass = 1005;
     public static int CutImageClass = 1006;
+    public static int ClarifyClass = 1007;
+    public static int ChangePortrait = 1008;
 }

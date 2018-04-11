@@ -124,15 +124,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public void onBackPressed() {
-        if (bitmapMain != null) {
-            //showDialogSave();
-        }
+        super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
         matMain.release();
         bitmapTemp.recycle();
+        sekbCustomizeRotate.setProgress(160);
         super.onDestroy();
     }
 
@@ -179,6 +178,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 break;
             case InterfaceClass.InsertTextClass:
                 intent = new Intent(context,InsertTextActivity.class);
+                break;
+            case InterfaceClass.ClarifyClass:
+                intent = new Intent(context,ClarifyPortraitActivity.class);
+                break;
+            case InterfaceClass.ChangePortrait:
+                intent = new Intent(context,ClarifyPortraitActivity.class);
                 break;
         }
         context.startActivity(intent);

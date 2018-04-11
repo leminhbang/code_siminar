@@ -159,11 +159,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
                         Toast.LENGTH_SHORT).show();
-                //bitmapTemp = convertToNegative(bitmapMain);
-                /*Mat mNeg = new Mat(h,w,CvType.CV_8SC1);
-                Imgproc.cvtColor(org,gray,Imgproc.COLOR_RGB2GRAY);
-                Imgproc.threshold(gray,mNeg,100,255,Imgproc.THRESH_BINARY);
-                Utils.matToBitmap(mNeg,bmm);*/
                 Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
                 NativeClass.convertToNegative(org.getNativeObjAddr(),
                         gray.getNativeObjAddr());
@@ -174,8 +169,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 3:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
-                //Bitmap b = Bitmap.createBitmap(bitmapMain);
-                //bitmapTemp = convertToBlur(context,b);
                 Mat mBlur = new Mat(h,w,CvType.CV_8SC1);
                 Imgproc.blur(org,mBlur, new Size(20,1));
                 Utils.matToBitmap(mBlur,bmm);
@@ -267,6 +260,17 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         theIntrinsic.forEach(tmpOut);
         tmpOut.copyTo(outputBitmap);
         return outputBitmap;
+    }
+
+    private Bitmap convertToBinary(Bitmap src) {
+        int w = 0,h = 0;
+        Mat gray = null,org = null;
+        Bitmap bmm = null;
+        Mat mNeg = new Mat(h, w, CvType.CV_8SC1);
+        Imgproc.cvtColor(org, gray, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.threshold(gray, mNeg, 100, 255, Imgproc.THRESH_BINARY);
+        Utils.matToBitmap(mNeg, bmm);
+        return bmm;
     }
 
     private void saveImage() {

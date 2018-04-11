@@ -1,6 +1,7 @@
 package com.example.leminhbang.camearamini;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -15,13 +16,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+
+import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
-import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 
-public class ClarifyPortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class ClarifyPortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
     private ImageView imgMainImage;
     private SeekBar sekClarifyPortrait;
     private BottomNavigationView btmnBottomMenu;
@@ -50,7 +55,8 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            imgMainImage.setImageURI(fileUri);
+            bitmapTemp = bitmapMain;
+            imgMainImage.setImageBitmap(bitmapMain);
         }
     }
 
@@ -70,6 +76,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
         imgMainImage.setOnTouchListener(this);
         sekClarifyPortrait = (SeekBar) findViewById(R.id.seekbar_clarify_portrait_image);
+        sekClarifyPortrait.setOnSeekBarChangeListener(this);
         btmnBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
         btmnBottomMenu.setOnNavigationItemSelectedListener(this);
     }
@@ -88,9 +95,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
                     isFirst = false;
                     MyScaleGesture.setScaleValue();
                 }
-
                 gestureDetector.onTouchEvent(event);
-
                 break;
             case R.id.linearlayout_main:
                 gestureDetector.onTouchEvent(event);
@@ -120,5 +125,38 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     public void onBackPressed() {
         context = contextTmp;
         super.onBackPressed();
+    }
+    private Bitmap changeContrast(Bitmap src, int contrastVal) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+        Mat mOrg = new Mat(h, w, CvType.CV_8SC4);
+        Mat mOut = new Mat(h, w, CvType.CV_8SC4);
+        Bitmap bmm = Bitmap.createBitmap(w,h,src.getConfig());
+        Utils.bitmapToMat(src,mOrg);
+        mOrg.convertTo(mOut, -1, contrastVal / 50, 0);
+        Utils.matToBitmap(mOut,bmm);
+        return bmm;
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        bitmapTemp = changeContrast(bitmapTemp,progress);
+        imgMainImage.setImageBitmap(bitmapTemp);
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sekClarifyPortrait.setProgress(50);
     }
 }

@@ -65,14 +65,12 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
                 case R.id.action_change_shade:
                     showDialogSave(bitmapTemp,InterfaceClass.ChangeShadeClass);
                     break;
-                /*case R.id.action_clarify_image:
-                    Intent intent1 = new Intent(context,ClarifyPortraitActivity.class);
-                    context.startActivity(intent1);
+                case R.id.action_clarify_image:
+                    showDialogSave(bitmapTemp,InterfaceClass.ClarifyClass);
                     break;
                 case R.id.action_change_portrait:
-                    Intent intent2 = new Intent(context,ClarifyPortraitActivity.class);
-                    context.startActivity(intent2);
-                    break;*/
+                    showDialogSave(bitmapTemp,InterfaceClass.ChangePortrait);
+                    break;
                 case R.id.action_change_color_image:
                     showDialogSave(bitmapTemp,InterfaceClass.ChangeColorClass);
                     break;
