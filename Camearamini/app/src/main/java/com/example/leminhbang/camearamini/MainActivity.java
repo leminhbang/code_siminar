@@ -130,7 +130,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     protected void onDestroy() {
         matMain.release();
-        bitmapTemp.recycle();
+        if (bitmapTemp != null) {
+            bitmapTemp.recycle();
+        }
         sekbCustomizeRotate.setProgress(160);
         super.onDestroy();
     }

@@ -159,10 +159,14 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
                         Toast.LENGTH_SHORT).show();
-                Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
+                /*Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
                 NativeClass.convertToNegative(org.getNativeObjAddr(),
                         gray.getNativeObjAddr());
-                Utils.matToBitmap(gray,bmm);
+                Utils.matToBitmap(gray,bmm);*/
+                Mat mNeg = new Mat(h, w, CvType.CV_8SC1);
+                Imgproc.cvtColor(org, gray, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.threshold(gray, mNeg, 110, 240, Imgproc.THRESH_BINARY);
+                Utils.matToBitmap(mNeg, bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;

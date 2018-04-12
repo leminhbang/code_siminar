@@ -24,7 +24,9 @@ import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class ClarifyPortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
     private ImageView imgMainImage;
@@ -69,6 +71,15 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_save_2:
+                saveImage();
+                break;
+            case R.id.action_cancel_2:
+                cancelAction();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
     public void mapView() {
@@ -129,18 +140,23 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     private Bitmap changeContrast(Bitmap src, int contrastVal) {
         int w = src.getWidth();
         int h = src.getHeight();
+        double contrast = (double) contrastVal / 50.0;
+        if (contrast <= 0.1)
+            contrast = 0.1;
+        if (contrast >= 2.0)
+            contrast = 2.0;
         Mat mOrg = new Mat(h, w, CvType.CV_8SC4);
         Mat mOut = new Mat(h, w, CvType.CV_8SC4);
         Bitmap bmm = Bitmap.createBitmap(w,h,src.getConfig());
         Utils.bitmapToMat(src,mOrg);
-        mOrg.convertTo(mOut, -1, contrastVal / 50, 0);
+        mOrg.convertTo(mOut, -1, contrast, 0);
         Utils.matToBitmap(mOut,bmm);
         return bmm;
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        bitmapTemp = changeContrast(bitmapTemp,progress);
+        bitmapTemp = changeContrast(bitmapMain,progress);
         imgMainImage.setImageBitmap(bitmapTemp);
     }
 
@@ -158,5 +174,15 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     protected void onDestroy() {
         super.onDestroy();
         sekClarifyPortrait.setProgress(50);
+    }
+
+    private void saveImage() {
+        bitmapMain = bitmapTemp;
+        saveImageFile(fileUri,bitmapMain);
+    }
+    private void cancelAction() {
+        bitmapTemp = bitmapMain;
+        sekClarifyPortrait.setProgress(50);
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 }
