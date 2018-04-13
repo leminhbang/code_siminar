@@ -159,10 +159,16 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
                         Toast.LENGTH_SHORT).show();
-                /*Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
+                Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
                 NativeClass.convertToNegative(org.getNativeObjAddr(),
                         gray.getNativeObjAddr());
-                Utils.matToBitmap(gray,bmm);*/
+                Utils.matToBitmap(gray,bmm);
+                bitmapTemp = bmm;
+                imgMainImage.setImageBitmap(bitmapTemp);
+                break;
+            case 3:
+                Toast.makeText(context,"Ảnh truyện tranh",
+                        Toast.LENGTH_SHORT).show();
                 Mat mNeg = new Mat(h, w, CvType.CV_8SC1);
                 Imgproc.cvtColor(org, gray, Imgproc.COLOR_RGB2GRAY);
                 Imgproc.threshold(gray, mNeg, 110, 240, Imgproc.THRESH_BINARY);
@@ -170,7 +176,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
-            case 3:
+            case 4:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
                 Mat mBlur = new Mat(h,w,CvType.CV_8SC1);
@@ -179,7 +185,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
-            case 4:
+            case 5:
                 Toast.makeText(context,"Ảnh cổ điển",
                         Toast.LENGTH_SHORT).show();
                 Drawable d = new BitmapDrawable(getResources(),bitmapMain);
@@ -264,17 +270,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         theIntrinsic.forEach(tmpOut);
         tmpOut.copyTo(outputBitmap);
         return outputBitmap;
-    }
-
-    private Bitmap convertToBinary(Bitmap src) {
-        int w = 0,h = 0;
-        Mat gray = null,org = null;
-        Bitmap bmm = null;
-        Mat mNeg = new Mat(h, w, CvType.CV_8SC1);
-        Imgproc.cvtColor(org, gray, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.threshold(gray, mNeg, 100, 255, Imgproc.THRESH_BINARY);
-        Utils.matToBitmap(mNeg, bmm);
-        return bmm;
     }
 
     private void saveImage() {

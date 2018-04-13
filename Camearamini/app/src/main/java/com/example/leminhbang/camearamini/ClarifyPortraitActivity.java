@@ -19,6 +19,8 @@ import android.widget.SeekBar;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
@@ -149,8 +151,15 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         Mat mOut = new Mat(h, w, CvType.CV_8SC4);
         Bitmap bmm = Bitmap.createBitmap(w,h,src.getConfig());
         Utils.bitmapToMat(src,mOrg);
-        mOrg.convertTo(mOut, -1, contrast, 0);
-        Utils.matToBitmap(mOut,bmm);
+        //mOrg.convertTo(mOut, -1, 1, contrastVal - 50);
+        Mat canny = new Mat(h,w,CvType.CV_8SC1);
+        Mat gray = new Mat(h,w,CvType.CV_8SC1);
+        Imgproc.cvtColor(mOrg,gray,Imgproc.COLOR_RGB2GRAY);
+        Imgproc.blur(gray,gray, new Size(3,3));
+        Imgproc.Canny(gray,canny,contrastVal,contrastVal*3);
+        NativeClass.convertToNegative(canny.getNativeObjAddr(),
+                canny.getNativeObjAddr());
+        Utils.matToBitmap(canny,bmm);
         return bmm;
     }
 

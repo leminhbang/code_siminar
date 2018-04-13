@@ -29,8 +29,8 @@ public class GallaryAdapter extends BaseAdapter {
         }
         if (REQUEST == 2) {
             Integer[] imgIdTmp = {R.drawable.image_main, R.drawable.image_gray,
-                    R.drawable.image_negative, R.drawable.image_fade,
-                    R.drawable.image_classic};
+                    R.drawable.image_negative, R.drawable.image_black_white,
+                    R.drawable.image_fade, R.drawable.image_classic};
             imgId = imgIdTmp;
         }
         TypedArray typArray = cont.obtainStyledAttributes(R.styleable.GalleryTheme);
