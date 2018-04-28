@@ -4,6 +4,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 #include <iostream>
 
 using namespace std;
@@ -22,7 +24,8 @@ extern "C" {
  */
  int RGBToGray(Mat src, Mat& det);
  int RGBToNegative(Mat src, Mat& det);
-
+ int SegmentByKMeans(Mat src, Mat& det, int numColors);
+int getMat(Mat& labels, int k);
 JNIEXPORT jstring JNICALL Java_com_example_leminhbang_camearamini_NativeClass_getMessage
   (JNIEnv *, jclass);
 
@@ -31,6 +34,10 @@ JNIEXPORT jint JNICALL Java_com_example_leminhbang_camearamini_NativeClass_conve
 
 JNIEXPORT jint JNICALL Java_com_example_leminhbang_camearamini_NativeClass_convertToNegative
   (JNIEnv *, jclass, jlong, jlong);
+
+JNIEXPORT jint JNICALL Java_com_example_leminhbang_camearamini_NativeClass_segmentByColorKMeans
+  (JNIEnv *, jclass, jlong, jint);
+
 
 #ifdef __cplusplus
 }

@@ -8,4 +8,5 @@ public class NativeClass {
     public native static String getMessage();
     public native static int convertToGray(long rgb, long gray);
     public native static int convertToNegative(long rgb, long negative);
+    public native static int segmentByColorKMeans(long src, int k);
 }

@@ -2,12 +2,16 @@ package com.example.leminhbang.camearamini;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.support.annotation.StyleableRes;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
 import android.widget.ImageView;
+
+import static com.example.leminhbang.camearamini.MainActivity.context;
 
 /**
  * Created by LE MINH BANG on 21/10/2017.
@@ -65,5 +69,18 @@ public class GallaryAdapter extends BaseAdapter {
         imgView.setScaleType(ImageView.ScaleType.FIT_XY);
         imgView.setBackgroundResource(GalItemBg);
         return imgView;
+    }
+
+    private void saveThumbnailBitmap() {
+        Cursor mCursor;
+        mCursor = context.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
+                null, null, null);
+        int image_column_index = mCursor.getColumnIndex(
+                MediaStore.Images.Media._ID);
+        long id = mCursor.getLong(image_column_index);
+        MediaStore.Images.Thumbnails.getThumbnail(context
+                .getContentResolver(), id,
+                MediaStore.Images.Thumbnails.MINI_KIND, null);
     }
 }

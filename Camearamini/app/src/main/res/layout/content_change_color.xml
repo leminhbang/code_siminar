@@ -61,4 +61,33 @@
             android:background="#1d33f7"
             android:visibility="gone"/>
     </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="1dp"
+        android:layout_marginBottom="70dp"
+        android:layout_alignParentBottom="true">
+        <EditText
+            android:id="@+id/edtNColors"
+            android:hint="Nhap so kenh mau segment"
+            android:textColor="#1505c7"
+            android:textSize="16sp"
+            android:inputType="number"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+        <EditText
+            android:id="@+id/edtCluster"
+            android:hint="Nhap cluster muon hien thi"
+            android:textColor="#1505c7"
+            android:textSize="16sp"
+            android:inputType="number"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
 </RelativeLayout>
