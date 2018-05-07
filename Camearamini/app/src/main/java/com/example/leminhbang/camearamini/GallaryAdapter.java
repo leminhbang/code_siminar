@@ -63,6 +63,7 @@ public class GallaryAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         ImageView imgView = new ImageView(cont);
         imgView.setImageResource(imgId[position]);
         imgView.setLayoutParams(new Gallery.LayoutParams(180, 150));

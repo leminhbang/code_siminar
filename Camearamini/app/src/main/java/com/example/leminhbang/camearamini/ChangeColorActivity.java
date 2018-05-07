@@ -19,7 +19,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.SeekBar;
+
+import com.example.leminhbang.camearamini.detector.ObjectDetect;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -27,14 +29,12 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.TermCriteria;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -46,26 +46,29 @@ import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
+import static com.example.leminhbang.camearamini.detector.ObjectDetect.kMeansCluster;
 
-public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher {
+public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, SeekBar.OnSeekBarChangeListener {
     private ImageView imgMainImage;
     private ArrayList<ImageButton> imgbButtonColors = new ArrayList<ImageButton>();
     private BottomNavigationView btmnBottomMenu;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
+    private SeekBar sekChangeRadius;
+    private EditText edtNColors, edtClusters;
 
     public int currentObjectColor;
     private boolean isFirst = true;
     private float[] pointColor;
     private byte[] bytes;
-    private boolean isOK = false;
+    private boolean isSegment = false;
 
-    private EditText edtNColors, edtClusters;
     private Mat pixelLabels;
     private Mat mRGB, mOut;
     private List<Mat> kmeansResult;
     private Bitmap bmOut;
+    private Scalar mColorRadius = new Scalar(25, 50, 50, 0);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +142,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         edtClusters.addTextChangedListener(this);
         edtNColors = (EditText) findViewById(R.id.edtNColors);
         edtNColors.addTextChangedListener(this);
+
+        sekChangeRadius = (SeekBar) findViewById(R.id.sekChangeRadius);
+        sekChangeRadius.setOnSeekBarChangeListener(this);
     }
 
     public void setClickForChangeImageColor() {
@@ -163,16 +169,20 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                 }*/
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     pointColor = getPointOfTouchedCordinate(imgMainImage,event);
-                    //openColorDialog(0);
 
                     int pixel = (int) (pointColor[0] +
                             pointColor[1]*bitmapMain.getWidth());
-                    double label = pixelLabels.
-                            get(pixel,0)[0];
-                    drawSelectContour(mOut, label);
-                    Toast.makeText(context, "Label  " + pointColor[0] +
-                            " " + pointColor[1] + " " + label,
-                            Toast.LENGTH_LONG).show();
+
+                    processOnTouch(event);
+                    if (isSegment) {
+                        /*double label = pixelLabels.
+                                get(pixel,0)[0];
+                        drawSelectContour(mOut, label);
+                        Toast.makeText(context, "Label  " + pointColor[0] +
+                                        " " + pointColor[1] + " " + label,
+                                Toast.LENGTH_LONG).show();
+                        isSegment = false;*/
+                    }
 
                 }
                 gestureDetector.onTouchEvent(event);
@@ -183,7 +193,53 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         }
         return true;
     }
+    private void processOnTouch(MotionEvent event) {
+        ObjectDetect mDetector = new ObjectDetect();
+        int cols = mRGB.cols();
+        int rows = mRGB.rows();
+        pointColor = getPointOfTouchedCordinate(imgMainImage,event);
+        int x = (int)pointColor[0];
+        int y = (int)pointColor[1];
 
+        if ((x < 0) || (y < 0) || (x > cols) || (y > rows))
+            return;
+        Rect touchedRect = new Rect();
+
+        touchedRect.x = (x > 4) ? x - 4 : 0;
+        touchedRect.y = (y > 4) ? y - 4 : 0;
+
+        touchedRect.width = (x + 4 < cols) ? x + 4 - touchedRect.x : cols - touchedRect.x;
+        touchedRect.height = (y + 4 < rows) ? y + 4 - touchedRect.y : rows - touchedRect.y;
+
+        Mat touchedRegionRgba = mRGB.submat(touchedRect);
+
+        Mat touchedRegionHsv = new Mat();
+        Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv, Imgproc.COLOR_RGB2HSV_FULL);
+
+        // Calculate average color of touched region
+        Scalar mBlobColorHsv = Core.sumElems(touchedRegionHsv);
+        int pointCount = touchedRect.width*touchedRect.height;
+        for (int i = 0; i < mBlobColorHsv.val.length; i++)
+            mBlobColorHsv.val[i] /= pointCount;
+
+        //mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
+        mDetector.setmColorRadius(mColorRadius);
+        mDetector.setHsvColor(mBlobColorHsv);
+        Mat mDilate = mDetector.process(mRGB);
+
+        //Imgproc.pyrUp(mDilate,mDilate);
+        Bitmap b = Bitmap.createBitmap(mDilate.cols(),
+                mDilate.rows(),bitmapMain.getConfig());
+        Utils.matToBitmap(mDilate, b);
+        imgMainImage.setImageBitmap(b);
+
+        //Imgproc.resize(mDetector.getSpectrum(), mSpectrum,
+        // SPECTRUM_SIZE, 0, 0,Imgproc.INTER_LINEAR_EXACT);
+
+        touchedRegionRgba.release();
+        touchedRegionHsv.release();
+
+    }
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -277,16 +333,16 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             Imgproc.drawContours(mCluster,contours,i,
                     new Scalar(255,0,0),2,8,hierarchy,0,new Point());
         }
+
         Utils.matToBitmap(mCluster, bmOut);
         imgMainImage.setImageBitmap(bmOut);
     }
     public void segmentByKMeans(int k) {
         if (k == 0 || k == 1) return;
-        Mat labels =new Mat();
-        kmeansResult = cluster(mRGB, k);
-        labels = kmeansResult.get(0);
+        kmeansResult = kMeansCluster(mRGB, k);
+        pixelLabels = kmeansResult.get(0);
         k = kmeansResult.get(1).rows();
-        mOut = labels.reshape(1, mRGB.rows());
+        mOut = pixelLabels.reshape(1, mRGB.rows());
         mOut.convertTo(mOut, CvType.CV_32FC3, 255.0/(k - 1));
         /*NativeClass.segmentByColorKMeans(mOut.getNativeObjAddr(),
                 k - 1);*/
@@ -294,70 +350,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         Imgproc.cvtColor(mOut,mOut,Imgproc.COLOR_GRAY2BGR);
         Utils.matToBitmap(mOut, bmOut);
         imgMainImage.setImageBitmap(bmOut);
-    }
-    public List<Mat> cluster(Mat cutout, int k) {
-        Mat samples32f = new Mat();
-        List<Mat> lab = new ArrayList<Mat>();
-        List<Mat> ab = new ArrayList<Mat>();
-        Mat mLab = new Mat(cutout.rows(),cutout.cols(),cutout.type());
-        Imgproc.cvtColor(cutout,mLab,Imgproc.COLOR_RGB2Lab);
-        Core.split(mLab, lab);
-        ab.add(lab.get(1));
-        ab.add(lab.get(2));
-        Core.merge(ab, samples32f);
-        Mat samples = samples32f.reshape(1, cutout.cols() * cutout.rows());
-        samples.convertTo(samples32f, CvType.CV_32F, 1.0 / 255.0);
-
-        Mat labels = new Mat();
-        TermCriteria criteria = new TermCriteria(TermCriteria.COUNT, 100, 1);
-        Mat centers = new Mat();
-        Core.kmeans(samples32f, k, labels, criteria, 1,
-                Core.KMEANS_PP_CENTERS, centers);
-        labels.copyTo(pixelLabels);
-        //return showClusters(cutout, labels, centers);
-        List<Mat> list = new ArrayList<Mat>();
-        list.add(labels);
-        list.add(centers);
-        return list;
-    }
-
-    private List<Mat> showClusters (Mat cutout, Mat labels, Mat centers) {
-        centers.convertTo(centers, CvType.CV_8UC1, 255.0);
-        centers.reshape(3);
-        List<Mat> clusters = new ArrayList<Mat>();
-        for(int i = 0; i < centers.rows(); i++) {
-            clusters.add(Mat.zeros(cutout.size(), cutout.type()));
-        }
-        Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
-        for(int i = 0; i < centers.rows(); i++)
-            counts.put(i, 0);
-
-        int rows = 0;
-        for(int y = 0; y < cutout.rows(); y++) {
-            for(int x = 0; x < cutout.cols(); x++) {
-                int label = (int)labels.get(rows, 0)[0];
-                int r = (int)centers.get(label, 2)[0];
-                int g = (int)centers.get(label, 1)[0];
-                int b = (int)centers.get(label, 0)[0];
-                counts.put(label, counts.get(label) + 1);
-                clusters.get(label).put(y, x, b, g, r);
-                rows++;
-            }
-        }
-        return clusters;
-    }
-
-    private Mat getCluster(Mat src, Mat labels, int k) {
-        //labels.convertTo(labels, CvType.CV_8UC1, 255.0);
-        labels.reshape(1, src.rows());
-        Core.divide(labels, new Scalar(k), labels);
-        //Core.multiply(labels, new Scalar(255), labels);
-        Core.convertScaleAbs(labels, labels);//convert to unit8
-        Bitmap b = Bitmap.createBitmap(bitmapMain.getWidth(),
-                bitmapMain.getHeight(),bitmapMain.getConfig());
-        Utils.matToBitmap(labels, b);
-        imgMainImage.setImageBitmap(b);
-        return labels;
+        isSegment = true;
     }
 
     public void connect() {
@@ -482,13 +475,29 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     @Override
     public void afterTextChanged(Editable s) {
         String str;
-        int k = 0;
+        /*int k = 0;
         if (edtNColors.getText().hashCode() == s.hashCode()) {
             str = edtNColors.getText().toString().trim();
             if (!str.equals("") && !str.isEmpty() && !str.equals("0")) {
                 k = Integer.parseInt(str);
                 segmentByKMeans(k);
             }
-        }
+        }*/
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        double[] d = {25, 50, 25 + progress, 0};
+        mColorRadius.set(d);
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
     }
 }

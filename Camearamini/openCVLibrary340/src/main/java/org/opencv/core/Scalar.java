@@ -86,5 +86,4 @@ public class Scalar {
     public String toString() {
         return "[" + val[0] + ", " + val[1] + ", " + val[2] + ", " + val[3] + "]";
     }
-
 }

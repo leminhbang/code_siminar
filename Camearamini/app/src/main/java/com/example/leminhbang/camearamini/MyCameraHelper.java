@@ -1,5 +1,6 @@
 package com.example.leminhbang.camearamini;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -7,6 +8,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +61,6 @@ public class MyCameraHelper {
         }
         return bitmap;
     }
-
     public static int[][][] convertToRGB(Bitmap bitmap) {
         int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][3];
         rgb = new int[bitmap.getHeight()][bitmap.getWidth()][3];
@@ -189,5 +190,19 @@ public class MyCameraHelper {
             return null;
         }
         return mediaFile;
+    }
+
+    public static int saveThumbnail(Bitmap bitmap, long id) {
+        Cursor mCursor;
+        mCursor = mContext.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null, null, null, null);
+        int image_column_index = mCursor.getColumnIndex(MediaStore.Images.Media._ID);
+        id = mCursor.getLong(image_column_index);
+        MediaStore.Images.Thumbnails.getThumbnail(mContext
+                .getContentResolver(), id,
+                MediaStore.Images.Thumbnails.MINI_KIND,
+                null);
+        return 1;
     }
 }
