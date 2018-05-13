@@ -29,12 +29,14 @@ import android.widget.Toast;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+import static com.example.leminhbang.camearamini.MyCameraHelper.prepareThumbnails;
 import static com.example.leminhbang.camearamini.MyCameraHelper.rotateImage;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public static Bitmap bitmapTemp;
     public static Context context;
     public static ActionBar actionBar;
+    public static List<String> thumbPaths = new ArrayList<String>();
 
     private boolean isFirst = true;
     private boolean isChoose = false;
@@ -106,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             imgMainImage.setImageBitmap(bitmapMain);
             if (isChoose)
                 filePath = getPicturePath(fileUri);
+            thumbPaths = prepareThumbnails(bitmapMain);
+
         }
     }
 
@@ -129,12 +134,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     protected void onDestroy() {
-        matMain.release();
+        super.onDestroy();
         if (bitmapTemp != null) {
             bitmapTemp.recycle();
         }
-        sekbCustomizeRotate.setProgress(160);
-        super.onDestroy();
     }
 
     public static void showDialogSave(final Bitmap bmSave,
@@ -234,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_camera:
+                isChoose = false;
                 prepareCamera();
                 break;
             case R.id.action_turn_left:
@@ -360,12 +364,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         options.inSampleSize = 8;
         bitmapMain = BitmapFactory.decodeFile(filePath, options);
 
-        //convert bitmap to mat (opencv)
-        Utils.bitmapToMat(bitmapMain, matMain);
         //display image in the iimage view
         imgMainImage.setImageBitmap(bitmapMain);
     }
-
+    //hien anh vua chon tu bo nho
     private void viewImage(Uri uri) {
         fileUri = uri;
         filePath = uri.getPath();
@@ -381,8 +383,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         bitmapMain = BitmapFactory.decodeFile(imagePath, options);
         cursor.close();
-        //convert bitmap to mat (opencv)
-        Utils.bitmapToMat(bitmapMain, matMain);
+
         //display image in the image view
         imgMainImage.setImageBitmap(bitmapMain);
     }

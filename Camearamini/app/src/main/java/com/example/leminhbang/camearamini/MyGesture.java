@@ -54,7 +54,23 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
 
     @Override
     public void onSheetShown(@NonNull BottomSheet bottomSheet) {
-
+        /*if (bitmapMain != null) {
+            //bottomSheet.invalidateOptionsMenu();
+            Drawable d = new BitmapDrawable(context.getResources(),
+                    bitmapMain);
+            MenuItem item1 = (MenuItem) bottomSheet.findViewById(
+                    R.id.action_change_shade);
+            item1.setIcon(d);
+            MenuItem item2 = (MenuItem) bottomSheet.findViewById(
+                    R.id.action_clarify_image);
+            item2.setIcon(d);
+            MenuItem item3 = (MenuItem) bottomSheet.findViewById(
+                    R.id.action_change_portrait);
+            item3.setIcon(d);
+            MenuItem item4 = (MenuItem) bottomSheet.findViewById(
+                    R.id.action_change_color_image);
+            item4.setIcon(d);
+        }*/
     }
 
     @Override

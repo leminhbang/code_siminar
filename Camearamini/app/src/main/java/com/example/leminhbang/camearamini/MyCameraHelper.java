@@ -1,14 +1,17 @@
 package com.example.leminhbang.camearamini;
 
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.util.Log;
+
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,70 +21,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlackWhite;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlur;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToClassic;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToGray;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToNegative;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 
 /**
  * Created by LE MINH BANG on 30/10/2017.
  */
 
 public class MyCameraHelper {
-    private Bitmap mBitmap;
     protected static int lastDegree = 0;
-    public static int[][][] rgb;
-    public static int[][] alpha;
-
-    public static int[][][] convertBitmapToMatrix(Bitmap bitmap) {
-        int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][4];
-        int pixel;
-        for (int i = 0; i < bitmap.getWidth(); i++) {
-            for (int j = 0; j < bitmap.getHeight(); j++) {
-                pixel = bitmap.getPixel(i, j);
-                pixelMat[j][i][0] = Color.alpha(pixel);
-                pixelMat[j][i][1] = Color.red(pixel);
-                pixelMat[j][i][2] = Color.green(pixel);
-                pixelMat[j][i][3] = Color.blue(pixel);
-            }
-        }
-        return pixelMat;
-    }
-    public static Bitmap convertMatrixToBitmap(int[][][] mat) {
-        Bitmap bitmap = Bitmap.createBitmap(mat[0].length,mat.length,
-                Bitmap.Config.ARGB_8888);
-        for (int i = 0; i < mat[0].length; i++) {
-            for (int j = 0; j < mat.length; j++) {
-                bitmap.setPixel(i, j, Color.argb(mat[j][i][0], mat[j][i][1],
-                        mat[j][i][2], mat[j][i][3]));
-            }
-        }
-        return bitmap;
-    }
-    public static int[][][] convertToRGB(Bitmap bitmap) {
-        int[][][] pixelMat = new int[bitmap.getHeight()][bitmap.getWidth()][3];
-        rgb = new int[bitmap.getHeight()][bitmap.getWidth()][3];
-        alpha = new int[bitmap.getHeight()][bitmap.getWidth()];
-        int pixel;
-        for (int i = 0; i < bitmap.getWidth(); i++) {
-            for (int j = 0; j < bitmap.getHeight(); j++) {
-                pixel = bitmap.getPixel(i, j);
-                //pixelMat[j][i][0] = Color.alpha(pixel);
-                /*pixelMat[j][i][0] = Color.red(pixel);
-                pixelMat[j][i][1] = Color.green(pixel);
-                pixelMat[j][i][2] = Color.blue(pixel);*/
-
-                alpha[j][i] = Color.alpha(pixel);
-                rgb[j][i][0] = Color.red(pixel);
-                rgb[j][i][1] = Color.green(pixel);
-                rgb[j][i][2] = Color.blue(pixel);
-            }
-        }
-        return rgb;
-    }
 
     public static Bitmap rotateImage(Bitmap image, int degree) {
         //imgImage.setRotation(imgImage.getRotation() + degree);
@@ -104,17 +65,11 @@ public class MyCameraHelper {
             ActivityCompat.requestPermissions(HomeActivity.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},23
             );
-
         }*/
 
-        String photopath = uri.getPath();
-        Ringtone r = RingtoneManager.getRingtone(context, uri);
-        String fileName = r.getTitle(context);
-        if (!fileName.contains(".jpg")) {
-            fileName = fileName + ".jpg";
-        }
         File file = new File(Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                .getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES),
                 "Cameramini");
 
         //String path = file.getPath() + file.separator + fileName;
@@ -154,15 +109,25 @@ public class MyCameraHelper {
     }
 
     public static Uri getOutputMediaFileUri(int type) {
-        return Uri.fromFile(getOutputMediaFile(type));
+        return Uri.fromFile(getOutputMediaFile(type, false));
     }
 
-    private static File getOutputMediaFile(int type) {
+    private static File getOutputMediaFile(int type, boolean isThumbnail) {
         // External sdcard location
-        File mediaStorageDir = new File(
-                Environment
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "Cameramini");
+        File mediaStorageDir;
+        if (isThumbnail) {
+            mediaStorageDir = new File(
+                    Environment
+                            .getExternalStoragePublicDirectory(
+                                    Environment.DIRECTORY_PICTURES),
+                    "Cameramini/thumbnail");
+        } else {
+            mediaStorageDir = new File(
+                    Environment
+                            .getExternalStoragePublicDirectory(
+                                    Environment.DIRECTORY_PICTURES),
+                    "Cameramini");
+        }
         /*File mediaStorageDir = new File(
                 Environment.getExternalStorageDirectory(),
                 "Cameramini");*/
@@ -191,18 +156,97 @@ public class MyCameraHelper {
         }
         return mediaFile;
     }
-
-    public static int saveThumbnail(Bitmap bitmap, long id) {
-        Cursor mCursor;
-        mCursor = mContext.getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null, null, null, null);
-        int image_column_index = mCursor.getColumnIndex(MediaStore.Images.Media._ID);
-        id = mCursor.getLong(image_column_index);
-        MediaStore.Images.Thumbnails.getThumbnail(mContext
-                .getContentResolver(), id,
-                MediaStore.Images.Thumbnails.MINI_KIND,
-                null);
-        return 1;
+    public static String getFileName(Uri uri) {
+         String photopath = uri.getPath();
+        Ringtone r = RingtoneManager.getRingtone(context, uri);
+        String fileName = r.getTitle(context);
+        if (!fileName.contains(".jpg")) {
+            fileName = fileName + ".jpg";
+        }
+        return fileName;
     }
+    public static void saveThumbnail(String path, Bitmap mbitmap) {
+        if (mbitmap == null) return;
+
+        File f = new File(path);
+        FileOutputStream fOut;
+        try {
+            if (f.exists()) {
+                f.deleteOnExit();
+            }
+            fOut = new FileOutputStream(path);
+            mbitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public static List<String> prepareThumbnails(final Bitmap mBitmap) {
+        final List<String> listPath = new ArrayList<String>();
+        final Handler handler = new Handler();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                //Uri thumbnailUri = Uri.fromFile(getOutputMediaFile(MEDIA_TYPE_IMAGE, true));
+                String filename = getFileName(fileUri);
+                File file = new File(Environment
+                        .getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_PICTURES),
+                        "Cameramini/thumbnail");
+
+                String thumbnailPath = file.getPath() + file.separator + filename;
+                //final String thumbnailPath = thumbnailUri.getPath();
+
+                Bitmap thumbImg = Bitmap.createScaledBitmap(mBitmap,
+                        128, 128, false); //normal thumbnail
+                listPath.add(thumbnailPath);
+                saveThumbnail(thumbnailPath, thumbImg);
+                String[] filterName = filename.split("\\.");
+
+                //save filter thumbnail
+                Bitmap thumbFilter = Bitmap.createBitmap(128, 128,
+                        thumbImg.getConfig());
+                Mat mSrc = new Mat(128, 128, CvType.CV_8UC4);
+                Utils.bitmapToMat(thumbImg, mSrc);
+                Mat mFilter = new Mat(128, 128, CvType.CV_8UC1);
+                Mat mFade = new Mat(128, 128, CvType.CV_8UC4);
+                int count = FilterInterfaeClass.filterCount;
+                for (int i = 1; i < count; i ++) {
+                    if (i == FilterInterfaeClass.GRAY) {
+                        mFilter = convertToGray(mSrc);
+                        Utils.matToBitmap(mFilter, thumbFilter);
+                    } else if (i == FilterInterfaeClass.NEGATIVE) {
+                        mFilter = convertToNegative(mSrc);
+                        Utils.matToBitmap(mFilter, thumbFilter);
+                    } else if (i == FilterInterfaeClass.BLACKWHITE) {
+                        mFilter = convertToBlackWhite(mSrc);
+                        Utils.matToBitmap(mFilter, thumbFilter);
+                    } else if (i == FilterInterfaeClass.FADE) {
+                        mFade = convertToBlur(mSrc);
+                        Utils.matToBitmap(mFade, thumbFilter);
+                    } else if (i == FilterInterfaeClass.CLASSIC) {
+                        thumbFilter = convertToClassic(thumbImg);
+                    }
+                    filename = filterName[0] + "_" + i
+                            + "." + filterName[1];
+                    thumbnailPath = file.getPath() + file.separator
+                            + filename;
+                    saveThumbnail(thumbnailPath, thumbFilter);
+                    listPath.add(thumbnailPath);
+                }
+                Log.d("error", "run: run on thread");
+                mSrc.release();
+                mFilter.release();
+                thumbImg.recycle();
+                thumbFilter.recycle();
+            }
+        };
+        Thread thread = new Thread(r);
+        thread.start();
+        return listPath;
+    }
+
 }

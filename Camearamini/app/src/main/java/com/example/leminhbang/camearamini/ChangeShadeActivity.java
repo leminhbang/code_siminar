@@ -129,7 +129,9 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         }
         return true;
     }
-
+    public int getGalleryCount() {
+        return galleryChangeShade.getCount();
+    }
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         bitmapTemp = bitmapMain;
@@ -151,7 +153,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                         Toast.LENGTH_SHORT).show();
                 /*NativeClass.convertToGray(org.getNativeObjAddr(),
                         gray.getNativeObjAddr());*/
-                Imgproc.cvtColor(org,gray,Imgproc.COLOR_RGBA2GRAY);
+                gray = convertToGray(org);
                 Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
@@ -159,9 +161,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
                         Toast.LENGTH_SHORT).show();
-                Imgproc.cvtColor(org,org,Imgproc.COLOR_RGBA2RGB);
-                NativeClass.convertToNegative(org.getNativeObjAddr(),
-                        gray.getNativeObjAddr());
+                gray = convertToNegative(org);
                 Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
@@ -169,29 +169,25 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 3:
                 Toast.makeText(context,"Ảnh truyện tranh",
                         Toast.LENGTH_SHORT).show();
-                Mat mNeg = new Mat(h, w, CvType.CV_8SC1);
-                Imgproc.cvtColor(org, gray, Imgproc.COLOR_RGB2GRAY);
-                Imgproc.threshold(gray, mNeg, 110, 240, Imgproc.THRESH_BINARY);
-                Utils.matToBitmap(mNeg, bmm);
+                gray = convertToBlackWhite(org);
+                Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 4:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
-                Mat mBlur = new Mat(h,w,CvType.CV_8SC1);
-                Imgproc.blur(org,mBlur, new Size(20,1));
-                Utils.matToBitmap(mBlur,bmm);
+                Mat mBlur = new Mat(h, w,CvType.CV_8SC4);
+                mBlur = convertToBlur(org);
+                Utils.matToBitmap(mBlur, bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 5:
                 Toast.makeText(context,"Ảnh cổ điển",
                         Toast.LENGTH_SHORT).show();
-                Drawable d = new BitmapDrawable(getResources(),bitmapMain);
-                d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
-                bitmapTemp = ((BitmapDrawable) d).getBitmap();
-                imgMainImage.setImageDrawable(d);
+                bitmapTemp = convertToClassic(bitmapMain);
+                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
         }
     }
@@ -219,42 +215,36 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         super.onBackPressed();
     }
 
-    public Bitmap convertToGray(Bitmap colorBitmap) {
-        Bitmap grayBitmap = Bitmap.createBitmap(colorBitmap.getWidth(),
-                colorBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        int pixel, alpha, r, g, b, gray;
-        for (int i = 0; i < colorBitmap.getWidth(); i++) {
-            for (int j = 0; j < colorBitmap.getHeight(); j++) {
-                pixel = colorBitmap.getPixel(i,j);
-                alpha = Color.alpha(pixel);
-                r = Color.red(pixel);
-                g = Color.green(pixel);
-                b = Color.blue(pixel);
-                gray = (int) (r*0.298 + g*0.588 + b*0.114);
-                grayBitmap.setPixel(i,j,Color.argb(alpha,gray,gray,gray));
-            }
-        }
-        return grayBitmap;
+    public static Mat convertToGray(Mat src) {
+        Mat mGray = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
+        Imgproc.cvtColor(src, mGray,Imgproc.COLOR_RGBA2GRAY);
+        return mGray;
     }
-    public Bitmap convertToNegative(Bitmap colorBitmap) {
-        Bitmap negativeBitmap = Bitmap.createBitmap(colorBitmap.getWidth(),
-                colorBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        int pixel, alpha, r, g, b;
-        for (int i = 0; i < colorBitmap.getWidth(); i++) {
-            for (int j = 0; j < colorBitmap.getHeight(); j++) {
-                pixel = colorBitmap.getPixel(i,j);
-                alpha = Color.alpha(pixel);
-                r = Color.red(pixel);
-                g = Color.green(pixel);
-                b = Color.blue(pixel);
-                negativeBitmap.setPixel(i,j,Color.argb(alpha, 255 - r,
-                        255 - g, 255 - b));
-            }
-        }
-        return negativeBitmap;
+    public static Mat convertToNegative(Mat src) {
+        Mat mNegative = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2RGB);
+        NativeClass.convertToNegative(src.getNativeObjAddr(),
+                mNegative.getNativeObjAddr());
+        return mNegative;
     }
-
-    public static Bitmap convertToBlur(Context context, Bitmap image) {
+    public static Mat convertToBlackWhite(Mat src) {
+        Mat mBW = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.threshold(src, mBW, 110, 240, Imgproc.THRESH_BINARY);
+        return mBW;
+    }
+    public static Mat convertToBlur(Mat src) {
+        Mat mBlur = new Mat(src.rows(), src.cols(),CvType.CV_8SC4);
+        Imgproc.blur(src, mBlur, new Size(20,1));
+        return mBlur;
+    }
+    public static Bitmap convertToClassic(Bitmap mBitmap) {
+        Drawable d = new BitmapDrawable(context.getResources(),
+                mBitmap);
+        d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
+        return ((BitmapDrawable) d).getBitmap();
+    }
+    public static Bitmap _convertToBlur(Context context, Bitmap image) {
         int width = image.getWidth();
         int height = image.getHeight();
 
