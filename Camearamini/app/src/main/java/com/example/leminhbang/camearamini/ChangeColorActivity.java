@@ -2,6 +2,7 @@ package com.example.leminhbang.camearamini;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -63,6 +64,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private float[] pointColor;
     private byte[] bytes;
     private boolean isSegment = false;
+    private boolean isChoice = false;
 
     private Mat pixelLabels;
     private Mat mRGB, mOut;
@@ -102,6 +104,8 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             Utils.bitmapToMat(bitmapTemp, mRGB);
             Imgproc.cvtColor(mRGB, mRGB,
                     Imgproc.COLOR_RGBA2RGB);
+            Imgproc.cvtColor(mRGB, mRGB,
+                    Imgproc.COLOR_RGB2HSV_FULL);
             //segmentByKMeans(3);
         }
     }
@@ -193,6 +197,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         }
         return true;
     }
+    public void changeColor() {
+         
+    }
     private void processOnTouch(MotionEvent event) {
         ObjectDetect mDetector = new ObjectDetect();
         int cols = mRGB.cols();
@@ -213,8 +220,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
         Mat touchedRegionRgba = mRGB.submat(touchedRect);
 
-        Mat touchedRegionHsv = new Mat();
-        Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv, Imgproc.COLOR_RGB2HSV_FULL);
+        Mat touchedRegionHsv = mRGB.submat(touchedRect);
+        //Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv, Imgproc.COLOR_RGB2HSV_FULL);
+
 
         // Calculate average color of touched region
         Scalar mBlobColorHsv = Core.sumElems(touchedRegionHsv);
@@ -233,12 +241,53 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         Utils.matToBitmap(mDilate, b);
         imgMainImage.setImageBitmap(b);
 
+        //show color dialog
+        openColorDialog(mDilate, 0);
+
         //Imgproc.resize(mDetector.getSpectrum(), mSpectrum,
         // SPECTRUM_SIZE, 0, 0,Imgproc.INTER_LINEAR_EXACT);
 
         touchedRegionRgba.release();
         touchedRegionHsv.release();
 
+    }
+    public void changeColor(Mat mDilate) {
+        if (isChoice) {
+            int cols = mRGB.cols();
+            int rows = mRGB.rows();
+            //change object color
+            List<Mat> listHSV = new ArrayList<Mat>();
+            List<Mat> listHS = new ArrayList<Mat>();
+            Core.split(mRGB, listHSV);
+            listHS.add(listHSV.get(0));
+            listHS.add(listHSV.get(1));
+            Mat des = new Mat(rows, cols, mRGB.type());
+            Mat tmp = new Mat(rows, cols, CvType.CV_8UC2);
+            Core.merge(listHS, tmp);
+            Scalar newColor = new Scalar(Color.red(currentObjectColor),
+                    Color.green(currentObjectColor),
+                    Color.blue(currentObjectColor));
+            Mat mNewColor = new Mat(1, 1, CvType.CV_8UC3, newColor);
+            Imgproc.cvtColor(mNewColor, mNewColor,
+                    Imgproc.COLOR_RGB2HSV_FULL);
+            Scalar newHsv = new Scalar(mNewColor.get(0, 0)[0],
+                    mNewColor.get(0, 0)[1], mNewColor.get(0, 0)[2], 0);
+            tmp.setTo(newHsv, mDilate);
+            Core.split(tmp, listHS);
+            List<Mat> newListHSV = new ArrayList<Mat>();
+            newListHSV.add(listHS.get(0));
+            newListHSV.add(listHS.get(1));
+            newListHSV.add(listHSV.get(2));
+            Core.merge(newListHSV, des);
+
+            Imgproc.cvtColor(des, des,
+                    Imgproc.COLOR_HSV2RGB_FULL);
+            Bitmap b = Bitmap.createBitmap(mDilate.cols(),
+                    mDilate.rows(),bitmapMain.getConfig());
+            Utils.matToBitmap(des, b);
+            imgMainImage.setImageBitmap(b);
+        }
+        isChoice = false;
     }
     @Override
     public void onClick(View v) {
@@ -248,17 +297,17 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             case R.id.imgb_color_image_1:
                 index = imgbButtonColors.indexOf(findViewById(R.id.imgb_color_image_1));
                 currentObjectColor = ContextCompat.getColor(this, R.color.colorAccent);
-                openColorDialog(index);
+                //openColorDialog(index);
                 break;
             case R.id.imgb_color_image_2:
                 index = imgbButtonColors.indexOf(findViewById(R.id.imgb_color_image_2));
                 currentObjectColor = ContextCompat.getColor(this, R.color.colorAccent);
-                openColorDialog(index);
+                //openColorDialog(index);
                 break;
             case R.id.imgb_color_image_3:
                 index = imgbButtonColors.indexOf(findViewById(R.id.imgb_color_image_3));
                 currentObjectColor = ContextCompat.getColor(this, R.color.colorAccent);
-                openColorDialog(index);
+                //openColorDialog(index);
                 break;
         }
     }
@@ -280,14 +329,15 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         return true;
     }
 
-    public void openColorDialog(final int index) {
+    public void openColorDialog(final Mat mDilate, final int index) {
 
         AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, currentObjectColor, false, new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 currentObjectColor = color;
                 imgbButtonColors.get(index).setBackgroundColor(color);
-
+                isChoice = true;
+                changeColor(mDilate);
             }
 
             @Override

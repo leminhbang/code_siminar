@@ -69,9 +69,9 @@ public class ObjectDetect {
 
     public Mat process(Mat rgbaImage) {
         //Imgproc.pyrDown(rgbaImage, mPyrDownMat);
-        rgbaImage.copyTo(mPyrDownMat);
-        Imgproc.cvtColor(mPyrDownMat, mHsvMat,
-                Imgproc.COLOR_RGB2HSV_FULL);
+        rgbaImage.copyTo(mHsvMat);
+        /*Imgproc.cvtColor(mPyrDownMat, mHsvMat,
+                Imgproc.COLOR_RGB2HSV_FULL);*/
 
         Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);
         Imgproc.dilate(mMask, mDilatedMask, new Mat());
