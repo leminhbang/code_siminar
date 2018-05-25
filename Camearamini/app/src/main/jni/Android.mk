@@ -8,6 +8,7 @@ OPENCV_INSTALL_MODULES:=on
 OPENCV_LIB_TYPE:=SHARED
 include ${OPENCVROOT}/sdk/native/jni/OpenCV.mk
 
+
 LOCAL_SRC_FILES := com_example_leminhbang_camearamini_NativeClass.cpp
 LOCAL_LDLIBS += -llog
 LOCAL_MODULE := Mylib

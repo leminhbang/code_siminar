@@ -65,6 +65,8 @@ public class GallaryAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
+        if (REQUEST_CODE == 1)
+            return imgId[position];
         return position;
     }
 

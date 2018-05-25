@@ -27,8 +27,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -169,7 +171,8 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 3:
                 Toast.makeText(context,"Ảnh truyện tranh",
                         Toast.LENGTH_SHORT).show();
-                gray = convertToBlackWhite(org);
+                //gray = convertToBlackWhite(org);
+                gray = convertToSketchPencil(org);
                 Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
@@ -223,15 +226,22 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     public static Mat convertToNegative(Mat src) {
         Mat mNegative = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
         Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2RGB);
-        NativeClass.convertToNegative(src.getNativeObjAddr(),
-                mNegative.getNativeObjAddr());
+        /*NativeClass.convertToNegative(src.getNativeObjAddr(),
+                mNegative.getNativeObjAddr());*/
+        Imgproc.cvtColor(src, mNegative, Imgproc.COLOR_RGB2GRAY);
+        Core.subtract(new MatOfDouble(255), src, mNegative);
         return mNegative;
     }
     public static Mat convertToBlackWhite(Mat src) {
-        Mat mBW = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
+        /*Mat mBW = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
         Imgproc.cvtColor(src, src, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.threshold(src, mBW, 110, 240, Imgproc.THRESH_BINARY);
-        return mBW;
+        Imgproc.threshold(src, mBW, 0, 255, Imgproc.THRESH_BINARY);
+        return mBW;*/
+        Mat mNegative = new Mat(src.rows(),src.cols(),CvType.CV_8UC1);
+        Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2RGB);
+        Imgproc.cvtColor(src, mNegative, Imgproc.COLOR_RGB2GRAY);
+        Core.subtract(new MatOfDouble(255), mNegative, mNegative);
+        return mNegative;
     }
     public static Mat convertToBlur(Mat src) {
         Mat mBlur = new Mat(src.rows(), src.cols(),CvType.CV_8SC4);
@@ -243,6 +253,22 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 mBitmap);
         d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
         return ((BitmapDrawable) d).getBitmap();
+    }
+    public static Mat convertToSketchPencil(Mat src) {
+        Mat mSketch = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Mat mGray = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Mat mNeg = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        //convert original image to gray
+        Imgproc.cvtColor(src, mGray, Imgproc.COLOR_RGBA2GRAY);
+        //convert gray image to negative
+        Core.subtract(new MatOfDouble(255), mGray, mNeg);
+        //apply gaussian blur
+        Mat mBlur = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Imgproc.GaussianBlur(mNeg, mBlur,new Size(21, 21), 0);
+        //apply sketch pencil
+        Core.subtract(new MatOfDouble(255), mBlur, mBlur);
+        Core.divide(mGray, mBlur, mSketch, 255);
+        return mSketch;
     }
     public static Bitmap _convertToBlur(Context context, Bitmap image) {
         int width = image.getWidth();

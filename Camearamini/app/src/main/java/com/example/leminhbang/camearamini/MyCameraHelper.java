@@ -28,11 +28,11 @@ import java.util.Locale;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlackWhite;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlur;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToClassic;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToGray;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToNegative;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToSketchPencil;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
@@ -222,7 +222,7 @@ public class MyCameraHelper {
                         mFilter = convertToNegative(mSrc);
                         Utils.matToBitmap(mFilter, thumbFilter);
                     } else if (i == FilterInterfaeClass.BLACKWHITE) {
-                        mFilter = convertToBlackWhite(mSrc);
+                        mFilter = convertToSketchPencil(mSrc);
                         Utils.matToBitmap(mFilter, thumbFilter);
                     } else if (i == FilterInterfaeClass.FADE) {
                         mFade = convertToBlur(mSrc);

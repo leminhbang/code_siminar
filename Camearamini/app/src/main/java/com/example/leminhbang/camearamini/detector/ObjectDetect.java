@@ -10,6 +10,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class ObjectDetect {
     Mat mMask = new Mat();
     Mat mDilatedMask = new Mat();
     Mat mHierarchy = new Mat();
+
     public void setmColorRadius(Scalar radius) {
         mColorRadius = radius;
     }
@@ -81,6 +83,42 @@ public class ObjectDetect {
         Imgproc.findContours(mDilatedMask, contours, mHierarchy,
                 Imgproc.RETR_EXTERNAL,
                 Imgproc.CHAIN_APPROX_SIMPLE);
+
+        // Find max contour area
+        double maxArea = 0;
+        int maxContorIndex = 0;
+        Iterator<MatOfPoint> each = contours.iterator();
+        while (each.hasNext()) {
+            MatOfPoint wrapper = each.next();
+            double area = Imgproc.contourArea(wrapper);
+            if (area > maxArea) {
+                maxArea = area;
+                maxContorIndex++;
+            }
+        }
+
+        // Filter contours by area and resize to fit the original image size
+        mContours.clear();
+       /* each = contours.iterator();
+        int i = 0;
+        while (each.hasNext()) {
+            MatOfPoint contour = each.next();
+            if (Imgproc.contourArea(contour) < mMinContourArea*maxArea) {
+                Core.multiply(mDilatedMask, new Scalar(4,4),
+                        mDilatedMask);
+                mContours.add(contour);
+                Imgproc.drawContours(mDilatedMask, contours,
+                        i, new Scalar(0,0,0),
+                        -1 , 8, mHierarchy, 0, new Point());
+                i ++;
+            }
+        }*/
+        Imgproc.erode(mDilatedMask, mDilatedMask, new Mat());
+        //xoa bo cac diem nhieu co dien tich nho ko thuoc region
+        Mat kernal = Mat.ones(5, 5, CvType.CV_8UC1);
+        Imgproc.morphologyEx(mDilatedMask, mDilatedMask,
+                Imgproc.MORPH_OPEN, kernal);
+        //mDilatedMask.setTo(Scalar.all(0));
 
         return mDilatedMask;
     }

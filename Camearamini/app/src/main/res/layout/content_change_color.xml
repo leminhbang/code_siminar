@@ -19,7 +19,28 @@
             android:layout_weight="1"
             android:visibility="visible"
             android:layout_marginTop="50dp"/>
-
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <SeekBar
+                android:id="@+id/sekChangeRadius"
+                android:progress="50"
+                android:max="100"
+                android:layout_weight="9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btnSign"
+                android:text="+"
+                android:layout_width="35dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/btmnBottom_menu_view"
             android:layout_width="match_parent"
@@ -28,76 +49,24 @@
             app:itemIconTint="@drawable/nav_item_color"
             app:itemTextColor="@drawable/nav_item_color"
             app:menu="@menu/menu_bottom"/>
-
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearlayout_change_color_image"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:orientation="horizontal"
-        android:gravity="right"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="65dp">
-        <ImageButton
-            android:id="@+id/imgb_color_image_1"
-            android:layout_width="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_height="match_parent"
-            android:background="@color/black_85"
-            android:visibility="gone"/>
-        <ImageButton
-            android:id="@+id/imgb_color_image_2"
-            android:layout_width="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_height="match_parent"
-            android:background="#ea1b1b"
-            android:visibility="gone"/>
-        <ImageButton
-            android:id="@+id/imgb_color_image_3"
-            android:layout_width="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_height="match_parent"
-            android:background="#1d33f7"
-            android:visibility="gone"/>
-    </LinearLayout>
-    <LinearLayout
+        android:id="@+id/ln2"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="1dp"
-        android:layout_marginBottom="70dp"
-        android:layout_alignParentBottom="true">
+        android:layout_marginBottom="70dp">
         <EditText
             android:id="@+id/edtNColors"
             android:hint="Nhap so kenh mau segment"
             android:textColor="#1505c7"
             android:textSize="16sp"
             android:inputType="number"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:gravity="center"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_weight="1"/>
-        <EditText
-            android:id="@+id/edtCluster"
-            android:hint="Nhap cluster muon hien thi"
-            android:textColor="#1505c7"
-            android:textSize="16sp"
-            android:inputType="number"
-            android:gravity="center"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_weight="1"/>
-        <SeekBar
-            android:id="@+id/sekChangeRadius"
-            android:progress="25"
-            android:max="50"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:visibility="gone" />
     </LinearLayout>
+
 </RelativeLayout>

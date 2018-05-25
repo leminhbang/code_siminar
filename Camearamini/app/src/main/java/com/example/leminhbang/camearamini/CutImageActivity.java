@@ -37,7 +37,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private Bitmap bitmapDraw;
+    private static Bitmap bitmapDraw;
     private int flag = 0;
     float x0, y0, x1, y1, x2, y2, x3, y3;
     private int CROP_IMAGE = 1;
@@ -181,43 +181,45 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
                 bitmapDraw = Bitmap.createBitmap(bitmapMain);
                 x0 = points[0];
                 y0 = points[1];
-                drawPoint(x0,y0,x0,y0);
+                drawPoint(bitmapDraw,x0,y0,x0,y0);
                 break;
             case 1:
                 x1 = points[0];
                 y1 = points[1];
-                drawPoint(x0,y0,x1,y1);
+                drawPoint(bitmapDraw,x0,y0,x1,y1);
                 break;
             case 2:
                 x2 = points[0];
                 y2 = points[1];
-                drawPoint(x1,y1,x2,y2);
+                drawPoint(bitmapDraw,x1,y1,x2,y2);
                 break;
             case 3:
                 x3 = points[0];
                 y3 = points[1];
-                drawPoint(x2,y2,x3,y3);
-                drawPoint(x3,y3,x0,y0);
+                drawPoint(bitmapDraw,x2,y2,x3,y3);
+                drawPoint(bitmapDraw,x3,y3,x0,y0);
                 break;
         }
+        imgMainImage.setImageBitmap(bitmapDraw);
         flag ++;
 
     }
 
-    private void drawPoint(float a, float b, float c, float d) {
+    public static Bitmap drawPoint(Bitmap mBitmap,float a, float b, float c, float d) {
+
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.MAGENTA);
         paint.setStrokeWidth(5);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        Bitmap outputBitmap = Bitmap.createBitmap(bitmapDraw.getWidth(),
-                bitmapDraw.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap outputBitmap = Bitmap.createBitmap(mBitmap.getWidth(),
+                mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(outputBitmap);
-        canvas.drawBitmap(bitmapDraw,0,0,null);
-        canvas.drawCircle(a, b, 10, paint);
-        canvas.drawCircle(c, d, 10, paint);
+        canvas.drawBitmap(mBitmap, 0, 0, null);
+        canvas.drawCircle(a, b, 5, paint);
+        canvas.drawCircle(c, d, 5, paint);
         canvas.drawLine(a,b,c,d,paint);
-        bitmapDraw = outputBitmap;
-        imgMainImage.setImageBitmap(bitmapDraw);
+        mBitmap = outputBitmap;
+        return mBitmap;
     }
 
     public void saveImage() {

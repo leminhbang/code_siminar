@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -17,10 +16,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 
 import com.example.leminhbang.camearamini.detector.ObjectDetect;
 
@@ -39,6 +40,7 @@ import java.util.List;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
+import static com.example.leminhbang.camearamini.CutImageActivity.drawPoint;
 import static com.example.leminhbang.camearamini.CutImageActivity.getPointOfTouchedCordinate;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
@@ -47,17 +49,16 @@ import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
-import static com.example.leminhbang.camearamini.detector.ObjectDetect.kMeansCluster;
 
-public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, View.OnClickListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, SeekBar.OnSeekBarChangeListener {
+public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
     private ImageView imgMainImage;
-    private ArrayList<ImageButton> imgbButtonColors = new ArrayList<ImageButton>();
     private BottomNavigationView btmnBottomMenu;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
     private SeekBar sekChangeRadius;
-    private EditText edtNColors, edtClusters;
+    private EditText edtNColors;
+    private Spinner spinnerChangeColor;
 
     public int currentObjectColor;
     private boolean isFirst = true;
@@ -67,10 +68,16 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private boolean isChoice = false;
 
     private Mat pixelLabels;
-    private Mat mRGB, mOut;
+    private Mat mRGB, mHSV, mMask, mBW;
     private List<Mat> kmeansResult;
     private Bitmap bmOut;
     private Scalar mColorRadius = new Scalar(25, 50, 50, 0);
+    private int clickCount = 0;
+    private Rect rect;
+    private Rect touchedRect;
+    private int progH = 50, progS = 50, progV = 50;
+    private Core.MinMaxLocResult minMaxH, minMaxS, minMaxV;
+    private Scalar upper, lower;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,20 +100,31 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         super.onStart();
         if (filePath != null) {
             bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapMain);
             pixelLabels = new Mat();
-            kmeansResult =  new ArrayList<Mat>();
+            kmeansResult =  new ArrayList<>();
+            imgMainImage.setImageBitmap(bitmapMain);
             int w = bitmapMain.getWidth(), h = bitmapMain.getHeight();
             bmOut = Bitmap.createBitmap(w, h,
                     bitmapMain.getConfig());
             mRGB = new Mat(h, w, CvType.CV_8SC4);
-            mOut = new Mat(h, w, CvType.CV_8UC3);
+            mHSV = new Mat(h, w, CvType.CV_8SC4);
+            mMask = new Mat(h, w, CvType.CV_8UC1);
             Utils.bitmapToMat(bitmapTemp, mRGB);
             Imgproc.cvtColor(mRGB, mRGB,
                     Imgproc.COLOR_RGBA2RGB);
-            Imgproc.cvtColor(mRGB, mRGB,
+            Imgproc.cvtColor(mRGB, mHSV,
                     Imgproc.COLOR_RGB2HSV_FULL);
-            //segmentByKMeans(3);
+            if (mBW == null) {
+                List<Mat> HSV = new ArrayList<Mat>();
+                Core.split(mHSV, HSV);
+                minMaxH = Core.minMaxLoc(HSV.get(0));
+                minMaxS = Core.minMaxLoc(HSV.get(1));
+                minMaxV = Core.minMaxLoc(HSV.get(2));
+                lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
+                        minMaxV.minVal, 0);
+                upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
+                        minMaxV.maxVal, 255);
+            }
         }
     }
 
@@ -122,8 +140,15 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_save_2:
-                saveImage();
-                ;
+                //saveImage();
+                /*if (clickCount == 1)
+                    segmentColor(touchedRect);
+                if (clickCount == 3)
+                    segmentColor(rect);
+                clickCount = 0;*/
+                if (mBW != null)
+                    openColorDialog(mMask, 0);
+
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
@@ -135,26 +160,23 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     public void mapView() {
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
         imgMainImage.setOnTouchListener(this);
-        imgbButtonColors.add((ImageButton) findViewById(R.id.imgb_color_image_1));
-        imgbButtonColors.add((ImageButton) findViewById(R.id.imgb_color_image_2));
-        imgbButtonColors.add((ImageButton) findViewById(R.id.imgb_color_image_3));
-        setClickForChangeImageColor();
         btmnBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
         btmnBottomMenu.setOnNavigationItemSelectedListener(this);
 
-        edtClusters = (EditText) findViewById(R.id.edtCluster);
-        edtClusters.addTextChangedListener(this);
         edtNColors = (EditText) findViewById(R.id.edtNColors);
         edtNColors.addTextChangedListener(this);
 
         sekChangeRadius = (SeekBar) findViewById(R.id.sekChangeRadius);
         sekChangeRadius.setOnSeekBarChangeListener(this);
-    }
 
-    public void setClickForChangeImageColor() {
-        for (int i = 0; i < imgbButtonColors.size(); i++) {
-            imgbButtonColors.get(i).setOnClickListener(this);
-        }
+        String[] spinnerItems = {"V", "H", "S"};
+        spinnerChangeColor = (Spinner) findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item,
+                spinnerItems);
+        spinnerChangeColor.setAdapter(adapter);
+        spinnerChangeColor.setOnItemSelectedListener(this);
+        spinnerChangeColor.setSelection(0, true);
     }
 
     @Override
@@ -173,20 +195,26 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                 }*/
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     pointColor = getPointOfTouchedCordinate(imgMainImage,event);
+                    mMask = getSelectedObject(mMask,(int) pointColor[1],
+                            (int) pointColor[0]);
+                    mBW.release();
+                    Core.bitwise_and(mRGB, mRGB, mBW, mMask);
+                    bitmapTemp = convertMatToBitmap(mBW);
+                    imgMainImage.setImageBitmap(bitmapTemp);
 
-                    int pixel = (int) (pointColor[0] +
-                            pointColor[1]*bitmapMain.getWidth());
+                    /*int pixel = (int) (pointColor[0] +
+                            pointColor[1]*bitmapMain.getWidth());*/
 
-                    processOnTouch(event);
-                    if (isSegment) {
-                        /*double label = pixelLabels.
+                    //processOnTouch(event);
+                    /*if (isSegment) {
+                        *//*double label = pixelLabels.
                                 get(pixel,0)[0];
                         drawSelectContour(mOut, label);
                         Toast.makeText(context, "Label  " + pointColor[0] +
                                         " " + pointColor[1] + " " + label,
                                 Toast.LENGTH_LONG).show();
-                        isSegment = false;*/
-                    }
+                        isSegment = false;*//*
+                    }*/
 
                 }
                 gestureDetector.onTouchEvent(event);
@@ -197,43 +225,68 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         }
         return true;
     }
-    public void changeColor() {
-         
-    }
+
     private void processOnTouch(MotionEvent event) {
-        ObjectDetect mDetector = new ObjectDetect();
-        int cols = mRGB.cols();
-        int rows = mRGB.rows();
+        int cols = mHSV.cols();
+        int rows = mHSV.rows();
+
         pointColor = getPointOfTouchedCordinate(imgMainImage,event);
         int x = (int)pointColor[0];
         int y = (int)pointColor[1];
-
         if ((x < 0) || (y < 0) || (x > cols) || (y > rows))
             return;
-        Rect touchedRect = new Rect();
 
+        switch (clickCount) {
+            case 0:
+                rect = new Rect();
+                rect.x = x;
+                rect.y = y;
+                bitmapTemp = drawPoint(bitmapTemp,x,y,x,y);
+                break;
+            case 1:
+                rect.width = Math.abs(x - rect.x);
+                bitmapTemp = drawPoint(bitmapTemp,rect.x, rect.y,
+                        rect.x + rect.width, rect.y);
+                break;
+            case 2:
+                rect.height = Math.abs(y - rect.y);
+                bitmapTemp = drawPoint(bitmapTemp,rect.x + rect.width,
+                        rect.y, rect.x + rect.width,
+                        rect.y + rect.height);
+                bitmapTemp = drawPoint(bitmapTemp,rect.x, rect.y,
+                        rect.x + rect.width,
+                        rect.y + rect.height);
+                break;
+        }
+        imgMainImage.setImageBitmap(bitmapTemp);
+        clickCount ++;
+
+        touchedRect = new Rect();
         touchedRect.x = (x > 4) ? x - 4 : 0;
         touchedRect.y = (y > 4) ? y - 4 : 0;
 
         touchedRect.width = (x + 4 < cols) ? x + 4 - touchedRect.x : cols - touchedRect.x;
         touchedRect.height = (y + 4 < rows) ? y + 4 - touchedRect.y : rows - touchedRect.y;
 
-        Mat touchedRegionRgba = mRGB.submat(touchedRect);
 
-        Mat touchedRegionHsv = mRGB.submat(touchedRect);
+    }
+    public void segmentColor(Rect _rect) {
+        ObjectDetect mDetector = new ObjectDetect();
+        Mat touchedRegionRgba = mHSV.submat(_rect);
+
+        Mat touchedRegionHsv = mHSV.submat(_rect);
         //Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv, Imgproc.COLOR_RGB2HSV_FULL);
-
 
         // Calculate average color of touched region
         Scalar mBlobColorHsv = Core.sumElems(touchedRegionHsv);
-        int pointCount = touchedRect.width*touchedRect.height;
+        int pointCount = _rect.width * _rect.height;
         for (int i = 0; i < mBlobColorHsv.val.length; i++)
             mBlobColorHsv.val[i] /= pointCount;
 
         //mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
         mDetector.setmColorRadius(mColorRadius);
         mDetector.setHsvColor(mBlobColorHsv);
-        Mat mDilate = mDetector.process(mRGB);
+        Mat mDilate = mDetector.process(mHSV);
 
         //Imgproc.pyrUp(mDilate,mDilate);
         Bitmap b = Bitmap.createBitmap(mDilate.cols(),
@@ -249,19 +302,17 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
         touchedRegionRgba.release();
         touchedRegionHsv.release();
-
     }
     public void changeColor(Mat mDilate) {
-        if (isChoice) {
-            int cols = mRGB.cols();
-            int rows = mRGB.rows();
-            //change object color
-            List<Mat> listHSV = new ArrayList<Mat>();
-            List<Mat> listHS = new ArrayList<Mat>();
-            Core.split(mRGB, listHSV);
+        if (mDilate != null) {
+            int cols = mHSV.cols();
+            int rows = mHSV.rows();
+            List<Mat> listHSV = new ArrayList<>();
+            List<Mat> listHS = new ArrayList<>();
+            Core.split(mHSV, listHSV);
             listHS.add(listHSV.get(0));
             listHS.add(listHSV.get(1));
-            Mat des = new Mat(rows, cols, mRGB.type());
+            Mat des = new Mat(rows, cols, mHSV.type());
             Mat tmp = new Mat(rows, cols, CvType.CV_8UC2);
             Core.merge(listHS, tmp);
             Scalar newColor = new Scalar(Color.red(currentObjectColor),
@@ -271,12 +322,13 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             Imgproc.cvtColor(mNewColor, mNewColor,
                     Imgproc.COLOR_RGB2HSV_FULL);
             Scalar newHsv = new Scalar(mNewColor.get(0, 0)[0],
-                    mNewColor.get(0, 0)[1], mNewColor.get(0, 0)[2], 0);
+                    mNewColor.get(0, 0)[1], mNewColor.get(0, 0)[2]);
             tmp.setTo(newHsv, mDilate);
             Core.split(tmp, listHS);
             List<Mat> newListHSV = new ArrayList<Mat>();
             newListHSV.add(listHS.get(0));
             newListHSV.add(listHS.get(1));
+            //newListHSV.add(listHSV.get(1));
             newListHSV.add(listHSV.get(2));
             Core.merge(newListHSV, des);
 
@@ -288,28 +340,6 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             imgMainImage.setImageBitmap(b);
         }
         isChoice = false;
-    }
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        int index;
-        switch (id) {
-            case R.id.imgb_color_image_1:
-                index = imgbButtonColors.indexOf(findViewById(R.id.imgb_color_image_1));
-                currentObjectColor = ContextCompat.getColor(this, R.color.colorAccent);
-                //openColorDialog(index);
-                break;
-            case R.id.imgb_color_image_2:
-                index = imgbButtonColors.indexOf(findViewById(R.id.imgb_color_image_2));
-                currentObjectColor = ContextCompat.getColor(this, R.color.colorAccent);
-                //openColorDialog(index);
-                break;
-            case R.id.imgb_color_image_3:
-                index = imgbButtonColors.indexOf(findViewById(R.id.imgb_color_image_3));
-                currentObjectColor = ContextCompat.getColor(this, R.color.colorAccent);
-                //openColorDialog(index);
-                break;
-        }
     }
 
     @Override
@@ -335,7 +365,6 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 currentObjectColor = color;
-                imgbButtonColors.get(index).setBackgroundColor(color);
                 isChoice = true;
                 changeColor(mDilate);
             }
@@ -354,7 +383,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         super.onBackPressed();
     }
 
-    public Mat selectCluster(Mat mCluster, double label) {
+    private Mat selectCluster(Mat mCluster, double label) {
         Mat mSelect = Mat.zeros(mCluster.size(), mCluster.type());
         int rows = mCluster.rows(), cols = mCluster.cols();
         for (int y = 0; y < rows; y ++) {
@@ -388,21 +417,20 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         imgMainImage.setImageBitmap(bmOut);
     }
     public void segmentByKMeans(int k) {
-        if (k == 0 || k == 1) return;
-        kmeansResult = kMeansCluster(mRGB, k);
+        /*if (k == 0 || k == 1) return;
+        kmeansResult = kMeansCluster(mHSV, k);
         pixelLabels = kmeansResult.get(0);
         k = kmeansResult.get(1).rows();
-        mOut = pixelLabels.reshape(1, mRGB.rows());
+        mOut = pixelLabels.reshape(1, mHSV.rows());
         mOut.convertTo(mOut, CvType.CV_32FC3, 255.0/(k - 1));
-        /*NativeClass.segmentByColorKMeans(mOut.getNativeObjAddr(),
-                k - 1);*/
+        *//*NativeClass.segmentByColorKMeans(mOut.getNativeObjAddr(),
+                k - 1);*//*
         mOut.convertTo(mOut, CvType.CV_8UC3);
         Imgproc.cvtColor(mOut,mOut,Imgproc.COLOR_GRAY2BGR);
         Utils.matToBitmap(mOut, bmOut);
         imgMainImage.setImageBitmap(bmOut);
-        isSegment = true;
+        isSegment = true;*/
     }
-
     public void connect() {
         /*try {
             InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
@@ -471,7 +499,6 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             e.printStackTrace();
         }*/
     }
-
 //    public static void connectServer() {
 //        while (true) {
 //            try {
@@ -504,6 +531,20 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
     private void cancelAction() {
         bitmapTemp = bitmapMain;
+        clickCount = 0;
+        progH = 50; progS = 50; progV = 50;
+        sekChangeRadius.setProgress(progH);
+        sekChangeRadius.setProgress(progS);
+        sekChangeRadius.setProgress(progV);
+        lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
+                minMaxV.minVal, 0);
+        upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
+                minMaxV.maxVal, 255);
+        spinnerChangeColor.setSelection(0);
+        if (mBW != null) {
+            mBW.release();
+            mMask.release();
+        }
         imgMainImage.setImageBitmap(bitmapMain);
     }
 
@@ -524,8 +565,8 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public void afterTextChanged(Editable s) {
-        String str;
-        /*int k = 0;
+        /*String str;
+        int k = 0;
         if (edtNColors.getText().hashCode() == s.hashCode()) {
             str = edtNColors.getText().toString().trim();
             if (!str.equals("") && !str.isEmpty() && !str.equals("0")) {
@@ -539,6 +580,12 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         double[] d = {25, 50, 25 + progress, 0};
         mColorRadius.set(d);
+        double percent = progress*1.0/100.0;
+        List<Mat> results = detectObject(mHSV, percent, 1);
+        mBW = results.get(0);
+        mMask = results.get(1);
+        bitmapTemp = convertMatToBitmap(mBW);
+        imgMainImage.setImageBitmap(bitmapTemp);
     }
 
     @Override
@@ -548,6 +595,100 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
+        switch (spinnerChangeColor.getSelectedItemPosition()) {
+            case 0:
+                progV = sekChangeRadius.getProgress();
+                break;
+            case 1:
+                progH = sekChangeRadius.getProgress();
+                break;
+            case 2:
+                progS = sekChangeRadius.getProgress();
+                break;
+        }
+    }
 
+    private List<Mat> detectObject(Mat src, double percent, int sign) {
+        List<Mat> results = new ArrayList<>();
+        Mat mask = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Mat dst = new Mat(src.rows(), src.cols(), CvType.CV_8UC3);
+        double selectValue;
+        switch (spinnerChangeColor.getSelectedItemPosition()) {
+            case 0:
+                selectValue = percent*minMaxV.maxVal +
+                        (1 - percent)*minMaxV.minVal;
+                if (sign == 0) {
+                    upper.val[2] = selectValue;
+                } else {
+                    lower.val[2] = selectValue;
+                }
+                break;
+            case 1:
+                selectValue = percent*minMaxH.maxVal +
+                        (1 - percent)*minMaxH.minVal;
+                if (sign == 0) {
+                    upper.val[0] = selectValue;
+                } else {
+                    lower.val[0] = selectValue;
+                }
+                break;
+            case 2:
+                selectValue = percent*minMaxS.maxVal +
+                        (1 - percent)*minMaxS.minVal;
+                if (sign == 0) {
+                    upper.val[1] = selectValue;
+                } else {
+                    lower.val[1] = selectValue;
+                }
+                break;
+        }
+        Core.inRange(src, lower, upper, mask);//dst is mask mat
+        Imgproc.dilate(mask, mask, new Mat());
+        Core.bitwise_and(mRGB, mRGB, dst, mask);
+        results.add(dst);
+        results.add(mask);
+        return results;
+    }
+    private Mat getSelectedObject(Mat mBinary, int x, int y) {
+        Mat mSelected = new Mat();
+        Mat mLabels = new Mat();
+        Imgproc.connectedComponents(mBinary, mLabels);
+        int label = (int) (mLabels.get(x, y)[0]);
+        Core.compare(mLabels, new Scalar(label), mSelected,
+                Core.CMP_EQ);
+        return mSelected;
+    }
+    public Bitmap convertMatToBitmap(Mat mat) {
+        Bitmap b = Bitmap.createBitmap(mat.cols(),
+                mat.rows(),bitmapMain.getConfig());
+        Utils.matToBitmap(mat, b);
+        return b;
+    }
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (position) {
+            case 0:
+                sekChangeRadius.setProgress(progV);
+                break;
+            case 1:
+                sekChangeRadius.setProgress(progH);
+                break;
+            case 2:
+                sekChangeRadius.setProgress(progS);
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mBW != null)
+            mBW.release();
+        mHSV.release();
     }
 }
