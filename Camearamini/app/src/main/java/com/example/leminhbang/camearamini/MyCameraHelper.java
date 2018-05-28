@@ -213,6 +213,7 @@ public class MyCameraHelper {
                 Utils.bitmapToMat(thumbImg, mSrc);
                 Mat mFilter = new Mat(128, 128, CvType.CV_8UC1);
                 Mat mFade = new Mat(128, 128, CvType.CV_8UC4);
+                Mat mSepria = new Mat(128, 128, CvType.CV_8UC4);
                 int count = FilterInterfaeClass.filterCount;
                 for (int i = 1; i < count; i ++) {
                     if (i == FilterInterfaeClass.GRAY) {
@@ -228,7 +229,8 @@ public class MyCameraHelper {
                         mFade = convertToBlur(mSrc);
                         Utils.matToBitmap(mFade, thumbFilter);
                     } else if (i == FilterInterfaeClass.CLASSIC) {
-                        thumbFilter = convertToClassic(thumbImg);
+                        mSepria = convertToClassic(mSrc);
+                        Utils.matToBitmap(mSepria, thumbFilter);
                     }
                     filename = filterName[0] + "_" + i
                             + "." + filterName[1];
@@ -240,6 +242,7 @@ public class MyCameraHelper {
                 Log.d("error", "run: run on thread");
                 mSrc.release();
                 mFilter.release();
+                mFade.release();
                 thumbImg.recycle();
                 thumbFilter.recycle();
             }

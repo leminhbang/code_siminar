@@ -189,7 +189,11 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
             case 5:
                 Toast.makeText(context,"Ảnh cổ điển",
                         Toast.LENGTH_SHORT).show();
-                bitmapTemp = convertToClassic(bitmapMain);
+                Mat mSepria = new Mat(h, w,CvType.CV_8SC4);
+                mSepria = convertToClassic(org);
+                Utils.matToBitmap(mSepria, bmm);
+                bitmapTemp = bmm;
+                //bitmapTemp = convertToClassic(bitmapMain);
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
         }
@@ -248,12 +252,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         Imgproc.blur(src, mBlur, new Size(20,1));
         return mBlur;
     }
-    public static Bitmap convertToClassic(Bitmap mBitmap) {
-        Drawable d = new BitmapDrawable(context.getResources(),
-                mBitmap);
-        d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
-        return ((BitmapDrawable) d).getBitmap();
-    }
     public static Mat convertToSketchPencil(Mat src) {
         Mat mSketch = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
         Mat mGray = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
@@ -269,6 +267,34 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         Core.subtract(new MatOfDouble(255), mBlur, mBlur);
         Core.divide(mGray, mBlur, mSketch, 255);
         return mSketch;
+    }
+    public static Mat convertToClassic(Mat src) {
+        Mat dst = new Mat(src.rows(), src.cols(), src.type());
+        Mat kernel = new Mat(4, 4,CvType.CV_32F);
+        /*kernel.put(0, 0, 0.272f);kernel.put(0, 1, 0.534f);
+        kernel.put(0, 2, 0.131f);kernel.put(0, 3, 0.0f);
+        kernel.put(1, 0, 0.349f);kernel.put(1, 1, 0.686f);
+        kernel.put(1, 2, 0.168f);kernel.put(1, 3, 0.0);
+        kernel.put(2, 0, 0.393f);kernel.put(2, 1, 0.769f);
+        kernel.put(2, 2, 0.189f);kernel.put(2, 3, 0.0);
+        kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
+        kernel.put(3, 2, 0.0);kernel.put(3, 3, 1.0);*/
+        kernel.put(0, 0, 0.393);kernel.put(0, 1, 0.769);
+        kernel.put(0, 2, 0.189);kernel.put(0, 3, 0.0f);
+        kernel.put(1, 0, 0.349);kernel.put(1, 1, 0.686);
+        kernel.put(1, 2, 0.168);kernel.put(1, 3, 0.0);
+        kernel.put(2, 0, 0.272);kernel.put(2, 1, 0.534);
+        kernel.put(2, 2, 0.131);kernel.put(2, 3, 0.0);
+        kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
+        kernel.put(3, 2, 0.0);kernel.put(3, 3, 1.0);
+        Core.transform(src, dst, kernel);
+        return dst;
+    }
+    public static Bitmap _convertToClassic(Bitmap mBitmap) {
+        Drawable d = new BitmapDrawable(context.getResources(),
+                mBitmap);
+        d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
+        return ((BitmapDrawable) d).getBitmap();
     }
     public static Bitmap _convertToBlur(Context context, Bitmap image) {
         int width = image.getWidth();
