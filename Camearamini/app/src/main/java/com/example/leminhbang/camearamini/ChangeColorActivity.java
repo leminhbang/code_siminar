@@ -18,6 +18,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -59,6 +60,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private SeekBar sekChangeRadius;
     private EditText edtNColors;
     private Spinner spinnerChangeColor;
+    private Button btnSign;
 
     public int currentObjectColor;
     private boolean isFirst = true;
@@ -174,9 +176,27 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item,
                 spinnerItems);
+        //spinnerChangeColor.setLayoutMode(Spinner.MODE_DIALOG);
+        /*adapter.setDropDownViewResource(android.R.layout.
+                simple_list_item_single_choice);*/
+        adapter.setDropDownViewResource(android.R.layout.
+                simple_list_item_single_choice);
         spinnerChangeColor.setAdapter(adapter);
         spinnerChangeColor.setOnItemSelectedListener(this);
         spinnerChangeColor.setSelection(0, true);
+        btnSign = (Button) findViewById(R.id.btnSign);
+        btnSign.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sign = (String) btnSign.getText();
+                if (sign.equals("-")) btnSign.setText("+");
+                if (sign.equals("+")) btnSign.setText("-");
+                lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
+                        minMaxV.minVal, 0);
+                upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
+                        minMaxV.maxVal, 255);
+            }
+        });
     }
 
     @Override
@@ -581,7 +601,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         double[] d = {25, 50, 25 + progress, 0};
         mColorRadius.set(d);
         double percent = progress*1.0/100.0;
-        List<Mat> results = detectObject(mHSV, percent, 1);
+        String sSign = (String) btnSign.getText();
+        int sign = sSign.equals("+") ? 1 : 0;
+        List<Mat> results = detectObject(mHSV, percent, sign);
         mBW = results.get(0);
         mMask = results.get(1);
         bitmapTemp = convertMatToBitmap(mBW);

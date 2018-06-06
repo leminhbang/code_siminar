@@ -121,7 +121,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                     imgMainImage.setScaleY(scale);
                 } else {
                     isFirst = false;
-                    MyScaleGesture.setScaleValue();
+                    MyScaleGesture.setScaleValue(1.0f);
                 }
                 gestureDetector.onTouchEvent(event);
                 break;
@@ -168,7 +168,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
-            case 3:
+            /*case 3:
                 Toast.makeText(context,"Ảnh truyện tranh",
                         Toast.LENGTH_SHORT).show();
                 //gray = convertToBlackWhite(org);
@@ -176,8 +176,8 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
-                break;
-            case 4:
+                break;*/
+            case 3:
                 Toast.makeText(context,"Ảnh mờ",
                         Toast.LENGTH_SHORT).show();
                 Mat mBlur = new Mat(h, w,CvType.CV_8SC4);
@@ -186,7 +186,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 bitmapTemp = bmm;
                 imgMainImage.setImageBitmap(bitmapTemp);
                 break;
-            case 5:
+            case 4:
                 Toast.makeText(context,"Ảnh cổ điển",
                         Toast.LENGTH_SHORT).show();
                 Mat mSepria = new Mat(h, w,CvType.CV_8SC4);
@@ -252,7 +252,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         Imgproc.blur(src, mBlur, new Size(20,1));
         return mBlur;
     }
-    public static Mat convertToSketchPencil(Mat src) {
+    public Mat convertToSketchPencil(Mat src) {
         Mat mSketch = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
         Mat mGray = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
         Mat mNeg = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);

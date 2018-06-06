@@ -117,7 +117,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
                     imgMainImage.setScaleY(scale);
                 } else {
                     isFirst = false;
-                    MyScaleGesture.setScaleValue();
+                    MyScaleGesture.setScaleValue(1.0f);
                 }
 
                 width = Math.round(originalWidth * scale);

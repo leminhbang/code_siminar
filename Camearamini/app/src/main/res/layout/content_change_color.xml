@@ -25,9 +25,12 @@
             android:layout_height="wrap_content">
             <Spinner
                 android:id="@+id/spinner"
+                android:spinnerMode="dialog"
+                android:layout_gravity="center"
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+
             <SeekBar
                 android:id="@+id/sekChangeRadius"
                 android:progress="50"

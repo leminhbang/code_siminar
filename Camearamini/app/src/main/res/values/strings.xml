@@ -6,7 +6,7 @@
     <string name="customize_rotate">Xoay tùy chọn</string>
     <string name="cut_image">Xén ảnh</string>
     <string name="change_shade">Đổi sắc thái ảnh</string>
-    <string name="load_image">Load ảnh</string>
+    <string name="load_image">Chọn ảnh</string>
     <string name="save_image">Lưu ảnh</string>
     <string name="insert_texxt">Chèn chữ</string>
     <string name="insert_frame">Chèn khung</string>
@@ -18,13 +18,14 @@
     <string name="save_message">Bạn có muốn lưu ảnh không?</string>
     <string name="Yes">Có</string>
     <string name="No">Không</string>
-    <string name="clarify_image">Làm rõ ảnh</string>
-    <string name="change_portrait_image">Đổi chân dung</string>
+    <string name="clarify_image">Độ tương phản</string>
+    <string name="change_portrait_image">Ảnh chân dung</string>
     <string name="change_color_image">Đổi màu ảnh</string>
     <string name="title_activity_change_shade">Đổi sắc thái</string>
-    <string name="title_activity_clarify_portrait">Làm rõ ảnh</string>
+    <string name="title_activity_clarify_portrait">Độ tương phản</string>
     <string name="title_activity_change_color">Đổi màu ảnh</string>
     <string name="title_activity_insert_frame">Chèn khung</string>
     <string name="title_activity_insert_text">Chèn chữ</string>
     <string name="title_activity_cut_image">Cắt ảnh</string>
+    <string name="title_activity_portrait">Ảnh chân dung</string>
 </resources>

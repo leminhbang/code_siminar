@@ -14,11 +14,15 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
@@ -28,10 +32,9 @@ import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
-public class ClarifyPortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
+public class PortraitActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener {
     private ImageView imgMainImage;
-    private SeekBar sekClarifyPortrait;
-    private BottomNavigationView btmnBottomMenu;
+    private BottomNavigationView btnvBottomMenu;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
@@ -40,17 +43,23 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_clarify_portrait);
+        setContentView(R.layout.activity_portrait);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         contextTmp = context;
-        context = this;
         mapView();
 
+        context = this;
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+    }
+    private void mapView() {
+        imgMainImage = (ImageView) findViewById(R.id.img_main_image);
+        imgMainImage.setOnTouchListener(this);
+        btnvBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
+        btnvBottomMenu.setOnNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -59,9 +68,60 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         if (filePath != null) {
             bitmapTemp = bitmapMain;
             imgMainImage.setImageBitmap(bitmapMain);
+            getPortrait();
         }
     }
+    public void getPortrait() {
+        int w = bitmapMain.getWidth(), h = bitmapMain.getHeight();
+        Mat mSrc = new Mat(h, w, CvType.CV_8UC4);
+        Mat mPortrait = new Mat(h, w, CvType.CV_8UC3);
+        Bitmap b = Bitmap.createBitmap(w, h, bitmapMain.getConfig());
+        Utils.bitmapToMat(bitmapMain, mSrc);
+        //mPortrait = convertToSketchPencil(mSrc);
+        mPortrait = convertToEmboss(mSrc);
+        Utils.matToBitmap(mPortrait, b);
+        bitmapTemp = b;
+        imgMainImage.setImageBitmap(bitmapTemp);
+    }
 
+    public Mat convertToSketchPencil(Mat src) {
+        Mat mSketch = new Mat(src.rows(), src.cols(), CvType.CV_8UC3);
+        Mat mGray = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Mat mNeg = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        //convert original image to gray
+        Imgproc.cvtColor(src, mGray, Imgproc.COLOR_RGBA2GRAY);
+        //convert gray image to negative
+        Core.subtract(new MatOfDouble(255), mGray, mNeg);
+        //apply gaussian blur
+        Mat mBlur = new Mat(src.rows(), src.cols(), CvType.CV_8UC1);
+        Imgproc.GaussianBlur(mNeg, mBlur,new Size(21, 21), 0);
+        //apply sketch pencil
+        Core.subtract(new MatOfDouble(255), mBlur, mBlur);
+        Core.divide(mGray, mBlur, mSketch, 255);
+        return mSketch;
+    }
+    public Mat convertToEmboss(Mat src) {
+        Mat mOut = new Mat(src.rows(), src.cols(), CvType.CV_8UC3);
+        Mat kernel = new Mat(3, 3,CvType.CV_32F);
+        //convert original image to gray
+        kernel.put(0, 0, -1.0);kernel.put(0, 1, 0.0);
+        kernel.put(0, 2, 0.0); //kernel.put(0, 3, 0.0f);
+        kernel.put(1, 0, 0.0);kernel.put(1, 1, 0.0);
+        kernel.put(1, 2, 0.0); //kernel.put(1, 3, 0.0);
+        kernel.put(2, 0, 0.0);kernel.put(2, 1, 0.0);
+        kernel.put(2, 2, 1.0); //kernel.put(2, 3, 0.0);
+        /*kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
+        kernel.put(3, 2, 0.0); //kernel.put(3, 3, 1.0);*/
+        //Core.transform(src, mOut, kernel);
+
+        //Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY);
+        Mat kernel2 = new Mat(5, 5,CvType.CV_32F, new Scalar(0));
+        kernel2.put(0, 0, 1.0); kernel2.put(1, 1, 1.0);
+        kernel2.put(3, 3, -1.0); kernel2.put(4, 4, -1.0);
+        Imgproc.filter2D(src, mOut, CvType.CV_16S, kernel2);
+        mOut.convertTo(mOut, CvType.CV_8UC3, 1, 128);
+        return mOut;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -74,22 +134,13 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         int id = item.getItemId();
         switch (id) {
             case R.id.action_save_2:
-                saveImage();
+                saveImage();;
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-    public void mapView() {
-        findViewById(R.id.linearlayout_main).setOnTouchListener(this);
-        imgMainImage = (ImageView) findViewById(R.id.img_main_image);
-        imgMainImage.setOnTouchListener(this);
-        sekClarifyPortrait = (SeekBar) findViewById(R.id.seekbar_clarify_portrait_image);
-        sekClarifyPortrait.setOnSeekBarChangeListener(this);
-        btmnBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
-        btmnBottomMenu.setOnNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -131,56 +182,10 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         }
         return true;
     }
-
     @Override
     public void onBackPressed() {
         context = contextTmp;
         super.onBackPressed();
-    }
-    private Bitmap changeContrast(Bitmap src, int contrastVal) {
-        int w = src.getWidth();
-        int h = src.getHeight();
-        double contrast = (double) contrastVal / 50.0;
-        if (contrast <= 0.2)
-            contrast = 0.2;
-        if (contrast >= 2.5)
-            contrast = 2.5;
-        Mat mOrg = new Mat(h, w, CvType.CV_8SC4);
-        Mat mOut = new Mat(h, w, CvType.CV_8SC4);
-        Bitmap bmm = Bitmap.createBitmap(w,h,src.getConfig());
-        Utils.bitmapToMat(src,mOrg);
-        mOrg.convertTo(mOut, -1, contrast, contrastVal - 20);
-       /* Mat canny = new Mat(h,w,CvType.CV_8SC1);
-        Mat gray = new Mat(h,w,CvType.CV_8SC1);
-        Imgproc.cvtColor(mOrg,gray,Imgproc.COLOR_RGB2GRAY);
-        Imgproc.blur(gray,gray, new Size(3,3));
-        Imgproc.Canny(gray,canny,contrastVal,contrastVal*3);
-        NativeClass.convertToNegative(canny.getNativeObjAddr(),
-                canny.getNativeObjAddr());*/
-        Utils.matToBitmap(mOut,bmm);
-        return bmm;
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        bitmapTemp = changeContrast(bitmapMain,progress);
-        imgMainImage.setImageBitmap(bitmapTemp);
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        sekClarifyPortrait.setProgress(50);
     }
 
     private void saveImage() {
@@ -188,8 +193,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         saveImageFile(fileUri,bitmapMain);
     }
     private void cancelAction() {
-        bitmapTemp = bitmapMain;
-        sekClarifyPortrait.setProgress(50);
         imgMainImage.setImageBitmap(bitmapMain);
     }
+
 }

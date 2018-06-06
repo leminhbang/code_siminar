@@ -32,7 +32,6 @@ import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBl
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToClassic;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToGray;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToNegative;
-import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToSketchPencil;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.fileUri;
@@ -222,10 +221,10 @@ public class MyCameraHelper {
                     } else if (i == FilterInterfaeClass.NEGATIVE) {
                         mFilter = convertToNegative(mSrc);
                         Utils.matToBitmap(mFilter, thumbFilter);
-                    } else if (i == FilterInterfaeClass.BLACKWHITE) {
+                    }/* else if (i == FilterInterfaeClass.BLACKWHITE) {
                         mFilter = convertToSketchPencil(mSrc);
                         Utils.matToBitmap(mFilter, thumbFilter);
-                    } else if (i == FilterInterfaeClass.FADE) {
+                    }*/ else if (i == FilterInterfaeClass.FADE) {
                         mFade = convertToBlur(mSrc);
                         Utils.matToBitmap(mFade, thumbFilter);
                     } else if (i == FilterInterfaeClass.CLASSIC) {

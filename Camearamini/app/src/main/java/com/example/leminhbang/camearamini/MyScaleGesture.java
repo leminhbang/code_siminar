@@ -36,7 +36,7 @@ public class MyScaleGesture extends ScaleGestureDetector.SimpleOnScaleGestureLis
     public static float getScaleValue() {
         return scale;
     }
-    public static void setScaleValue() {
-        scale = 1.0f;
+    public static void setScaleValue(float scaleVal) {
+        scale = scaleVal;
     }
 }

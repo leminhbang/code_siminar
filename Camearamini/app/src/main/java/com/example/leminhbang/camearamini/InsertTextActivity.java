@@ -174,7 +174,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
                     imgMainImage.setScaleY(scale);
                 } else {
                     isFirst = false;
-                    MyScaleGesture.setScaleValue();
+                    MyScaleGesture.setScaleValue(1.0f);
                 }
                 gestureDetector.onTouchEvent(event);
                 break;

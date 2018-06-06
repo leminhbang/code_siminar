@@ -56,12 +56,22 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public static Bitmap bitmapTemp;
     public static Context context;
     public static ActionBar actionBar;
-    public static List<String> thumbPaths = new ArrayList<String>();
+    public static List<String> thumbPaths = new ArrayList<>();
 
     private boolean isFirst = true;
     private boolean isChoose = false;
 
     public Mat matMain;
+
+    // set maximum scroll amount (based on center of image)
+    int maxX;
+    int maxY;
+    // set scroll limits
+    int maxLeft;
+    int maxRight;
+    int maxTop;
+    int maxBottom;
+    float mx, my;
 
     static {
         System.loadLibrary("Mylib");
@@ -111,6 +121,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 filePath = getPicturePath(fileUri);
             thumbPaths = prepareThumbnails(bitmapMain);
 
+            maxX = (int) (bitmapMain.getWidth()/2.0 -
+                getWindowManager().getDefaultDisplay().getWidth()/2);
+            maxY = (int) (bitmapMain.getHeight()/2.0 -
+                    getWindowManager().getDefaultDisplay().getHeight()/2.0);
+            maxLeft = (maxX * -1);
+            maxRight = maxX;
+            maxTop = (maxY * -1);
+            maxBottom = maxY;
         }
     }
 
@@ -188,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 intent = new Intent(context,ClarifyPortraitActivity.class);
                 break;
             case InterfaceClass.ChangePortrait:
-                intent = new Intent(context,ClarifyPortraitActivity.class);
+                intent = new Intent(context,PortraitActivity.class);
                 break;
         }
         context.startActivity(intent);
@@ -322,9 +340,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     imgMainImage.setScaleY(scale);
                 } else {
                     isFirst = false;
-                    MyScaleGesture.setScaleValue();
+                    MyScaleGesture.setScaleValue(1.0f);
                 }
                 gestureDetector.onTouchEvent(event);
+                scrollImage(event);
                 break;
             case R.id.linearlayout_main:
                 gestureDetector.onTouchEvent(event);
@@ -332,7 +351,105 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
         return true;
     }
+    public void scrollImage(MotionEvent event) {
+        /*float downX = 0, downY = 0;
+        int totalX = 0, totalY = 0;
+        int scrollByX, scrollByY;
+        float currentX, currentY;
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = event.getX();
+                downY = event.getY();
+                break;
 
+            case MotionEvent.ACTION_MOVE:
+                currentX = event.getX();
+                currentY = event.getY();
+                scrollByX = (int) (downX - currentX);
+                scrollByY = (int) (downY - currentY);
+
+                // scrolling to left side of image (pic moving to the right)
+                if (currentX > downX) {
+                    if (totalX == maxLeft) {
+                        scrollByX = 0;
+                    }
+                    if (totalX > maxLeft) {
+                        totalX = totalX + scrollByX;
+                    }
+                    if (totalX < maxLeft) {
+                        scrollByX = maxLeft - (totalX - scrollByX);
+                        totalX = maxLeft;
+                    }
+                }
+
+                // scrolling to right side of image (pic moving to the left)
+                if (currentX < downX) {
+                    if (totalX == maxRight) {
+                        scrollByX = 0;
+                    }
+                    if (totalX < maxRight) {
+                        totalX = totalX + scrollByX;
+                    }
+                    if (totalX > maxRight) {
+                        scrollByX = maxRight - (totalX - scrollByX);
+                        totalX = maxRight;
+                    }
+                }
+
+                // scrolling to top of image (pic moving to the bottom)
+                if (currentY > downY) {
+                    if (totalY == maxTop) {
+                        scrollByY = 0;
+                    }
+                    if (totalY > maxTop) {
+                        totalY = totalY + scrollByY;
+                    }
+                    if (totalY < maxTop) {
+                        scrollByY = maxTop - (totalY - scrollByY);
+                        totalY = maxTop;
+                    }
+                }
+
+                // scrolling to bottom of image (pic moving to the top)
+                if (currentY < downY) {
+                    if (totalY == maxBottom) {
+                        scrollByY = 0;
+                    }
+                    if (totalY < maxBottom) {
+                        totalY = totalY + scrollByY;
+                    }
+                    if (totalY > maxBottom) {
+                        scrollByY = maxBottom - (totalY -
+                                scrollByY);
+                        totalY = maxBottom;
+                    }
+                }
+
+                imgTempImage.scrollTo(scrollByX, scrollByY);
+                downX = currentX;
+                downY = currentY;
+                break;
+        }*/
+        float curX, curY;
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mx = event.getX();
+                my = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                curX = event.getX();
+                curY = event.getY();
+                imgMainImage.scrollBy((int) (mx - curX), (int) (my - curY));
+                mx = curX;
+                my = curY;
+                break;
+            case MotionEvent.ACTION_UP:
+                curX = event.getX();
+                curY = event.getY();
+                imgMainImage.scrollBy((int) (mx - curX), (int) (my - curY));
+                break;
+        }
+    }
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -426,6 +543,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         bitmapTemp = bitmapMain;
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
+        MyScaleGesture.setScaleValue(1.0f);
+        imgMainImage.setScrollX(0);
+        imgMainImage.setScrollY(0);
         imgMainImage.setImageBitmap(bitmapMain);
         imgMainImage.setRotation(View.SCROLL_AXIS_NONE);
         sekbCustomizeRotate.setProgress(180);
