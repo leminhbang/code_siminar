@@ -1,3 +1,7 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="autoresize_max_text_size">30sp</dimen>
+    <dimen name="autoresize_min_text_size">10sp</dimen>
+    <dimen name="autoresize_min_width">50dp</dimen>
 </resources>

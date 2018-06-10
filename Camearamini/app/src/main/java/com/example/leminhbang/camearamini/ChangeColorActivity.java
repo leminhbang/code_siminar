@@ -101,10 +101,14 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            bitmapTemp = bitmapMain;
+            if (bitmapTemp != null)
+                imgMainImage.setImageBitmap(bitmapTemp);
+            else {
+                bitmapTemp = bitmapMain;
+                imgMainImage.setImageBitmap(bitmapMain);
+            }
             pixelLabels = new Mat();
             kmeansResult =  new ArrayList<>();
-            imgMainImage.setImageBitmap(bitmapMain);
             int w = bitmapMain.getWidth(), h = bitmapMain.getHeight();
             bmOut = Bitmap.createBitmap(w, h,
                     bitmapMain.getConfig());
@@ -134,6 +138,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_child_action, menu);
+        invalidateOptionsMenu();
+        MenuItem item = menu.findItem(R.id.action_finish);
+        item.setVisible(true);
         return true;
     }
 
@@ -148,12 +155,14 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                 if (clickCount == 3)
                     segmentColor(rect);
                 clickCount = 0;*/
-                if (mBW != null)
-                    openColorDialog(mMask, 0);
 
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
+                break;
+            case R.id.action_finish:
+                if (mBW != null)
+                    openColorDialog(mMask, 0);
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -72,6 +72,9 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_child_action, menu);
+        invalidateOptionsMenu();
+        MenuItem item = menu.findItem(R.id.action_finish);
+        item.setVisible(true);
         return true;
     }
     private void mapView() {
@@ -86,10 +89,14 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         int id = item.getItemId();
         switch (id) {
             case R.id.action_save_2:
-                saveImage();;
+                bitmapMain = bitmapTemp;
+                saveImageFile(fileUri, bitmapMain);
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
+                break;
+            case R.id.action_finish:
+                saveImage();;
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -178,26 +185,26 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
             flag = 0;
         switch (flag) {
             case 0:
-                bitmapDraw = Bitmap.createBitmap(bitmapMain);
+                bitmapDraw = Bitmap.createBitmap(bitmapTemp);
                 x0 = points[0];
                 y0 = points[1];
-                drawPoint(bitmapDraw,x0,y0,x0,y0);
+                bitmapDraw = drawPoint(bitmapDraw,x0,y0,x0,y0);
                 break;
             case 1:
                 x1 = points[0];
                 y1 = points[1];
-                drawPoint(bitmapDraw,x0,y0,x1,y1);
+                bitmapDraw = drawPoint(bitmapDraw,x0,y0,x1,y1);
                 break;
             case 2:
                 x2 = points[0];
                 y2 = points[1];
-                drawPoint(bitmapDraw,x1,y1,x2,y2);
+                bitmapDraw = drawPoint(bitmapDraw,x1,y1,x2,y2);
                 break;
             case 3:
                 x3 = points[0];
                 y3 = points[1];
-                drawPoint(bitmapDraw,x2,y2,x3,y3);
-                drawPoint(bitmapDraw,x3,y3,x0,y0);
+                bitmapDraw = drawPoint(bitmapDraw,x2,y2,x3,y3);
+                bitmapDraw = drawPoint(bitmapDraw,x3,y3,x0,y0);
                 break;
         }
         imgMainImage.setImageBitmap(bitmapDraw);
@@ -219,7 +226,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         canvas.drawCircle(c, d, 5, paint);
         canvas.drawLine(a,b,c,d,paint);
         mBitmap = outputBitmap;
-        return mBitmap;
+        return outputBitmap;
     }
 
     public void saveImage() {
@@ -227,7 +234,6 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
             flag = 0;
             return;
         }
-        bitmapTemp = bitmapMain;
         Bitmap bitmap = Bitmap.createBitmap(bitmapMain.getWidth(),bitmapMain.getHeight(),
                 bitmapMain.getConfig());
         Canvas canvas = new Canvas(bitmap);
@@ -253,10 +259,8 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
         imgMainImage.setImageBitmap(bitmap);
-        bitmapMain = bitmap;
+        bitmapTemp = bitmap;
         flag = 0;
-
-        saveImageFile(fileUri,bitmapMain);
     }
 
     private void performCrop(Uri picUri) {

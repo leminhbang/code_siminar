@@ -30,6 +30,7 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlur;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToClassic;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToEmboss;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToGray;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToNegative;
 import static com.example.leminhbang.camearamini.MainActivity.context;
@@ -211,8 +212,8 @@ public class MyCameraHelper {
                 Mat mSrc = new Mat(128, 128, CvType.CV_8UC4);
                 Utils.bitmapToMat(thumbImg, mSrc);
                 Mat mFilter = new Mat(128, 128, CvType.CV_8UC1);
-                Mat mFade = new Mat(128, 128, CvType.CV_8UC4);
-                Mat mSepria = new Mat(128, 128, CvType.CV_8UC4);
+                //Mat mFade = new Mat(128, 128, CvType.CV_8UC4);
+                //Mat mSepria = new Mat(128, 128, CvType.CV_8UC4);
                 int count = FilterInterfaeClass.filterCount;
                 for (int i = 1; i < count; i ++) {
                     if (i == FilterInterfaeClass.GRAY) {
@@ -221,15 +222,23 @@ public class MyCameraHelper {
                     } else if (i == FilterInterfaeClass.NEGATIVE) {
                         mFilter = convertToNegative(mSrc);
                         Utils.matToBitmap(mFilter, thumbFilter);
-                    }/* else if (i == FilterInterfaeClass.BLACKWHITE) {
-                        mFilter = convertToSketchPencil(mSrc);
+                    } else if (i == FilterInterfaeClass.EMBOSS) {
+                        mFilter = convertToEmboss(mSrc);
                         Utils.matToBitmap(mFilter, thumbFilter);
-                    }*/ else if (i == FilterInterfaeClass.FADE) {
-                        mFade = convertToBlur(mSrc);
+                    } else if (i == FilterInterfaeClass.FADE) {
+                        Mat mFade = convertToBlur(mSrc);
                         Utils.matToBitmap(mFade, thumbFilter);
                     } else if (i == FilterInterfaeClass.CLASSIC) {
-                        mSepria = convertToClassic(mSrc);
-                        Utils.matToBitmap(mSepria, thumbFilter);
+                        Mat tmp = new Mat(mBitmap.getHeight(),
+                                mBitmap.getWidth(), CvType.CV_8UC3);
+                        Utils.bitmapToMat(mBitmap, tmp);
+                        Mat mSepria = convertToClassic(tmp);
+                        Bitmap mTmp = Bitmap.createBitmap(mBitmap.getWidth(),
+                                mBitmap.getHeight(),
+                                mBitmap.getConfig());
+                        Utils.matToBitmap(mSepria, mTmp);
+                        thumbFilter = Bitmap.createScaledBitmap(mTmp,
+                                128, 128, false);
                     }
                     filename = filterName[0] + "_" + i
                             + "." + filterName[1];
@@ -241,7 +250,6 @@ public class MyCameraHelper {
                 Log.d("error", "run: run on thread");
                 mSrc.release();
                 mFilter.release();
-                mFade.release();
                 thumbImg.recycle();
                 thumbFilter.recycle();
             }

@@ -20,7 +20,6 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -66,8 +65,12 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapMain);
+            if (bitmapTemp != null)
+                imgMainImage.setImageBitmap(bitmapTemp);
+            else {
+                bitmapTemp = bitmapMain;
+                imgMainImage.setImageBitmap(bitmapMain);
+            }
             getPortrait();
         }
     }
@@ -78,7 +81,7 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
         Bitmap b = Bitmap.createBitmap(w, h, bitmapMain.getConfig());
         Utils.bitmapToMat(bitmapMain, mSrc);
         //mPortrait = convertToSketchPencil(mSrc);
-        mPortrait = convertToEmboss(mSrc);
+        mPortrait = convertToSketchPencil(mSrc);
         Utils.matToBitmap(mPortrait, b);
         bitmapTemp = b;
         imgMainImage.setImageBitmap(bitmapTemp);
@@ -100,28 +103,7 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
         Core.divide(mGray, mBlur, mSketch, 255);
         return mSketch;
     }
-    public Mat convertToEmboss(Mat src) {
-        Mat mOut = new Mat(src.rows(), src.cols(), CvType.CV_8UC3);
-        Mat kernel = new Mat(3, 3,CvType.CV_32F);
-        //convert original image to gray
-        kernel.put(0, 0, -1.0);kernel.put(0, 1, 0.0);
-        kernel.put(0, 2, 0.0); //kernel.put(0, 3, 0.0f);
-        kernel.put(1, 0, 0.0);kernel.put(1, 1, 0.0);
-        kernel.put(1, 2, 0.0); //kernel.put(1, 3, 0.0);
-        kernel.put(2, 0, 0.0);kernel.put(2, 1, 0.0);
-        kernel.put(2, 2, 1.0); //kernel.put(2, 3, 0.0);
-        /*kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
-        kernel.put(3, 2, 0.0); //kernel.put(3, 3, 1.0);*/
-        //Core.transform(src, mOut, kernel);
 
-        //Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY);
-        Mat kernel2 = new Mat(5, 5,CvType.CV_32F, new Scalar(0));
-        kernel2.put(0, 0, 1.0); kernel2.put(1, 1, 1.0);
-        kernel2.put(3, 3, -1.0); kernel2.put(4, 4, -1.0);
-        Imgproc.filter2D(src, mOut, CvType.CV_16S, kernel2);
-        mOut.convertTo(mOut, CvType.CV_8UC3, 1, 128);
-        return mOut;
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

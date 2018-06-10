@@ -115,8 +115,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             Toast.makeText(context, "\t\t\t\t\t\t\tChưa có ảnh\nVui lòng chụp " +
                     "ảnh hoặc chọn một ảnh", Toast.LENGTH_LONG).show();
         } else {
-            bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapMain);
+            if (bitmapTemp != null)
+                imgMainImage.setImageBitmap(bitmapTemp);
+            else {
+                bitmapTemp = bitmapMain;
+                imgMainImage.setImageBitmap(bitmapMain);
+            }
             if (isChoose)
                 filePath = getPicturePath(fileUri);
             thumbPaths = prepareThumbnails(bitmapMain);
@@ -178,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 selectIntentToStart(intendSelect);
             }
         });
+        bitmapTemp = null;
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }
@@ -480,7 +485,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         // images
         options.inSampleSize = 8;
         bitmapMain = BitmapFactory.decodeFile(filePath, options);
-
+        bitmapTemp = bitmapMain;
         //display image in the iimage view
         imgMainImage.setImageBitmap(bitmapMain);
     }
@@ -499,6 +504,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         options.inScaled = false;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         bitmapMain = BitmapFactory.decodeFile(imagePath, options);
+        bitmapTemp = bitmapMain;
         cursor.close();
 
         //display image in the image view

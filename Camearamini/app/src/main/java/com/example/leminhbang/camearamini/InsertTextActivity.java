@@ -1,6 +1,5 @@
 package com.example.leminhbang.camearamini;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -13,7 +12,6 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextPaint;
-import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,9 +19,10 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.agilie.RotatableAutofitEditText;
 
 import java.util.ArrayList;
 
@@ -31,19 +30,19 @@ import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.filePath;
-import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
-import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
-public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, View.OnLongClickListener, View.OnDragListener {
+public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener/*, View.OnLongClickListener, View.OnDragListener*/ {
     private ImageView imgMainImage;
     private ImageView imgTempImage;
     private BottomNavigationView btmnBottomMenu;
-    private EditText edtInsertText;
+    //private EditText edtInsertText;
+    private RotatableAutofitEditText edtInsertText;
+
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private Context contextTmp;
-    private ArrayList<EditText> arrEditTexts = new ArrayList<EditText>();
+    private ArrayList<RotatableAutofitEditText> arrEditTexts = new ArrayList<>();
 
     private RelativeLayout.LayoutParams params;
     ViewGroup vg;
@@ -82,22 +81,22 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     public void mapView() {
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
         imgMainImage.setOnTouchListener(this);
-        edtInsertText = (EditText) findViewById(R.id.edtInsertText);
+        edtInsertText = (RotatableAutofitEditText) findViewById(R.id.edtInsertText);
         //edtInsertText.addTextChangedListener(this);
-        edtInsertText.setOnLongClickListener(this);
-        edtInsertText.setOnDragListener(this);
-        edtInsertText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
+       /* edtInsertText.setOnLongClickListener(this);
+        edtInsertText.setOnDragListener(this);*/
+        //edtInsertText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         int w = getWindowManager().getDefaultDisplay().getWidth()/2;
         int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                         w, h);
-        layoutParams.leftMargin = getWindowManager().getDefaultDisplay().getWidth()/4;
-        layoutParams.topMargin = getWindowManager().getDefaultDisplay().getHeight()/2;
-        edtInsertText.setLayoutParams(layoutParams);
+        //layoutParams.leftMargin = getWindowManager().getDefaultDisplay().getWidth()/4;
+        //layoutParams.topMargin = getWindowManager().getDefaultDisplay().getHeight()/2;
+        //edtInsertText.setLayoutParams(layoutParams);
         btmnBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
         btmnBottomMenu.setOnNavigationItemSelectedListener(this);
 
-        findViewById(R.id.rellayout_main_layout).setOnDragListener(this);
+        //findViewById(R.id.rellayout_main_layout).setOnDragListener(this);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -128,21 +127,26 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     }
 
     private void addNewText() {
-        EditText edt = new EditText(this);
+        RotatableAutofitEditText edt = new RotatableAutofitEditText(this);
         int w = getWindowManager().getDefaultDisplay().getWidth()/2;
         int h = getWindowManager().getDefaultDisplay().getHeight()/10;
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 w, h);
-        layoutParams.leftMargin = getWindowManager().getDefaultDisplay().getWidth()/4;
-        layoutParams.topMargin = getWindowManager().getDefaultDisplay().getHeight()/2;
+        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        //layoutParams.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
+        layoutParams.leftMargin = 0;//getWindowManager().getDefaultDisplay().getWidth()/4;
+        layoutParams.topMargin = 50;//getWindowManager().getDefaultDisplay().getHeight()/2;
         edt.setHint("Nhập chữ muốn chèn");
         edt.setHintTextColor(Color.BLUE);
         edt.setTextColor(Color.BLUE);
+        edt.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        edt.setPadding(16, 16, 16, 16);
+        edt.setBackgroundResource(R.drawable.rounded_corners_white_transparent_50);
         edt.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         edt.setLayoutParams(layoutParams);
 //        edt.addTextChangedListener(this);
-        edt.setOnLongClickListener(this);
-        edt.setOnDragListener(this);
+        /*edt.setOnLongClickListener(this);
+        edt.setOnDragListener(this);*/
         arrEditTexts.add(edt);
         vg = (ViewGroup) findViewById(R.id.rellayout_main_layout);
         vg.addView(edt);
@@ -150,16 +154,34 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
 
     private void saveImage() {
         for (int i = 0; i < arrEditTexts.size(); i++) {
-            int x = (int) arrEditTexts.get(i).getX();
-            int y = (int) arrEditTexts.get(i).getY();
-            bitmapMain = drawText(bitmapMain,arrEditTexts.get(i).
-                            getText().toString().trim(), x,y);
-            imgMainImage.setImageBitmap(bitmapMain);
+            int x = (int)Math.abs(arrEditTexts.get(i).getX());
+            int y = (int)Math.abs(arrEditTexts.get(i).getY());
+            bitmapTemp = drawText(bitmapMain,arrEditTexts.get(i), x, y);
+            imgMainImage.setImageBitmap(bitmapTemp);
             arrEditTexts.get(i).setVisibility(View.GONE);
         }
         arrEditTexts.clear();
-        bitmapTemp = bitmapMain;
-        saveImageFile(fileUri,bitmapMain);
+        bitmapMain = bitmapTemp;
+        //saveImageFile(fileUri,bitmapMain);
+    }
+    public Bitmap drawText(Bitmap bitmap, RotatableAutofitEditText edt, int x,int y) {
+        Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(outputBitmap);
+        c.drawBitmap(bitmap, 0, 0, null);
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLUE);
+        float size = edt.getTextSize();
+        paint.setTextSize(size);
+        //draw text on bitmap
+        String text = edt.getText().toString().trim();
+        c.save();
+        float direction = edt.getRotation();
+        c.rotate(direction);
+        c.drawText(text, edt.getLeft(), edt.getTop(), paint);
+        return outputBitmap;
     }
 
     @Override
@@ -206,21 +228,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         super.onBackPressed();
     }
 
-    public Bitmap drawText(Bitmap bitmap, String text, int x,int y) {
-        Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),
-                Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(outputBitmap);
-        c.drawBitmap(bitmap,0,0,null);
-        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.BLUE);
-        paint.setTextSize(60);
-        c.drawText(text, x, y,paint);
-        return outputBitmap;
-    }
-
-    @Override
+    /*@Override
     public boolean onLongClick(View v) {
         EditText edt = (EditText) v;
         ClipData data = ClipData.newPlainText("", "");
@@ -268,7 +276,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
                 break;
         }
         return true;
-    }
+    }*/
     private void cancelAction() {
         bitmapMain = bitmapTemp;
         imgMainImage.setImageBitmap(bitmapMain);

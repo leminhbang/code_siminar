@@ -2,41 +2,64 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rellayout_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/rellayout_main_layout"
     tools:context="com.example.leminhbang.camearamini.InsertTextActivity"
     tools:showIn="@layout/activity_insert_text">
 
     <ImageView
         android:id="@+id/img_main_image"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_marginBottom="60dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="60dp"
         android:visibility="visible" />
 
     <EditText
-        android:id="@+id/edtInsertText"
+        android:id="@+id/edtInsertText_"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginBottom="70dp"
-        android:autoText="false"
         android:cursorVisible="true"
         android:hint="Nhập chữ muốn chèn"
         android:textColor="#1f03bc"
-        android:textColorHint="#1f03bc" />
+        android:textColorHint="#1f03bc"
+        android:visibility="gone" />
+
+    <com.agilie.RotatableAutofitEditText
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:autofit="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/edtInsertText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners_white_transparent_50"
+        android:gravity="center"
+        android:hint="Nhap chu muon chen"
+        android:padding="16dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textColorHint="@android:color/holo_blue_light"
+        autofit:maxTextSize="@dimen/autoresize_max_text_size"
+        autofit:minTextSize="@dimen/autoresize_min_text_size"
+        autofit:minWidth="@dimen/autoresize_min_width"
+        autofit:clipBounds="false"
+        autofit:movable="true"
+        autofit:resizable="true"
+        autofit:rotatable="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="60dp"/>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/btmnBottom_menu_view"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         app:itemBackground="@android:drawable/screen_background_dark_transparent"
         app:itemIconTint="@drawable/nav_item_color"
         app:itemTextColor="@drawable/nav_item_color"
-        app:menu="@menu/menu_bottom"/>
+        app:menu="@menu/menu_bottom" />
 
 </RelativeLayout>

@@ -13,6 +13,12 @@
         app:showAsAction="always"
         android:visible="false"/>
     <item
+        android:id="@+id/action_finish"
+        app:showAsAction="always"
+        android:title="finish"
+        android:visible="false"
+        android:icon="@drawable/action_finish" />
+    <item
         android:id="@+id/action_cancel_2"
         android:title="@string/cancel"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
