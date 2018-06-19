@@ -15,6 +15,8 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
+
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -53,6 +55,8 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+        //zoom and movee image, pinch to zoom
+        ImageViewUtil. usingSimpleImage(imgMainImage);
     }
     private void mapView() {
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);

@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.agilie.RotatableAutofitEditText;
+import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
 
 import java.util.ArrayList;
 
@@ -67,6 +68,8 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+        //zoom and movee image, pinch to zoom
+        ImageViewUtil. usingSimpleImage(imgMainImage);
     }
 
     @Override

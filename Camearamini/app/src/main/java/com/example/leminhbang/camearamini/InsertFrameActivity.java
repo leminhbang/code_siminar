@@ -18,6 +18,8 @@ import android.widget.AdapterView;
 import android.widget.Gallery;
 import android.widget.ImageView;
 
+import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
+
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -56,6 +58,8 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         gestureDetector = new GestureDetector(this, new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+        //zoom and movee image, pinch to zoom
+        ImageViewUtil. usingSimpleImage(imgMainImage);
     }
 
     @Override

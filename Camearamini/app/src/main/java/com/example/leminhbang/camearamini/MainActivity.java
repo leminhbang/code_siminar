@@ -26,6 +26,8 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -107,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         gestureDetector = new GestureDetector(this, new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+        //zoom and movee image, pinch to zoom
+       ImageViewUtil. usingSimpleImage(imgMainImage);
     }
 
     @Override
@@ -251,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public void mapView() {
         findViewById(R.id.linearlayout_main).setOnTouchListener(this);
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
-        imgMainImage.setOnTouchListener(this);
+        //imgMainImage.setOnTouchListener(this);
         btnvBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
         btnvBottomMenu.setOnNavigationItemSelectedListener(this);
         sekbCustomizeRotate = (SeekBar) findViewById(R.id.seekbar_customize_rotate);
@@ -379,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     MyScaleGesture.setScaleValue(1.0f);
                 }
                 gestureDetector.onTouchEvent(event);
-                scrollImage(event);
+
                 break;
             case R.id.linearlayout_main:
                 gestureDetector.onTouchEvent(event);
@@ -649,4 +653,5 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         cursor.close();
         return path;
     }
+
 }

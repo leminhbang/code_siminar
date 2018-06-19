@@ -26,6 +26,8 @@ import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
+
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -67,6 +69,8 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
+        //zoom and movee image, pinch to zoom
+        ImageViewUtil. usingSimpleImage(imgMainImage);
     }
 
     @Override

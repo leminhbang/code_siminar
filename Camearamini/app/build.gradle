@@ -44,7 +44,10 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
     compile 'com.android.support:design:25.3.1'
     compile 'com.github.Kennyc1012:BottomSheet:2.3.4'
-    compile 'com.github.yukuku:ambilwarna:2.0.1' //color dialog
+    compile 'com.github.yukuku:ambilwarna:2.0.1'
+    //color dialog
     testCompile 'junit:junit:4.12'
-    compile 'com.agilie:rotatable-autofit-edittext:1.2' //xoay chu
+    compile 'com.agilie:rotatable-autofit-edittext:1.2'
+    //xoay chu
+    compile files('src/main/jniLibs/pinchzoom.jar')
 }
