@@ -73,12 +73,9 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            if (bitmapTemp != null)
-                imgMainImage.setImageBitmap(bitmapTemp);
-            else {
+            if (bitmapTemp == null)
                 bitmapTemp = bitmapMain;
-                imgMainImage.setImageBitmap(bitmapMain);
-            }
+            imgMainImage.setImageBitmap(bitmapTemp);
         }
     }
 
@@ -153,7 +150,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 Toast.makeText(context,"Không có",
                         Toast.LENGTH_SHORT).show();
                 bitmapTemp = bitmapMain;
-                imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case 1:
                 Toast.makeText(context,"Ảnh đen trắng",
@@ -163,7 +159,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 gray = convertToGray(org);
                 Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
-                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 2:
                 Toast.makeText(context,"Ảnh âm bản",
@@ -171,7 +166,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 gray = convertToNegative(org);
                 Utils.matToBitmap(gray,bmm);
                 bitmapTemp = bmm;
-                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 3:
                 Toast.makeText(context,"Ảnh chạm nổi",
@@ -180,7 +174,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 mEmboss = convertToEmboss(org);
                 Utils.matToBitmap(mEmboss, bmm);
                 bitmapTemp = bmm;
-                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 4:
                 Toast.makeText(context,"Ảnh mờ",
@@ -189,7 +182,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 mBlur = convertToBlur(org);
                 Utils.matToBitmap(mBlur, bmm);
                 bitmapTemp = bmm;
-                imgMainImage.setImageBitmap(bitmapTemp);
                 break;
             case 5:
                 Toast.makeText(context,"Ảnh cổ điển",
@@ -198,10 +190,17 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
                 mSepria = convertToClassic(org);
                 Utils.matToBitmap(mSepria, bmm);
                 bitmapTemp = bmm;
-                //bitmapTemp = convertToClassic(bitmapMain);
-                imgMainImage.setImageBitmap(bitmapTemp);
+                break;
+            case 6:
+                Toast.makeText(context,"Ảnh cổ điển",
+                        Toast.LENGTH_SHORT).show();
+                Mat mBlue = new Mat(h, w,CvType.CV_8SC4);
+                mBlue = convertToBlue(org);
+                Utils.matToBitmap(mBlue, bmm);
+                bitmapTemp = bmm;
                 break;
         }
+        imgMainImage.setImageBitmap(bitmapTemp);
     }
 
     @Override
@@ -209,13 +208,13 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -224,6 +223,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     @Override
     public void onBackPressed() {
         context = contextTmp;
+        showDialogSave(bitmapTemp, this, contextTmp.getClass());
         super.onBackPressed();
     }
 
@@ -285,6 +285,20 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     public static Mat convertToClassic(Mat src) {
         Mat dst = new Mat(src.rows(), src.cols(), src.type());
         Mat kernel = new Mat(4, 4,CvType.CV_32F);
+        kernel.put(0, 0, 0.393);kernel.put(0, 1, 0.769);
+        kernel.put(0, 2, 0.189);kernel.put(0, 3, 0.0f);
+        kernel.put(1, 0, 0.349);kernel.put(1, 1, 0.686);
+        kernel.put(1, 2, 0.168);kernel.put(1, 3, 0.0);
+        kernel.put(2, 0, 0.272);kernel.put(2, 1, 0.534);
+        kernel.put(2, 2, 0.131);kernel.put(2, 3, 0.0);
+        kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
+        kernel.put(3, 2, 0.0);kernel.put(3, 3, 1.0);
+        Core.transform(src, dst, kernel);
+        return dst;
+    }
+    public static Mat convertToBlue(Mat src) {
+        Mat dst = new Mat(src.rows(), src.cols(), src.type());
+        Mat kernel = new Mat(4, 4,CvType.CV_32F);
         kernel.put(0, 0, 0.272f);kernel.put(0, 1, 0.534f);
         kernel.put(0, 2, 0.131f);kernel.put(0, 3, 0.0f);
         kernel.put(1, 0, 0.349f);kernel.put(1, 1, 0.686f);
@@ -293,14 +307,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         kernel.put(2, 2, 0.189f);kernel.put(2, 3, 0.0);
         kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
         kernel.put(3, 2, 0.0);kernel.put(3, 3, 1.0);
-        /*kernel.put(0, 0, 0.393);kernel.put(0, 1, 0.769);
-        kernel.put(0, 2, 0.189);kernel.put(0, 3, 0.0f);
-        kernel.put(1, 0, 0.349);kernel.put(1, 1, 0.686);
-        kernel.put(1, 2, 0.168);kernel.put(1, 3, 0.0);
-        kernel.put(2, 0, 0.272);kernel.put(2, 1, 0.534);
-        kernel.put(2, 2, 0.131);kernel.put(2, 3, 0.0);
-        kernel.put(3, 0, 0.0);kernel.put(3, 1, 0.0);
-        kernel.put(3, 2, 0.0);kernel.put(3, 3, 1.0);*/
         Core.transform(src, dst, kernel);
         return dst;
     }

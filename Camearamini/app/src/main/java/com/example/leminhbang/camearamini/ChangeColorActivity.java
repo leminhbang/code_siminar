@@ -101,12 +101,10 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            if (bitmapTemp != null)
-                imgMainImage.setImageBitmap(bitmapTemp);
-            else {
+            if (bitmapTemp == null)
                 bitmapTemp = bitmapMain;
-                imgMainImage.setImageBitmap(bitmapMain);
-            }
+            imgMainImage.setImageBitmap(bitmapTemp);
+
             pixelLabels = new Mat();
             kmeansResult =  new ArrayList<>();
             int w = bitmapMain.getWidth(), h = bitmapMain.getHeight();
@@ -200,10 +198,10 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                 String sign = (String) btnSign.getText();
                 if (sign.equals("-")) btnSign.setText("+");
                 if (sign.equals("+")) btnSign.setText("-");
-                lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
+                /*lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
                         minMaxV.minVal, 0);
                 upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
-                        minMaxV.maxVal, 255);
+                        minMaxV.maxVal, 255);*/
             }
         });
     }
@@ -376,13 +374,13 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -409,6 +407,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     @Override
     public void onBackPressed() {
         context = contextTmp;
+        showDialogSave(bitmapTemp, this, contextTmp.getClass());
         super.onBackPressed();
     }
 

@@ -32,7 +32,7 @@ public class GallaryAdapter extends BaseAdapter {
         cont = c;
         REQUEST_CODE = REQUEST;
         if (REQUEST == 1) {
-            imgId = new Integer[]{R.drawable.frame_2, R.drawable.frame_5,
+            imgId = new Integer[]{R.drawable.frame_1, R.drawable.frame_5,
                     R.drawable.frame_6, R.drawable.frame_7, R.drawable.frame_14};
         }
         if (REQUEST == 2) {

@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlue;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToBlur;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToClassic;
 import static com.example.leminhbang.camearamini.ChangeShadeActivity.convertToEmboss;
@@ -209,6 +210,12 @@ public class MyCameraHelper {
                 //save filter thumbnail
                 Bitmap thumbFilter = Bitmap.createBitmap(128, 128,
                         thumbImg.getConfig());
+                Mat tmp = new Mat(mBitmap.getHeight(),
+                        mBitmap.getWidth(), CvType.CV_8UC3);
+                Utils.bitmapToMat(mBitmap, tmp);
+                Bitmap mTmp = Bitmap.createBitmap(mBitmap.getWidth(),
+                        mBitmap.getHeight(),
+                        mBitmap.getConfig());
                 Mat mSrc = new Mat(128, 128, CvType.CV_8UC4);
                 Utils.bitmapToMat(thumbImg, mSrc);
                 Mat mFilter = new Mat(128, 128, CvType.CV_8UC1);
@@ -229,14 +236,13 @@ public class MyCameraHelper {
                         Mat mFade = convertToBlur(mSrc);
                         Utils.matToBitmap(mFade, thumbFilter);
                     } else if (i == FilterInterfaeClass.CLASSIC) {
-                        Mat tmp = new Mat(mBitmap.getHeight(),
-                                mBitmap.getWidth(), CvType.CV_8UC3);
-                        Utils.bitmapToMat(mBitmap, tmp);
                         Mat mSepria = convertToClassic(tmp);
-                        Bitmap mTmp = Bitmap.createBitmap(mBitmap.getWidth(),
-                                mBitmap.getHeight(),
-                                mBitmap.getConfig());
                         Utils.matToBitmap(mSepria, mTmp);
+                        thumbFilter = Bitmap.createScaledBitmap(mTmp,
+                                128, 128, false);
+                    } else if (i == FilterInterfaeClass.BLUE) {
+                        Mat mBlue = convertToBlue(tmp);
+                        Utils.matToBitmap(mBlue, mTmp);
                         thumbFilter = Bitmap.createScaledBitmap(mTmp,
                                 128, 128, false);
                     }

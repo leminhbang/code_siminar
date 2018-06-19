@@ -65,12 +65,9 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            if (bitmapTemp != null)
-                imgMainImage.setImageBitmap(bitmapTemp);
-            else {
+            if (bitmapTemp == null)
                 bitmapTemp = bitmapMain;
-                imgMainImage.setImageBitmap(bitmapMain);
-            }
+            imgMainImage.setImageBitmap(bitmapTemp);
             getPortrait();
         }
     }
@@ -153,13 +150,13 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -167,6 +164,7 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
     @Override
     public void onBackPressed() {
         context = contextTmp;
+        showDialogSave(bitmapTemp, this, contextTmp.getClass());
         super.onBackPressed();
     }
 

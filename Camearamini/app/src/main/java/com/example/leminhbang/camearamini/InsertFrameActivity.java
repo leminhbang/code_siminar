@@ -3,8 +3,6 @@ package com.example.leminhbang.camearamini;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -20,13 +18,15 @@ import android.widget.AdapterView;
 import android.widget.Gallery;
 import android.widget.ImageView;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
-import static com.example.leminhbang.camearamini.MainActivity.filePath;
-import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
-import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 import static com.example.leminhbang.camearamini.MyScaleGesture.scale;
 
 
@@ -61,13 +61,12 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     @Override
     protected void onStart() {
         super.onStart();
-        if (filePath != null && bitmapMain != null) {
-            //imgMainImage.setImageURI(fileUri);
+        if (bitmapTemp == null)
             bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapMain);
-            originalWidth = bitmapMain.getWidth();
-            originalHeight = bitmapMain.getHeight();
-        }
+        imgMainImage.setImageBitmap(bitmapTemp);
+
+        originalWidth = bitmapMain.getWidth();
+        originalHeight = bitmapMain.getHeight();
         /*imgMainImage.buildDrawingCache();
         bitmapMain = imgMainImage.getDrawingCache();*/
     }
@@ -136,12 +135,16 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        bitmapFrame = null;
+        bitmapTemp = null;
         bitmapFrame = BitmapFactory.decodeResource(getResources(), (int) id);
-        int w = imgFrame.getWidth();
-        int h = imgFrame.getHeight();
+        int w = bitmapMain.getWidth();
+        int h = bitmapMain.getHeight();
         Bitmap tmp = Bitmap.createScaledBitmap(bitmapFrame, w, h, false);
         bitmapFrame = Bitmap.createBitmap(tmp);
-        imgFrame.setImageBitmap(bitmapFrame);
+        bitmapTemp = overlayBitmap(bitmapFrame, bitmapMain);
+        //imgFrame.setImageBitmap(bitmapFrame);
+        imgMainImage.setImageBitmap(bitmapTemp);
     }
 
     @Override
@@ -149,12 +152,12 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                showDialogSave(bitmapTemp, InterfaceClass.InsertTextClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp, InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -163,16 +166,17 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     @Override
     public void onBackPressed() {
         context = contextTmp;
+        showDialogSave(bitmapTemp, this, contextTmp.getClass());
         super.onBackPressed();
     }
-
+    //bmp1 : khung anh, bmp2 anh goc
     public Bitmap overlayBitmap(Bitmap bmp1, Bitmap bmp2) {
         if (bmp1 == null) {
             return bmp2;
         }
-        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(),
-                bmp1.getHeight(), Bitmap.Config.ARGB_8888);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp2.getWidth(),
+                bmp2.getHeight(), bmp2.getConfig());
+        /*Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         paint.setDither(false);
         paint.setAntiAlias(false);
         paint.setFilterBitmap(false);
@@ -181,28 +185,38 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         float w = (bmp1.getWidth() - bmp2.getWidth()) / 2;
         float h = (bmp1.getHeight() - bmp2.getHeight()) / 2;
         canvas.drawBitmap(bmp1, 0, 0, paint);
-        canvas.drawBitmap(bmp2, w, h, paint);
+        canvas.drawBitmap(bmp2, w, h, paint);*/
+        int w = bitmapMain.getWidth();
+        int h = bitmapMain.getHeight();
+        Mat src1 = new Mat(h, w, CvType.CV_8UC3);
+        Mat src2 = new Mat(h, w, CvType.CV_8UC4);
+        Mat det =  new Mat(h, w, CvType.CV_8UC4);
+        Utils.bitmapToMat(bmp1, src1);;
+        Utils.bitmapToMat(bmp2, src2);
+        float alpha = 0.5f;
+        Core.addWeighted(src1, 0.9f, src2, 1.0f, 0, det);
+        Utils.matToBitmap(det, bmOverlay);
         return bmOverlay;
     }
 
     public void saveImage() {
-        Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain, width, height, false);
-        bitmapMain = Bitmap.createBitmap(tmp);
-        bitmapMain = overlayBitmap(bitmapFrame, bitmapMain);
-        bitmapFrame = bitmapMain;
+        //Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain, width, height, false);
+        //bitmapMain = Bitmap.createBitmap(tmp);
+
+        bitmapFrame = bitmapTemp;
 
         //luu anh vao bo nho
-        saveImageFile(fileUri, bitmapMain);
+        //saveImageFile(fileUri, bitmapMain);
 
         imgFrame.setImageBitmap(null);
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
         imgMainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        imgMainImage.setImageBitmap(bitmapMain);
+        imgMainImage.setImageBitmap(bitmapTemp);
     }
 
     private void cancelAction() {
-        bitmapMain = bitmapTemp;
+        bitmapTemp = bitmapMain;
         imgFrame.setImageBitmap(null);
         imgMainImage.setImageBitmap(bitmapMain);
     }

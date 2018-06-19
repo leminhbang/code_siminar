@@ -57,8 +57,9 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapMain);
+            if (bitmapTemp == null)
+                bitmapTemp = bitmapMain;
+            imgMainImage.setImageBitmap(bitmapTemp);
         }
     }
 
@@ -120,13 +121,13 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -135,6 +136,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     @Override
     public void onBackPressed() {
         context = contextTmp;
+        showDialogSave(bitmapTemp, this, contextTmp.getClass());
         super.onBackPressed();
     }
     private Bitmap changeContrast(Bitmap src, int contrastVal) {

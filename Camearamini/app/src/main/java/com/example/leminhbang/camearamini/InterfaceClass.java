@@ -5,12 +5,12 @@ package com.example.leminhbang.camearamini;
  */
 
 public interface InterfaceClass {
-    public static int MainClass = 1001;
-    public static int ChangeColorClass = 1002;
-    public static int ChangeShadeClass = 1003;
-    public static int InsertFrameClass = 1004;
-    public static int InsertTextClass = 1005;
-    public static int CutImageClass = 1006;
-    public static int ClarifyClass = 1007;
-    public static int ChangePortrait = 1008;
+    public static Class MainClass = MainActivity.class;
+    public static Class ChangeColorClass = ChangeColorActivity.class;
+    public static Class ChangeShadeClass = ChangeShadeActivity.class;
+    public static Class InsertFrameClass = InsertFrameActivity.class;
+    public static Class InsertTextClass = InsertTextActivity.class;
+    public static Class CutImageClass = CutImageActivity.class;
+    public static Class ClarifyClass = ClarifyPortraitActivity.class;
+    public static Class ChangePortrait = PortraitActivity.class;
 }

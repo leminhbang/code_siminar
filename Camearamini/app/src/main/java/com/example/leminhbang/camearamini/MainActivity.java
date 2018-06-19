@@ -39,6 +39,7 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static com.example.leminhbang.camearamini.MyCameraHelper.prepareThumbnails;
 import static com.example.leminhbang.camearamini.MyCameraHelper.rotateImage;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
+import static com.example.leminhbang.camearamini.MyScaleGesture.getScaleValue;
 
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
 
@@ -115,23 +116,20 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             Toast.makeText(context, "\t\t\t\t\t\t\tChưa có ảnh\nVui lòng chụp " +
                     "ảnh hoặc chọn một ảnh", Toast.LENGTH_LONG).show();
         } else {
-            if (bitmapTemp != null)
-                imgMainImage.setImageBitmap(bitmapTemp);
-            else {
+            if (bitmapTemp == null)
                 bitmapTemp = bitmapMain;
-                imgMainImage.setImageBitmap(bitmapMain);
-            }
+            imgMainImage.setImageBitmap(bitmapTemp);
             if (isChoose)
                 filePath = getPicturePath(fileUri);
             thumbPaths = prepareThumbnails(bitmapMain);
 
-            maxX = (int) (bitmapMain.getWidth()/2.0 -
-                getWindowManager().getDefaultDisplay().getWidth()/2);
-            maxY = (int) (bitmapMain.getHeight()/2.0 -
-                    getWindowManager().getDefaultDisplay().getHeight()/2.0);
-            maxLeft = (maxX * -1);
+            maxX = (int) (bitmapMain.getWidth() / 2.0 -
+                    getWindowManager().getDefaultDisplay().getWidth() / 2);
+            maxY = (int) (bitmapMain.getHeight() / 2.0 -
+                    getWindowManager().getDefaultDisplay().getHeight() / 2.0);
+            maxLeft = (-1) * maxX;
             maxRight = maxX;
-            maxTop = (maxY * -1);
+            maxTop = (-1) * maxY;
             maxBottom = maxY;
         }
     }
@@ -170,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         dialog.setPositiveButton(R.string.No, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
+                bitmapTemp = null;
                 selectIntentToStart(intendSelect);
             }
         });
@@ -179,18 +178,50 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     bitmapMain = bmSave;
                     saveImageFile(fileUri, bitmapMain);
                 }
+                bitmapTemp = null;
                 selectIntentToStart(intendSelect);
             }
         });
-        bitmapTemp = null;
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }
+
+    public static void showDialogSave(final Bitmap bmSave,
+                                      final Context c,
+                                      final Class intendSelect) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setTitle(R.string.save_confirm);
+        dialog.setMessage(R.string.save_message);
+        dialog.setPositiveButton(R.string.No, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                bitmapTemp = null;
+                Intent intent = new Intent(c, intendSelect);
+                c.startActivity(intent);
+                ;
+            }
+        });
+        dialog.setNegativeButton(R.string.Yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (bitmapMain != null) {
+                    bitmapMain = bmSave;
+                    saveImageFile(fileUri, bitmapMain);
+                }
+                bitmapTemp = null;
+                Intent intent = new Intent(c, intendSelect);
+                c.startActivity(intent);
+                ;
+            }
+        });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+    }
+
     public static void selectIntentToStart(int intentSelected) {
-        Intent intent = null;
+        /*Intent intent = null;
         switch (intentSelected) {
             case InterfaceClass.MainClass:
-                intent = new Intent(context,MainActivity.class);
+                intent = new Intent(context, MainActivity.class);
                 break;
             case InterfaceClass.ChangeColorClass:
                 intent = new Intent(context,ChangeColorActivity.class);
@@ -214,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 intent = new Intent(context,PortraitActivity.class);
                 break;
         }
-        context.startActivity(intent);
+        context.startActivity(intent);*/
     }
 
     public void mapView() {
@@ -320,13 +351,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         int id = item.getItemId();
         switch (id) {
             case R.id.action_insert_text:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertTextClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertTextClass);
                 break;
             case R.id.action_insert_frame:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -340,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             case R.id.img_main_image:
                 scaleGestureDetector.onTouchEvent(event);
                 if (!isFirst) {
-                    float scale = MyScaleGesture.getScaleValue();
+                    float scale = getScaleValue();
                     imgMainImage.setScaleX(scale);
                     imgMainImage.setScaleY(scale);
                 } else {
@@ -356,9 +387,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         }
         return true;
     }
+
     public void scrollImage(MotionEvent event) {
-        /*float downX = 0, downY = 0;
+        if (getScaleValue() == 1.0f ||
+                scaleGestureDetector.isInProgress()) {
+            return;
+        }
         int totalX = 0, totalY = 0;
+        /*float downX = 0, downY = 0;
         int scrollByX, scrollByY;
         float currentX, currentY;
         switch (event.getAction()) {
@@ -429,8 +465,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         totalY = maxBottom;
                     }
                 }
-
-                imgTempImage.scrollTo(scrollByX, scrollByY);
+                imgTempImage.scrollBy(scrollByX, scrollByY);
                 downX = currentX;
                 downY = currentY;
                 break;
@@ -444,17 +479,23 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             case MotionEvent.ACTION_MOVE:
                 curX = event.getX();
                 curY = event.getY();
-                imgMainImage.scrollBy((int) (mx - curX), (int) (my - curY));
+                int scrX = (int) (mx - curX);
+                int scrY = (int) (my - curY);
+                scrX = scrX < 0 ? 0 : scrY;
+                scrY = scrY < 0 ? 0 : scrY;
+                imgMainImage.scrollBy(scrX, scrY);
                 mx = curX;
                 my = curY;
                 break;
-            case MotionEvent.ACTION_UP:
-                curX = event.getX();
+            /*case MotionEvent.ACTION_UP:
+                *//*curX = event.getX();
                 curY = event.getY();
-                imgMainImage.scrollBy((int) (mx - curX), (int) (my - curY));
-                break;
+                imgMainImage.scrollBy((int) (mx - curX),
+                        (int) (my - curY));*//*
+                break;*/
         }
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -489,6 +530,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         //display image in the iimage view
         imgMainImage.setImageBitmap(bitmapMain);
     }
+
     //hien anh vua chon tu bo nho
     private void viewImage(Uri uri) {
         fileUri = uri;

@@ -12,6 +12,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextPaint;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
-import static com.example.leminhbang.camearamini.MainActivity.filePath;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener/*, View.OnLongClickListener, View.OnDragListener*/ {
@@ -72,10 +72,9 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     @Override
     protected void onStart() {
         super.onStart();
-        if (filePath != null) {
+        if (bitmapTemp == null)
             bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapMain);
-        }
+        imgMainImage.setImageBitmap(bitmapTemp);
     }
 
     public void mapView() {
@@ -153,9 +152,16 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     }
 
     private void saveImage() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().
+                getMetrics(metrics);
+        int sw = metrics.widthPixels - 120;
+        int sh = metrics.heightPixels;
+        int bw = bitmapMain.getWidth();
+        int bh = bitmapMain.getHeight();
         for (int i = 0; i < arrEditTexts.size(); i++) {
-            int x = (int)Math.abs(arrEditTexts.get(i).getX());
-            int y = (int)Math.abs(arrEditTexts.get(i).getY());
+            int x = (int)(1.0*arrEditTexts.get(i).getX()*bw/sw);
+            int y = (int)(1.0*arrEditTexts.get(i).getY()*bh/sh);
             bitmapTemp = drawText(bitmapMain,arrEditTexts.get(i), x, y);
             imgMainImage.setImageBitmap(bitmapTemp);
             arrEditTexts.get(i).setVisibility(View.GONE);
@@ -180,7 +186,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         c.save();
         float direction = edt.getRotation();
         c.rotate(direction);
-        c.drawText(text, edt.getLeft(), edt.getTop(), paint);
+        c.drawText(text, x, y, paint);
         return outputBitmap;
     }
 
@@ -214,10 +220,10 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
             case R.id.action_insert_text:
                 break;
             case R.id.action_insert_frame:
-                showDialogSave(bitmapTemp,InterfaceClass.InsertFrameClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.InsertFrameClass);
                 break;
             case R.id.action_cut_image:
-                showDialogSave(bitmapTemp,InterfaceClass.CutImageClass);
+                showDialogSave(bitmapTemp, this, InterfaceClass.CutImageClass);
                 break;
         }
         return true;
@@ -225,6 +231,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
     @Override
     public void onBackPressed() {
         context = contextTmp;
+        showDialogSave(bitmapTemp, this, contextTmp.getClass());
         super.onBackPressed();
     }
 
