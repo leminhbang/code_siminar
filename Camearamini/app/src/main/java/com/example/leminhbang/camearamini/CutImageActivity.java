@@ -117,11 +117,9 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
                 Bundle extras = data.getExtras();
                 // get the cropped bitmap
                 bitmapMain = extras.getParcelable("data");
-
                 imgMainImage.setImageBitmap(bitmapMain);
             }
         }
-
     }
 
     @Override

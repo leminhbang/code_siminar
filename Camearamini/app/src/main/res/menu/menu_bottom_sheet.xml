@@ -5,18 +5,18 @@
     <item
         android:id="@+id/action_change_shade"
         android:title="@string/change_shade"
-        android:icon="@drawable/image_main"/>
+        android:icon="@drawable/icon_change_shade"/>
     <item
         android:id="@+id/action_clarify_image"
         android:title="@string/clarify_image"
-        android:icon="@drawable/image_main"/>
+        android:icon="@drawable/icon_change_contrast"/>
     <item
         android:id="@+id/action_change_portrait"
         android:title="@string/change_portrait_image"
-        android:icon="@drawable/image_main"/>
+        android:icon="@drawable/icon_portrait"/>
     <item
         android:id="@+id/action_change_color_image"
         android:title="@string/change_color_image"
-        android:icon="@drawable/image_main"/>
+        android:icon="@drawable/icon_change_color"/>
 
 </menu>

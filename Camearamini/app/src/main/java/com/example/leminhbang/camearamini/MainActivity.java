@@ -26,8 +26,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -38,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+import static com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil.usingSimpleImage;
 import static com.example.leminhbang.camearamini.MyCameraHelper.prepareThumbnails;
 import static com.example.leminhbang.camearamini.MyCameraHelper.rotateImage;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
@@ -104,13 +103,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         mapView();
         context = this;
         myGetActionBar();
-        imgTempImage = imgMainImage;
 
         gestureDetector = new GestureDetector(this, new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
         //zoom and movee image, pinch to zoom
-       ImageViewUtil. usingSimpleImage(imgMainImage);
+        usingSimpleImage(imgMainImage);
+        /*imgMainImage.setScaleX(1.0f);
+        imgMainImage.setScaleY(1.0f);*/
     }
 
     @Override
@@ -253,9 +253,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     public void mapView() {
-        findViewById(R.id.linearlayout_main).setOnTouchListener(this);
+        findViewById(R.id.linearlayout_main).
+                setOnTouchListener(this);
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
-        //imgMainImage.setOnTouchListener(this);
+        imgMainImage.setOnTouchListener(this);
         btnvBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
         btnvBottomMenu.setOnNavigationItemSelectedListener(this);
         sekbCustomizeRotate = (SeekBar) findViewById(R.id.seekbar_customize_rotate);
@@ -485,18 +486,16 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 curY = event.getY();
                 int scrX = (int) (mx - curX);
                 int scrY = (int) (my - curY);
-                scrX = scrX < 0 ? 0 : scrY;
-                scrY = scrY < 0 ? 0 : scrY;
                 imgMainImage.scrollBy(scrX, scrY);
                 mx = curX;
                 my = curY;
                 break;
-            /*case MotionEvent.ACTION_UP:
-                *//*curX = event.getX();
+            case MotionEvent.ACTION_UP:
+                curX = event.getX();
                 curY = event.getY();
                 imgMainImage.scrollBy((int) (mx - curX),
-                        (int) (my - curY));*//*
-                break;*/
+                        (int) (my - curY));
+                break;
         }
     }
 
@@ -528,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
         // down sizing image as it throws OutOfMemory Exception for larger
         // images
-        options.inSampleSize = 8;
+        //options.inSampleSize = 8;
         bitmapMain = BitmapFactory.decodeFile(filePath, options);
         bitmapTemp = bitmapMain;
         //display image in the iimage view

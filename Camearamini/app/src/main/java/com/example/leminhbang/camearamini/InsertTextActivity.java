@@ -24,14 +24,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.agilie.RotatableAutofitEditText;
-import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
 
 import java.util.ArrayList;
 
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener/*, View.OnLongClickListener, View.OnDragListener*/ {
     private ImageView imgMainImage;
@@ -68,8 +69,6 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         gestureDetector = new GestureDetector(this,new MyGesture());
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
-        //zoom and movee image, pinch to zoom
-        ImageViewUtil. usingSimpleImage(imgMainImage);
     }
 
     @Override
@@ -107,6 +106,8 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         invalidateOptionsMenu();
         MenuItem newText = menu.findItem(R.id.action_new_text);
         newText.setVisible(true);
+        MenuItem finish = menu.findItem(R.id.action_finish);
+        finish.setVisible(true);
         return true;
     }
 
@@ -116,10 +117,14 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         switch (id) {
             case R.id.action_save_2:
                 //goi ham ve canvas
-                saveImage();
+                bitmapMain = bitmapTemp;
+                saveImageFile(fileUri,bitmapMain);
                 break;
             case R.id.action_new_text:
                 addNewText();
+                break;
+            case R.id.action_finish:
+                saveImage();
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
@@ -158,27 +163,35 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().
                 getMetrics(metrics);
-        int sw = metrics.widthPixels - 120;
-        int sh = metrics.heightPixels;
+        float sw =imgMainImage.getMeasuredWidth();
+        float sh = imgMainImage.getMeasuredHeight();
         int bw = bitmapMain.getWidth();
         int bh = bitmapMain.getHeight();
+        float ratio = bw > bh ? bh*1.0f/bw : bw*1.0f/bh;
+        float mx = (sw - ratio*bw)/2.0f >= 0 ?
+                (sw - ratio*bw)/2.0f : 0;
+        float my = (sh - ratio*bh)/2.0f >= 0 ?
+                (sh - ratio*bh)/2.0f + 120 : 0;
         for (int i = 0; i < arrEditTexts.size(); i++) {
-            int x = (int)(1.0*arrEditTexts.get(i).getX()*bw/sw);
-            int y = (int)(1.0*arrEditTexts.get(i).getY()*bh/sh);
-            bitmapTemp = drawText(bitmapMain,arrEditTexts.get(i), x, y);
+            int[] pos = new int[2];
+            arrEditTexts.get(i).getLocationInWindow(pos);
+            float x = pos[0] - mx;
+            float y = pos[1] - my;
+            bitmapTemp = drawText(bitmapTemp ,
+                    arrEditTexts.get(i), x, y);
             imgMainImage.setImageBitmap(bitmapTemp);
             arrEditTexts.get(i).setVisibility(View.GONE);
         }
         arrEditTexts.clear();
-        bitmapMain = bitmapTemp;
-        //saveImageFile(fileUri,bitmapMain);
     }
-    public Bitmap drawText(Bitmap bitmap, RotatableAutofitEditText edt, int x,int y) {
+    public Bitmap drawText(Bitmap bitmap, RotatableAutofitEditText edt, float x, float y) {
+
         Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(),
                 Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(outputBitmap);
         c.drawBitmap(bitmap, 0, 0, null);
-        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
         paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.BLUE);
@@ -186,9 +199,13 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         paint.setTextSize(size);
         //draw text on bitmap
         String text = edt.getText().toString().trim();
-        c.save();
+        //c.save();
         float direction = edt.getRotation();
         c.rotate(direction);
+        float rx = bitmap.getWidth()*1.0f/imgMainImage.getMeasuredWidth();
+        float ry = bitmap.getHeight()*1.0f/imgMainImage.getMeasuredHeight();
+        x = edt.getLeft()*rx;
+        y = edt.getTop()*ry;
         c.drawText(text, x, y, paint);
         return outputBitmap;
     }
@@ -201,8 +218,8 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
                 scaleGestureDetector.onTouchEvent(event);
                 if (!isFirst) {
                     float scale = MyScaleGesture.getScaleValue();
-                    imgMainImage.setScaleX(scale);
-                    imgMainImage.setScaleY(scale);
+                    /*imgMainImage.setScaleX(scale);
+                    imgMainImage.setScaleY(scale);*/
                 } else {
                     isFirst = false;
                     MyScaleGesture.setScaleValue(1.0f);

@@ -17,5 +17,6 @@ public class ImageViewUtil {
         mAttacher.setOnMatrixChangeListener(mMaListener);
         PhotoTapListener mPhotoTap = new PhotoTapListener();
         mAttacher.setOnPhotoTapListener(mPhotoTap);
+        ABC abc = new ABC(imageView, mAttacher);
     }
 }

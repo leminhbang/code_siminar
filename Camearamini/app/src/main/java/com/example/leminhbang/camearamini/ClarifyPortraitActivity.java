@@ -16,12 +16,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil;
-
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
+import static com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil.usingSimpleImage;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
@@ -54,7 +53,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
         //zoom and movee image, pinch to zoom
-        ImageViewUtil. usingSimpleImage(imgMainImage);
+        usingSimpleImage(imgMainImage);
     }
 
     @Override
