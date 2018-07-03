@@ -108,9 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         scaleGestureDetector = new ScaleGestureDetector(this, new MyScaleGesture());
 
         //zoom and movee image, pinch to zoom
-        usingSimpleImage(imgMainImage);
-        /*imgMainImage.setScaleX(1.0f);
-        imgMainImage.setScaleY(1.0f);*/
+
     }
 
     @Override
@@ -123,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             if (bitmapTemp == null)
                 bitmapTemp = bitmapMain;
             imgMainImage.setImageBitmap(bitmapTemp);
+            usingSimpleImage(imgMainImage);
+            imgMainImage.setScaleX(1.0f);
+            imgMainImage.setScaleY(1.0f);
             if (isChoose)
                 filePath = getPicturePath(fileUri);
             thumbPaths = prepareThumbnails(bitmapMain);
@@ -202,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 bitmapTemp = null;
                 Intent intent = new Intent(c, intendSelect);
                 c.startActivity(intent);
-                ;
             }
         });
         dialog.setNegativeButton(R.string.Yes, new DialogInterface.OnClickListener() {
@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 bitmapTemp = null;
                 Intent intent = new Intent(c, intendSelect);
                 c.startActivity(intent);
-                ;
             }
         });
         AlertDialog alertDialog = dialog.create();
@@ -325,6 +324,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 break;
             case R.id.action_delete:
                 deleteAction();
+                break;
+            case R.id.action_about:
+                about();
                 break;
         }
 
@@ -606,6 +608,27 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     //xoa anh hien tai
     public void deleteAction() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Xóa ảnh");
+        builder.setMessage("Bạn có chắc muốn xóa ảnh này không?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Có", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteImage();
+            }
+        });
+        builder.setNegativeButton("Không", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void deleteImage() {
         if (filePath == null || filePath.equals("") || filePath.isEmpty()) {
             return;
         }
@@ -623,7 +646,20 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
             }
         }
     }
+    private void about() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Thông tin ứng dụng");
+        builder.setMessage(getResources().
+                getString(R.string.about_content));
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         //bitmapMain = rotateImage(bitmapMain, progress - 180 - lastDegree);

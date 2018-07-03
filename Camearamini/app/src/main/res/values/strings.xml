@@ -28,4 +28,8 @@
     <string name="title_activity_insert_text">Chèn chữ</string>
     <string name="title_activity_cut_image">Cắt ảnh</string>
     <string name="title_activity_portrait">Ảnh chân dung</string>
+    <string name="about_content">Ứng dụng chụp hình và chỉnh sửa hình ảnh
+    với các chức năng: cắt ảnh, chèn chữ,chèn khung,
+        đôỉ màu đối tượng trong ảnh, đổi sắc thái
+    ảnh, điều chỉnh độ tương phản, ảnh chân dung… </string>
 </resources>

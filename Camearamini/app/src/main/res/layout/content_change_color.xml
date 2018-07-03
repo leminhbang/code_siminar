@@ -20,6 +20,7 @@
             android:visibility="visible"
             android:layout_marginTop="50dp"/>
         <LinearLayout
+            android:id="@+id/lnl_slider_change_color"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

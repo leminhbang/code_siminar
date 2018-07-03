@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -142,12 +143,12 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         //layoutParams.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
         layoutParams.leftMargin = 0;//getWindowManager().getDefaultDisplay().getWidth()/4;
-        layoutParams.topMargin = 50;//getWindowManager().getDefaultDisplay().getHeight()/2;
+        layoutParams.topMargin = 60;//getWindowManager().getDefaultDisplay().getHeight()/2;
         edt.setHint("Nhập chữ muốn chèn");
         edt.setHintTextColor(Color.BLUE);
         edt.setTextColor(Color.BLUE);
         edt.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        edt.setPadding(16, 16, 16, 16);
+        edt.setPadding(16, 16, 0,16);
         edt.setBackgroundResource(R.drawable.rounded_corners_white_transparent_50);
         edt.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         edt.setLayoutParams(layoutParams);
@@ -174,15 +175,30 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
                 (sh - ratio*bh)/2.0f + 120 : 0;
         for (int i = 0; i < arrEditTexts.size(); i++) {
             int[] pos = new int[2];
-            arrEditTexts.get(i).getLocationInWindow(pos);
-            float x = pos[0] - mx;
-            float y = pos[1] - my;
+            //arrEditTexts.get(i).getLocationInWindow(pos);
+            pos[0] = (int) arrEditTexts.get(i).getX();
+            pos[1] = (int) arrEditTexts.get(i).getY();
+            /*float x = 1.0f*pos[0]*bw/sw;
+            float y = (pos[1] -60)*1.0f*bh/sh ;*/
+            float[] cod = getTextPosition(imgMainImage,
+                    arrEditTexts.get(i));
+            float x = cod[0], y = cod[1];
             bitmapTemp = drawText(bitmapTemp ,
-                    arrEditTexts.get(i), x, y);
+                    arrEditTexts.get(i), x, y - 60);
             imgMainImage.setImageBitmap(bitmapTemp);
             arrEditTexts.get(i).setVisibility(View.GONE);
         }
         arrEditTexts.clear();
+    }
+    public float[] getTextPosition(ImageView view,
+                                   RotatableAutofitEditText e) {
+        final float[] coords = new float[] { e.getX(), e.getY() };
+        Matrix m = new Matrix();
+        view.getImageMatrix().invert(m);
+        m.postTranslate(view.getScrollX(), view.getScrollY());
+        m.mapPoints(coords);
+        return coords;
+
     }
     public Bitmap drawText(Bitmap bitmap, RotatableAutofitEditText edt, float x, float y) {
 
@@ -199,14 +215,15 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         paint.setTextSize(size);
         //draw text on bitmap
         String text = edt.getText().toString().trim();
-        //c.save();
+        c.save();
         float direction = edt.getRotation();
-        c.rotate(direction);
+        c.rotate(direction, x, y);
         float rx = bitmap.getWidth()*1.0f/imgMainImage.getMeasuredWidth();
         float ry = bitmap.getHeight()*1.0f/imgMainImage.getMeasuredHeight();
-        x = edt.getLeft()*rx;
-        y = edt.getTop()*ry;
+        /*x = edt.getLeft()*rx;
+        y = edt.getTop()*ry;*/
         c.drawText(text, x, y, paint);
+
         return outputBitmap;
     }
 

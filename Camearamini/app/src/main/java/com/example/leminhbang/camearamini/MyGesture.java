@@ -79,15 +79,20 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
         if (bitmapMain != null) {
             switch (id) {
                 case R.id.action_change_shade:
+                    if (context instanceof  ChangeShadeActivity) return;
                     showDialogSave(bitmapTemp, context, InterfaceClass.ChangeShadeClass);
                     break;
                 case R.id.action_clarify_image:
+                    if (context instanceof  ClarifyPortraitActivity) return;
                     showDialogSave(bitmapTemp, context, InterfaceClass.ClarifyClass);
                     break;
                 case R.id.action_change_portrait:
+                    if (context instanceof  PortraitActivity) return;
                     showDialogSave(bitmapTemp, context, InterfaceClass.ChangePortrait);
                     break;
                 case R.id.action_change_color_image:
+                    if (context instanceof  ChangeColorActivity)
+                        return;
                     showDialogSave(bitmapTemp, context, InterfaceClass.ChangeColorClass);
                     break;
             }
