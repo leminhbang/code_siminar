@@ -54,7 +54,7 @@ import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class ChangeColorActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener, TextWatcher, SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
-    private ImageView imgMainImage;
+    private static ImageView imgMainImage;
     private BottomNavigationView btmnBottomMenu;
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
@@ -82,7 +82,8 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private int progH = 50, progS = 50, progV = 50;
     private Core.MinMaxLocResult minMaxH, minMaxS, minMaxV;
     private Scalar upper, lower;
-    private boolean CHOOSEPOINT = true;
+    private static boolean CHOOSEPOINT = true;
+    private static LinearLayout lnl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,21 +137,19 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         }
         showDialogChoóe();
     }
-    public static Context getContext() {
-        return contextTmp;
-    }
 
-    public void showDialogChoóe() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    public static void showDialogChoóe() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Chọn phương thức xử lý");
         builder.setMessage("Bạn muốn chọn đối tượng theo " +
                 "điểm chọn hay thanh trượt");
         builder.setCancelable(false);
-        final LinearLayout lnl = (LinearLayout) findViewById(R.id.lnl_slider_change_color);
         builder.setPositiveButton("Thanh trượt", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 CHOOSEPOINT = false;
+                bitmapTemp = bitmapMain;
+                imgMainImage.setImageBitmap(bitmapMain);
                 lnl.setVisibility(View.VISIBLE);
             }
         });
@@ -158,6 +157,8 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 CHOOSEPOINT = true;
+                bitmapTemp = bitmapMain;
+                imgMainImage.setImageBitmap(bitmapMain);
                 lnl.setVisibility(View.GONE);
             }
         });
@@ -180,18 +181,13 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         int id = item.getItemId();
         switch (id) {
             case R.id.action_save_2:
-
+                saveImage();
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
                 break;
             case R.id.action_finish:
                 if (mBW != null) {
-                    Bitmap b = Bitmap.createBitmap(
-                            bitmapMain.getWidth(),
-                            bitmapMain.getHeight(),bitmapMain.getConfig()
-                    );
-                    Utils.matToBitmap(mMask, b);;
                     openColorDialog(mMask, 0);
                 }
                 break;
@@ -200,6 +196,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     }
 
     public void mapView() {
+        lnl = (LinearLayout) findViewById(R.id.lnl_slider_change_color);
         imgMainImage = (ImageView) findViewById(R.id.img_main_image);
         imgMainImage.setOnTouchListener(this);
         btmnBottomMenu = (BottomNavigationView) findViewById(R.id.btmnBottom_menu_view);
@@ -246,20 +243,17 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             case R.id.img_main_image:
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     pointColor = getPointOfTouchedCordinate(imgMainImage, event);
+                    if (!checkTouchInsideImage((int)pointColor[0],
+                            (int) pointColor[1]))
+                        return false;
                     if (CHOOSEPOINT) {
                         processOnTouch(event);
-                        Mat mTmp = segmentColor(touchedRect);
-                        Core.add(mMask, mTmp, mMask);
                     } else {
                         mMask = getSelectedObject(mMask, (int) pointColor[1],
                                 (int) pointColor[0]);
                         if (mBW != null) mBW.release();
                     }
-                    Bitmap b = Bitmap.createBitmap(
-                            bitmapMain.getWidth(),
-                            bitmapMain.getHeight(),bitmapMain.getConfig()
-                    );
-                    Utils.matToBitmap(mMask, b);;
+
                     Core.bitwise_and(mRGB, mRGB, mBW, mMask);
                     bitmapTemp = convertMatToBitmap(mBW);
                     imgMainImage.setImageBitmap(bitmapTemp);
@@ -273,17 +267,18 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         }
         return true;
     }
-
+    private boolean checkTouchInsideImage(int x, int y) {
+        int cols = mHSV.cols();
+        int rows = mHSV.rows();
+        return !((x < 0) || (y < 0) || (x > cols) || (y > rows));
+    }
     private void processOnTouch(MotionEvent event) {
         int cols = mHSV.cols();
         int rows = mHSV.rows();
-
         pointColor = getPointOfTouchedCordinate(imgMainImage, event);
         int x = (int) pointColor[0];
         int y = (int) pointColor[1];
-        if ((x < 0) || (y < 0) || (x > cols) || (y > rows))
-            return;
-
+        if (!checkTouchInsideImage(x, y)) return;
         /*switch (clickCount) {
             case 0:
                 rect = new Rect();
@@ -307,7 +302,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
                 break;
         }
         imgMainImage.setImageBitmap(bitmapTemp);*/
-        clickCount++;
+        //clickCount++;
 
         touchedRect = new Rect();
         touchedRect.x = (x > 4) ? x - 4 : 0;
@@ -316,6 +311,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         touchedRect.width = (x + 4 < cols) ? x + 4 - touchedRect.x : cols - touchedRect.x;
         touchedRect.height = (y + 4 < rows) ? y + 4 - touchedRect.y : rows - touchedRect.y;
 
+        //segment cobject by color
+        Mat mTmp = segmentColor(touchedRect);
+        Core.add(mMask, mTmp, mMask);
     }
 
     public Mat segmentColor(Rect _rect) {
@@ -380,10 +378,13 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
 
             Imgproc.cvtColor(des, des,
                     Imgproc.COLOR_HSV2RGB_FULL);
+            Imgproc.cvtColor(des, des,
+                    Imgproc.COLOR_RGB2RGBA);
             Bitmap b = Bitmap.createBitmap(mDilate.cols(),
                     mDilate.rows(), bitmapMain.getConfig());
             Utils.matToBitmap(des, b);
-            imgMainImage.setImageBitmap(b);
+            bitmapTemp = b;
+            imgMainImage.setImageBitmap(bitmapTemp);
         }
         isChoice = false;
     }
@@ -406,8 +407,9 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     }
 
     public void openColorDialog(final Mat mDilate, final int index) {
-
-        AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, currentObjectColor, false, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+        currentObjectColor = bitmapTemp.getPixel((int)pointColor[0],
+                (int)pointColor[1]);
+        AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, currentObjectColor, true, new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 currentObjectColor = color;

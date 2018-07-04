@@ -2,15 +2,7 @@ package com.example.leminhbang.camearamini;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -136,9 +128,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         }
         return true;
     }
-    public int getGalleryCount() {
-        return galleryChangeShade.getCount();
-    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         bitmapTemp = bitmapMain;
@@ -312,29 +302,6 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         kernel.put(3, 2, 0.0);kernel.put(3, 3, 1.0);
         Core.transform(src, dst, kernel);
         return dst;
-    }
-    public static Bitmap _convertToClassic(Bitmap mBitmap) {
-        Drawable d = new BitmapDrawable(context.getResources(),
-                mBitmap);
-        d.setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
-        return ((BitmapDrawable) d).getBitmap();
-    }
-    public static Bitmap _convertToBlur(Context context, Bitmap image) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        Bitmap inputBitmap = Bitmap.createBitmap(image);
-        Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
-        RenderScript rs = RenderScript.create(context);
-        ScriptIntrinsicBlur theIntrinsic = ScriptIntrinsicBlur.create(rs,
-                Element.U8_4(rs));
-        Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
-        Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
-        theIntrinsic.setRadius(5);
-        theIntrinsic.setInput(tmpIn);
-        theIntrinsic.forEach(tmpOut);
-        tmpOut.copyTo(outputBitmap);
-        return outputBitmap;
     }
 
     private void saveImage() {

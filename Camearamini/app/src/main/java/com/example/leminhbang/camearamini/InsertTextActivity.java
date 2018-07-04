@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -141,20 +142,26 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                 w, h);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        //layoutParams.addRule(RelativeLayout.LEFT_OF, R.id.id_to_be_left_of);
         layoutParams.leftMargin = 0;//getWindowManager().getDefaultDisplay().getWidth()/4;
-        layoutParams.topMargin = 60;//getWindowManager().getDefaultDisplay().getHeight()/2;
+        layoutParams.topMargin = 100;//getWindowManager().getDefaultDisplay().getHeight()/2;
         edt.setHint("Nhập chữ muốn chèn");
-        edt.setHintTextColor(Color.BLUE);
-        edt.setTextColor(Color.BLUE);
-        edt.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        edt.setPadding(16, 16, 0,16);
+        edt.setHintTextColor(Color.argb(255, 51, 181, 229));
+        edt.setTextColor(Color.argb(255, 0, 153, 204));
+        edt.setGravity(Gravity.CENTER);
+        edt.setPadding(16, 16, 16,16);
+
         edt.setBackgroundResource(R.drawable.rounded_corners_white_transparent_50);
-        edt.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
+        //edt.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
+        edt.setMaxTextSize(getResources().getDimension(
+                R.dimen.autoresize_max_text_size));
+        edt.setMinTextSize(getResources().getDimension(
+                R.dimen.autoresize_min_text_size));
+        edt.setMinWidth(50);
+
+        edt.shouldResize(true);
+        edt.shouldRotate(true);
+        edt.setShouldTranslate(true);
         edt.setLayoutParams(layoutParams);
-//        edt.addTextChangedListener(this);
-        /*edt.setOnLongClickListener(this);
-        edt.setOnDragListener(this);*/
         arrEditTexts.add(edt);
         vg = (ViewGroup) findViewById(R.id.rellayout_main_layout);
         vg.addView(edt);
@@ -210,7 +217,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
         TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
         paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.BLUE);
+        paint.setColor(edt.getTextColors().getDefaultColor());
         float size = edt.getTextSize();
         paint.setTextSize(size);
         //draw text on bitmap

@@ -119,7 +119,7 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
                 saveImage();;
                 break;
             case R.id.action_cancel_2:
-                cancelAction();
+                //cancelAction();
                 break;
         }
         return super.onOptionsItemSelected(item);

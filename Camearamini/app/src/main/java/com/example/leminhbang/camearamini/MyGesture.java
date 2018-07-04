@@ -14,7 +14,7 @@ import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
 
-/**
+/*
  * Created by LE MINH BANG on 10/10/2017.
  */
 
@@ -91,8 +91,10 @@ public class MyGesture extends GestureDetector.SimpleOnGestureListener implement
                     showDialogSave(bitmapTemp, context, InterfaceClass.ChangePortrait);
                     break;
                 case R.id.action_change_color_image:
-                    if (context instanceof  ChangeColorActivity)
+                    if (context instanceof  ChangeColorActivity) {
+                        ChangeColorActivity.showDialogChoóe();
                         return;
+                    }
                     showDialogSave(bitmapTemp, context, InterfaceClass.ChangeColorClass);
                     break;
             }

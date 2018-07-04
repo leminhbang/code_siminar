@@ -185,7 +185,6 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        sekClarifyPortrait.setProgress(50);
     }
 
     private void saveImage() {

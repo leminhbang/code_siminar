@@ -27,7 +27,9 @@ import static com.example.leminhbang.camearamini.ImageViewUtils.ImageViewUtil.us
 import static com.example.leminhbang.camearamini.MainActivity.bitmapMain;
 import static com.example.leminhbang.camearamini.MainActivity.bitmapTemp;
 import static com.example.leminhbang.camearamini.MainActivity.context;
+import static com.example.leminhbang.camearamini.MainActivity.fileUri;
 import static com.example.leminhbang.camearamini.MainActivity.showDialogSave;
+import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 import static com.example.leminhbang.camearamini.MyScaleGesture.scale;
 
 
@@ -70,8 +72,6 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
         originalWidth = bitmapMain.getWidth();
         originalHeight = bitmapMain.getHeight();
-        /*imgMainImage.buildDrawingCache();
-        bitmapMain = imgMainImage.getDrawingCache();*/
     }
 
     @Override
@@ -146,7 +146,6 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         Bitmap tmp = Bitmap.createScaledBitmap(bitmapFrame, w, h, false);
         bitmapFrame = Bitmap.createBitmap(tmp);
         bitmapTemp = overlayBitmap(bitmapFrame, bitmapMain);
-        //imgFrame.setImageBitmap(bitmapFrame);
         imgMainImage.setImageBitmap(bitmapTemp);
     }
 
@@ -179,16 +178,6 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         }
         Bitmap bmOverlay = Bitmap.createBitmap(bmp2.getWidth(),
                 bmp2.getHeight(), bmp2.getConfig());
-        /*Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
-        paint.setDither(false);
-        paint.setAntiAlias(false);
-        paint.setFilterBitmap(false);
-
-        Canvas canvas = new Canvas(bmOverlay);
-        float w = (bmp1.getWidth() - bmp2.getWidth()) / 2;
-        float h = (bmp1.getHeight() - bmp2.getHeight()) / 2;
-        canvas.drawBitmap(bmp1, 0, 0, paint);
-        canvas.drawBitmap(bmp2, w, h, paint);*/
         int w = bitmapMain.getWidth();
         int h = bitmapMain.getHeight();
         Mat src1 = new Mat(h, w, CvType.CV_8UC3);
@@ -203,18 +192,15 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
     }
 
     public void saveImage() {
-        //Bitmap tmp = Bitmap.createScaledBitmap(bitmapMain, width, height, false);
-        //bitmapMain = Bitmap.createBitmap(tmp);
 
         bitmapFrame = bitmapTemp;
 
         //luu anh vao bo nho
-        //saveImageFile(fileUri, bitmapMain);
+        saveImageFile(fileUri, bitmapMain);
 
         imgFrame.setImageBitmap(null);
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
-        imgMainImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         imgMainImage.setImageBitmap(bitmapTemp);
     }
 
