@@ -38,7 +38,6 @@ import static com.example.leminhbang.camearamini.MyCameraHelper.saveImageFile;
 
 public class InsertTextActivity extends AppCompatActivity implements View.OnTouchListener, BottomNavigationView.OnNavigationItemSelectedListener/*, View.OnLongClickListener, View.OnDragListener*/ {
     private ImageView imgMainImage;
-    private ImageView imgTempImage;
     private BottomNavigationView btmnBottomMenu;
     //private EditText edtInsertText;
     private RotatableAutofitEditText edtInsertText;
@@ -121,6 +120,7 @@ public class InsertTextActivity extends AppCompatActivity implements View.OnTouc
                 //goi ham ve canvas
                 bitmapMain = bitmapTemp;
                 saveImageFile(fileUri,bitmapMain);
+                imgMainImage.setImageBitmap(bitmapMain);
                 break;
             case R.id.action_new_text:
                 addNewText();

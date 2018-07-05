@@ -168,7 +168,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        bitmapTemp = changeContrast(bitmapMain,progress);
+        bitmapTemp = changeContrast(bitmapMain, progress);
         imgMainImage.setImageBitmap(bitmapTemp);
     }
 
@@ -190,6 +190,7 @@ public class ClarifyPortraitActivity extends AppCompatActivity implements View.O
     private void saveImage() {
         bitmapMain = bitmapTemp;
         saveImageFile(fileUri,bitmapMain);
+        imgMainImage.setImageBitmap(bitmapMain);
     }
     private void cancelAction() {
         bitmapTemp = bitmapMain;

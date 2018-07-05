@@ -193,7 +193,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
 
     public void saveImage() {
 
-        bitmapFrame = bitmapTemp;
+        bitmapMain = bitmapTemp;
 
         //luu anh vao bo nho
         saveImageFile(fileUri, bitmapMain);
@@ -201,7 +201,7 @@ public class InsertFrameActivity extends AppCompatActivity implements View.OnTou
         imgFrame.setImageBitmap(null);
         imgMainImage.setScaleX(1);
         imgMainImage.setScaleY(1);
-        imgMainImage.setImageBitmap(bitmapTemp);
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 
     private void cancelAction() {

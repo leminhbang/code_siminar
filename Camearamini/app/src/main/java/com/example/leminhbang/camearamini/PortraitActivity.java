@@ -174,6 +174,7 @@ public class PortraitActivity extends AppCompatActivity implements View.OnTouchL
     private void saveImage() {
         bitmapMain = bitmapTemp;
         saveImageFile(fileUri,bitmapMain);
+        imgMainImage.setImageBitmap(bitmapMain);
     }
     private void cancelAction() {
         imgMainImage.setImageBitmap(bitmapMain);

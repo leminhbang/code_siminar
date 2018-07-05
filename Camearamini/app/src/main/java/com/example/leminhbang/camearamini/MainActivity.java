@@ -317,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 if (bitmapMain != null) {
                     bitmapMain = bitmapTemp;
                     saveImageFile(fileUri, bitmapMain);
+                    imgMainImage.setImageBitmap(bitmapMain);
                 }
                 break;
             case R.id.action_cancel:

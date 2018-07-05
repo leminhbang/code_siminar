@@ -91,6 +91,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
             case R.id.action_save_2:
                 bitmapMain = bitmapTemp;
                 saveImageFile(fileUri, bitmapMain);
+                flag = 0;
                 break;
             case R.id.action_cancel_2:
                 cancelAction();
@@ -127,15 +128,6 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
         int id = v.getId();
         switch (id) {
             case R.id.img_main_image:
-                /*scaleGestureDetector.onTouchEvent(event);
-                float scale = MyScaleGesture.getScaleValue();*/
-                /*if (!isFirst) {
-                    imgMainImage.setScaleX(scale);
-                    imgMainImage.setScaleY(scale);
-                } else {
-                    isFirst = false;
-                    MyScaleGesture.setScaleValue();
-                }*/
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     setCoordinate(event);
                 }
@@ -251,7 +243,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
                         bitmap.getWidth(), bitmap.getHeight()
                 }, 0, 4);
         //tao bitmap moi
-        canvas.drawBitmap(bitmapMain,matrix,null);
+        canvas.drawBitmap(bitmapMain, matrix, null);
 
         //hien thi bitmap vua cat duoc
         imgMainImage.setImageBitmap(null);
@@ -290,7 +282,7 @@ public class CutImageActivity extends AppCompatActivity implements View.OnTouchL
     }
 
     private void cancelAction() {
-        bitmapMain = bitmapTemp;
+        bitmapTemp = bitmapMain;
         bitmapDraw = bitmapMain;
         imgMainImage.setImageBitmap(bitmapMain);
         flag = 0;

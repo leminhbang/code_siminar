@@ -136,7 +136,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
         int h = bitmapMain.getHeight();
         Mat org = new Mat(h,w, CvType.CV_8SC4);
         Mat gray = new Mat(h,w,CvType.CV_8SC1);
-        Utils.bitmapToMat(bitmapMain,org);
+        Utils.bitmapToMat(bitmapMain, org);
         Bitmap bmm = Bitmap.createBitmap(w,h,bitmapMain.getConfig());
         switch (position) {
             case 0:
@@ -307,6 +307,7 @@ public class ChangeShadeActivity extends AppCompatActivity implements View.OnTou
     private void saveImage() {
         bitmapMain = bitmapTemp;
         saveImageFile(fileUri,bitmapMain);
+
     }
     private void cancelAction() {
         imgMainImage.setImageBitmap(bitmapMain);

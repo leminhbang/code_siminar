@@ -84,7 +84,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private Scalar upper, lower;
     private static boolean CHOOSEPOINT = true;
     private static LinearLayout lnl;
-
+    List<Mat> alpha;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,37 +105,45 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     protected void onStart() {
         super.onStart();
         if (filePath != null) {
-            if (bitmapTemp == null)
+            if (bitmapTemp == null) {
                 bitmapTemp = bitmapMain;
-            imgMainImage.setImageBitmap(bitmapTemp);
-
-            pixelLabels = new Mat();
-            kmeansResult = new ArrayList<>();
-            int w = bitmapMain.getWidth(), h = bitmapMain.getHeight();
-            bmOut = Bitmap.createBitmap(w, h,
-                    bitmapMain.getConfig());
-            mRGB = new Mat(h, w, CvType.CV_8SC4);
-            mHSV = new Mat(h, w, CvType.CV_8SC4);
-            mMask = new Mat(h, w, CvType.CV_8UC1);
-            Utils.bitmapToMat(bitmapTemp, mRGB);
-            Imgproc.cvtColor(mRGB, mRGB,
-                    Imgproc.COLOR_RGBA2RGB);
-            Imgproc.cvtColor(mRGB, mHSV,
-                    Imgproc.COLOR_RGB2HSV_FULL);
-            if (mBW == null) {
-                mBW = new Mat(h, w, CvType.CV_8SC4);
-                List<Mat> HSV = new ArrayList<Mat>();
-                Core.split(mHSV, HSV);
-                minMaxH = Core.minMaxLoc(HSV.get(0));
-                minMaxS = Core.minMaxLoc(HSV.get(1));
-                minMaxV = Core.minMaxLoc(HSV.get(2));
-                lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
-                        minMaxV.minVal, 0);
-                upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
-                        minMaxV.maxVal, 255);
+                init();
             }
+            imgMainImage.setImageBitmap(bitmapTemp);
         }
         showDialogChoóe();
+    }
+
+    private void init() {
+        pixelLabels = new Mat();
+        kmeansResult = new ArrayList<>();
+        int w = bitmapMain.getWidth(), h = bitmapMain.getHeight();
+        bmOut = Bitmap.createBitmap(w, h,
+                bitmapMain.getConfig());
+        mRGB = new Mat(h, w, CvType.CV_8SC4);
+        mHSV = new Mat(h, w, CvType.CV_8SC4);
+        mMask = new Mat(h, w, CvType.CV_8UC1);
+        Utils.bitmapToMat(bitmapTemp, mRGB);
+
+        alpha = new ArrayList<>();
+        Core.split(mRGB, alpha);
+
+        Imgproc.cvtColor(mRGB, mRGB,
+                Imgproc.COLOR_RGBA2RGB);
+        Imgproc.cvtColor(mRGB, mHSV,
+                Imgproc.COLOR_RGB2HSV_FULL);
+        if (mBW == null) {
+            mBW = new Mat(h, w, CvType.CV_8SC4);
+            List<Mat> HSV = new ArrayList<Mat>();
+            Core.split(mHSV, HSV);
+            minMaxH = Core.minMaxLoc(HSV.get(0));
+            minMaxS = Core.minMaxLoc(HSV.get(1));
+            minMaxV = Core.minMaxLoc(HSV.get(2));
+            lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
+                    minMaxV.minVal, 0);
+            upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
+                    minMaxV.maxVal, 255);
+        }
     }
 
     public static void showDialogChoóe() {
@@ -339,9 +347,6 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         Utils.matToBitmap(mDilate, b);
         imgMainImage.setImageBitmap(b);
 
-        //show color dialog
-        //openColorDialog(mDilate, 0);
-
         touchedRegionRgba.release();
         touchedRegionHsv.release();
         return mDilate;
@@ -353,10 +358,10 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             int rows = mHSV.rows();
             List<Mat> listHSV = new ArrayList<>();
             List<Mat> listHS = new ArrayList<>();
+
             Core.split(mHSV, listHSV);
             listHS.add(listHSV.get(0));
             listHS.add(listHSV.get(1));
-            Mat des = new Mat(rows, cols, mHSV.type());
             Mat tmp = new Mat(rows, cols, CvType.CV_8UC2);
             Core.merge(listHS, tmp);
             Scalar newColor = new Scalar(Color.red(currentObjectColor),
@@ -368,18 +373,22 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
             Scalar newHsv = new Scalar(mNewColor.get(0, 0)[0],
                     mNewColor.get(0, 0)[1], mNewColor.get(0, 0)[2]);
             tmp.setTo(newHsv, mDilate);
+
+            listHS = new ArrayList<>();
             Core.split(tmp, listHS);
+
             List<Mat> newListHSV = new ArrayList<Mat>();
             newListHSV.add(listHS.get(0));
             newListHSV.add(listHS.get(1));
-            //newListHSV.add(listHSV.get(1));
             newListHSV.add(listHSV.get(2));
+            Mat des = new Mat(rows, cols, CvType.CV_8UC4);
             Core.merge(newListHSV, des);
 
             Imgproc.cvtColor(des, des,
                     Imgproc.COLOR_HSV2RGB_FULL);
             Imgproc.cvtColor(des, des,
                     Imgproc.COLOR_RGB2RGBA);
+
             Bitmap b = Bitmap.createBitmap(mDilate.cols(),
                     mDilate.rows(), bitmapMain.getConfig());
             Utils.matToBitmap(des, b);
@@ -584,17 +593,7 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private void cancelAction() {
         bitmapTemp = bitmapMain;
         clickCount = 0;
-        progH = 50;
-        progS = 50;
-        progV = 50;
-        sekChangeRadius.setProgress(progH);
-        sekChangeRadius.setProgress(progS);
-        sekChangeRadius.setProgress(progV);
-        lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
-                minMaxV.minVal, 0);
-        upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
-                minMaxV.maxVal, 255);
-        spinnerChangeColor.setSelection(0);
+        setDefaultValue();
         if (mBW != null) {
             mBW.release();
             mMask.release();
@@ -607,8 +606,26 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
     private void saveImage() {
         bitmapMain = bitmapTemp;
         saveImageFile(fileUri, bitmapMain);
+        mBW.release();
+        mMask.release();
+        init();
+        setDefaultValue();
+        imgMainImage.setImageBitmap(bitmapMain);
     }
 
+    private void setDefaultValue() {
+        progH = 50;
+        progS = 50;
+        progV = 50;
+        sekChangeRadius.setProgress(progH);
+        sekChangeRadius.setProgress(progS);
+        sekChangeRadius.setProgress(progV);
+        lower = new Scalar(minMaxH.minVal, minMaxS.minVal,
+                minMaxV.minVal, 0);
+        upper = new Scalar(minMaxH.maxVal, minMaxS.maxVal,
+                minMaxV.maxVal, 255);
+        spinnerChangeColor.setSelection(0);
+    }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
