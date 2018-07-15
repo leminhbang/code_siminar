@@ -31,5 +31,9 @@
     <string name="about_content">Ứng dụng chụp hình và chỉnh sửa hình ảnh
     với các chức năng: cắt ảnh, chèn chữ,chèn khung,
         đôỉ màu đối tượng trong ảnh, đổi sắc thái
-    ảnh, điều chỉnh độ tương phản, ảnh chân dung… </string>
+    ảnh, điều chỉnh độ tương phản, ảnh chân dung… \n\n
+    Người thực hiện:
+    \tLê Minh Bằng, Văn Tuấn Khanh\n
+    Mọi ý kiến đóng góp xin gửi về email:\n
+    minhbangle96@gmail.com</string>
 </resources>

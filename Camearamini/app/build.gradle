@@ -50,4 +50,5 @@ dependencies {
     compile 'com.agilie:rotatable-autofit-edittext:1.2'
     //xoay chu
     compile files('src/main/jniLibs/pinchzoom.jar')
+    compile 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
 }

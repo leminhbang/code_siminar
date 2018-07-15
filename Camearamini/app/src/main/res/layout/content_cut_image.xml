@@ -29,5 +29,33 @@
             app:menu="@menu/menu_bottom"/>
 
     </LinearLayout>
-
+    <ImageButton
+        android:id="@+id/imbPoint_1"
+        android:src="@drawable/dot_point"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+    <ImageButton
+        android:id="@+id/imbPoint_2"
+        android:src="@drawable/dot_point"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+    <ImageButton
+        android:id="@+id/imbPoint_3"
+        android:src="@drawable/dot_point"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+    <ImageButton
+        android:id="@+id/imbPoint_4"
+        android:src="@drawable/dot_point"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
 </RelativeLayout>

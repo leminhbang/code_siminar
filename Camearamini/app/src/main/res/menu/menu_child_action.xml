@@ -13,6 +13,12 @@
         app:showAsAction="always"
         android:visible="false"/>
     <item
+        android:id="@+id/action_change_text_color"
+        app:showAsAction="always"
+        android:title="change text color"
+        android:visible="false"
+        android:icon="@drawable/icon_change_color"/>
+    <item
         android:id="@+id/action_finish"
         app:showAsAction="always"
         android:title="finish"

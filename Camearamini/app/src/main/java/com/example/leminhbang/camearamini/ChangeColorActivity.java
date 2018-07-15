@@ -287,30 +287,6 @@ public class ChangeColorActivity extends AppCompatActivity implements View.OnTou
         int x = (int) pointColor[0];
         int y = (int) pointColor[1];
         if (!checkTouchInsideImage(x, y)) return;
-        /*switch (clickCount) {
-            case 0:
-                rect = new Rect();
-                rect.x = x;
-                rect.y = y;
-                bitmapTemp = drawPoint(bitmapTemp,x,y,x,y);
-                break;
-            case 1:
-                rect.width = Math.abs(x - rect.x);
-                bitmapTemp = drawPoint(bitmapTemp,rect.x, rect.y,
-                        rect.x + rect.width, rect.y);
-                break;
-            case 2:
-                rect.height = Math.abs(y - rect.y);
-                bitmapTemp = drawPoint(bitmapTemp,rect.x + rect.width,
-                        rect.y, rect.x + rect.width,
-                        rect.y + rect.height);
-                bitmapTemp = drawPoint(bitmapTemp,rect.x, rect.y,
-                        rect.x + rect.width,
-                        rect.y + rect.height);
-                break;
-        }
-        imgMainImage.setImageBitmap(bitmapTemp);*/
-        //clickCount++;
 
         touchedRect = new Rect();
         touchedRect.x = (x > 4) ? x - 4 : 0;

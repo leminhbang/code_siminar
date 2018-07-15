@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.agilie.RotatableAutofitEditText xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:autofit="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="60dp"
+    android:background="@drawable/rounded_corners_white_transparent_50"
+    android:gravity="center"
+    android:hint="Nhap chu muon chen"
+    android:padding="16dp"
+    android:textColor="@android:color/holo_blue_dark"
+    android:textColorHint="@android:color/holo_blue_light"
+    autofit:clipBounds="false"
+    autofit:maxTextSize="@dimen/autoresize_max_text_size"
+    autofit:minTextSize="@dimen/autoresize_min_text_size"
+    autofit:minWidth="@dimen/autoresize_min_width"
+    autofit:movable="true"
+    autofit:resizable="true"
+    autofit:rotatable="true" />
